@@ -1,6 +1,6 @@
 ########This is the code for creating a dataframe of all the possible p values with their respective combinations of events in one group (group1 in this case) where the rows in a dataframe created by the method described in combinations.R is used
 
-
+library(survival)
 #Create logrank function
 logrank_p <- function(x){
   
