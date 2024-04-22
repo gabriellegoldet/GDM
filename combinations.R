@@ -1,4 +1,6 @@
-#===DR
+#===This is the code used to generate the combinations of events of the 4 most important co-morbidities for the GDM cohort.  The dataframes generated have a possible combination per row.
+
+#===Diabetic eye disease
 generate_combinations <- function(target_sum) {
   valid_combinations <- list()
   for (i1 in 0:0) { 
