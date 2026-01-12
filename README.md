@@ -1,2 +1,3 @@
 # GDM
-code lists and scripts for GDM project for submission to PLOS
+code lists and code used in the GDM project
+
