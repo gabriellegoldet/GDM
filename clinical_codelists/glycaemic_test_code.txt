@@ -1,0 +1,78 @@
+medcodeid	Term	hba1c	uln	index	ndh_fasting	ndh_GTT
+451418011	Haemoglobin A1 level	1	NA	1	NA	NA
+457953019	HbA1 level (Diabetes Control and Complications Trial aligned)	1	NA	2	NA	NA
+457954013	HbA1c level (Diabetes Control and Complications Trial aligned)	1	NA	3	NA	NA
+2154205011	Total glycosylated haemoglobin level	1	NA	4	NA	NA
+129761000000114	Haemoglobin A1c level	1	NA	5	NA	NA
+803891000006119	Glycated haemoglobin	1	NA	6	NA	NA
+804121000006112	Glycosylated Hb	1	NA	7	NA	NA
+1700711000006113	Haemoglobin A1c level - International Federation of Clinical Chemistry and Laboratory Medicine standardised	1	NA	8	NA	NA
+3199161000006117	Haemoglobin A1c measurement	1	NA	9	NA	NA
+3199171000006112	Hemoglobin A1c measurement	1	NA	10	NA	NA
+3199181000006110	HbA1c - Haemoglobin A1c level	1	NA	11	NA	NA
+3199191000006113	HbA1c - Hemoglobin A1c level	1	NA	12	NA	NA
+5417451000006114	Glycosylated haemoglobin	1	NA	13	NA	NA
+5417461000006111	Glycosylated Hb	1	NA	14	NA	NA
+5417471000006116	Glycosylated hemoglobin	1	NA	15	NA	NA
+6036701000006116	HbA1c measurement (DCCT aligned)	1	NA	16	NA	NA
+6036711000006118	HbA1c level (DCCT aligned)	1	NA	17	NA	NA
+7285141000006111	HBA1c (Haemoglobin A1c) level	1	NA	18	NA	NA
+7285151000006113	HBA1c (Hemoglobin A1c) level	1	NA	19	NA	NA
+7297311000006119	High haemoglobin A1c level	1	NA	20	NA	NA
+7960861000006110	Glycated haemoglobin	1	NA	21	NA	NA
+7960871000006115	Glycated hemoglobin	1	NA	22	NA	NA
+7960881000006117	Glycated Hb	1	NA	23	NA	NA
+7960891000006119	Glycated haemoglobin-A1c	1	NA	24	NA	NA
+7960911000006117	HbA1c - Glycated hemoglobin-A1c	1	NA	25	NA	NA
+7960921000006113	HbA1c - Glycated haemoglobin-A1c	1	NA	26	NA	NA
+8121171000006116	Hb A1c (Haemoglobin A1c) measurement - IFCC (International Federation of Clinical Chemistry and Laboratory Medicine) standardised	1	NA	27	NA	NA
+8121181000006118	Hb A1c (Haemoglobin A1c) level - IFCC (International Federation of Clinical Chemistry and Laboratory Medicine) standardised	1	NA	28	NA	NA
+12622041000006112	HbA1c (haemoglobin A1c) molar concentration in blood	1	NA	29	NA	NA
+14368911000006116	Haemoglobin A1c measurement - International Federation of Clinical Chemistry and Laboratory Medicine standardised	1	NA	30	NA	NA
+15098421000006112	Haemoglobin A1 mass concentration in whole blood	1	NA	31	NA	NA
+15099641000006112	HbA1c (glycated haemoglobin A1c)/HbA1 (haemoglobin A1) percent in blood	1	NA	32	NA	NA
+3199201000006111	Haemoglobin A1c level	1	NA	33	NA	NA
+1753211000006115	HbA1c (haemoglobin A1c) target level - IFCC (International Federation of Clinical Chemistry and Laboratory Medicine) standardised	1	NA	34	NA	NA
+1986181000006111	HbA1c (haemoglobin A1c) level (diagnostic reference range) - IFCC (International Federation of Clinical Chemistry and Laboratory Medicine) standardised	1	NA	35	NA	NA
+1986191000006114	HbA1c (haemoglobin A1c) level (monitoring ranges) - IFCC (International Federation of Clinical Chemistry and Laboratory Medicine) standardised	1	NA	36	NA	NA
+6764291000006117	Hemoglobin A1c (HBA1c) target	1	NA	37	NA	NA
+7318701000006114	HbA1c (haemoglobin A1c) target - IFCC (International Federation of Clinical Chemistry and Laboratory Medicine) standardised	1	NA	38	NA	NA
+2397571000000119	Haemoglobin A1c (diagnostic reference range)	1	NA	39	NA	NA
+2397611000000111	Haemoglobin A1c (monitoring ranges)	1	NA	40	NA	NA
+7318681000006111	Haemoglobin A1c target value using International Federation of Clinical Chemistry and Laboratory Medicine standardised method	1	NA	41	NA	NA
+1946701000006110	Provision of written information about diabetes and high haemoglobin A1c level	1	NA	42	NA	NA
+6764261000006113	HBA1c target	1	NA	43	NA	NA
+7318691000006114	Hemoglobin A1c target value using International Federation of Clinical Chemistry and Laboratory Medicine standardized method	1	NA	44	NA	NA
+4217611000006117	OGTT - Oral glucose tolerance test	NA	11.1	45	NA	1
+186131017	Glucose tolerance test	NA	11.1	46	NA	1
+259368019	Glucose tolerance test	NA	11.1	47	NA	1
+375613019	Blood glucose tolerance	NA	11.1	48	NA	1
+375614013	Blood sugar tolerance	NA	11.1	49	NA	1
+3295491000006118	Measurement of glucose 2 hours after glucose challenge for glucose tolerance test	NA	11.1	50	NA	1
+259587012	Serum fasting glucose level	NA	7	51	1	NA
+259598013	Plasma fasting glucose level	NA	7	52	1	NA
+4602061000006111	Serum fasting glucose level	NA	7	53	1	NA
+7261941000006113	Measurement of glucose 1 hour after glucose challenge for glucose tolerance test	NA	11.1	54	NA	NA
+259584017	Serum random glucose level	NA	11.1	55	NA	NA
+259597015	Plasma random glucose level	NA	11.1	56	NA	NA
+1897851000006115	Test request : Serum random glucose level	NA	11.1	57	NA	NA
+2729491000000116	Random blood glucose level	NA	11.1	58	NA	NA
+4602041000006112	Serum random glucose level	NA	11.1	59	NA	NA
+5519851000006113	Random blood glucose level	NA	11.1	60	NA	NA
+5519841000006111	Random blood glucose measurement	NA	11.1	61	NA	NA
+5519871000006115	Random blood glucose	NA	11.1	62	NA	NA
+5519861000006110	RBG - Random blood glucose	NA	11.1	63	NA	NA
+134471000000110	Plasma glucose level	NA	11.1	64	NA	NA
+502060018	Plasma glucose	NA	11.1	65	NA	NA
+14500421000006120	Haemoglobin A1c 7 to 10percent indicating borderline diabetic control	1	NA	66	NA	NA
+817491000006111	Haemoglobin A1c between 7%-10% indicating borderline diabetic control	1	NA	67	NA	NA
+817481000006113	Haemoglobin A1c greater than 10% indicating poor diabetic control	1	NA	68	NA	NA
+14500431000006116	Haemoglobin A1c more than 10percent indicating poor diabetic control	1	NA	69	NA	NA
+404444016	Hb. A1C - diabetic control	1	NA	70	NA	NA
+257623014	Hb. A1C - diabetic control NOS	1	NA	71	NA	NA
+257621011	Hb. A1C > 10% - bad control	1	NA	72	NA	NA
+257620012	Hb. A1C 7-10% - borderline	1	NA	73	NA	NA
+457612013	120 minute plasma glucose level	NA	11.1	74	NA	1
+259364017	Glucose tol. test impaired	NA	11.1	75	NA	NA
+259327011	Glucometer blood sugar	NA	11.1	76	NA	NA
+4600721000006119	Glucometer blood glucose	NA	11.1	77	NA	NA

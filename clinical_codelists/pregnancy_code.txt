@@ -1,0 +1,2920 @@
+medcodeid	Term	delivery
+263452015	Male baby	1
+263455018	Female baby	1
+263452015	Male baby	1
+1009341000006119	O/E - Fundal Size	NA
+1009351000006117	O/E - Fundus Not Palpable	NA
+1009361000006115	O/E - Fundus Palpable	NA
+1009411000006111	Pregnant - number of weeks	NA
+101047019	Quadruplet pregnancy	NA
+101281000006114	Thyroid dysfunction during pregnancy - baby not yet delivered	NA
+101311000006111	Throid dysfunction in the puerperium - baby delivered during current episode of care	NA
+101321000006115	Throid dysfunction in the puerperium - baby delivered during previous episode of care	NA
+102911000006116	To prevent grave permnt inj physic/mental health preg woman	NA
+103271010	Couvelaire uterus	NA
+105061000006110	Therapeutic percutaneous operations on fetus	NA
+106001000006119	Third degree perineal tear during delivery with postnatal problem	NA
+106809012	Triplet pregnancy	NA
+108265019	Twin pregnancy	NA
+109521000006114	Termination of pregnancy NEC	NA
+109661000006119	Test request : Antenatal	NA
+110371019	Amnioscopy	NA
+11135016	Breech presentation	NA
+112051000006119	Symphysiotomy to facilitate delivery	NA
+112671000006116	Symto-thermal c'ceptn failure	NA
+1149231000000114	Health in Pregnancy grant claim form issued	NA
+115961000006114	Superficial thrombophlebitis in pregnancy and the puerperium - delivered with postnatal complication	NA
+116021000006110	Superficial thrombophlebitis in pregnancy and the puerperium - delivered	NA
+116363014	Fetal hydantoin syndrome	NA
+116468018	Placenta accreta	NA
+1176241000000114	Pregnancy advice for patients with epilepsy not indicated	NA
+1176381000000110	Pregnancy advice for patients with epilepsy declined	NA
+117831000006117	Suspect trisomy 21 foetus	NA
+118738017	Amnion nodosum	NA
+11932491000006114	Unborn child at risk of hepatitis B infection	NA
+11935481000006118	Pregnacare	NA
+1210042015	Amniotic fluid leaking	NA
+1215838017	Abortion counselling	NA
+1215839013	TOP counselling	NA
+1215840010	Termination counselling	NA
+1218884011	Patient ? pregnant	NA
+1220321013	Diabetes mellitus arising in pregnancy	NA
+1221051017	Hyperemesis of pregnancy	NA
+1221052012	Excessive pregnancy vomiting	NA
+1221299010	Estimated date of confinement	NA
+1221450013	Born - place delivered	NA
+1222150016	Grand multiparity unspecified	NA
+1224190019	Fundal height	NA
+1226072015	Preeclampsia	NA
+1227472019	Uterine membrane observations	NA
+1227621017	[V]Supervision of normal pregnancy	NA
+1227622012	[V]Pregnancy with history of vesicular mole	NA
+1227623019	[V]Pregnancy with history of hydatidiform mole	NA
+1232000018	Thorax-joined twins	NA
+1233295015	Buttock-joined twins	NA
+1233354016	Fetal blood loss from cut co-twin's cord	NA
+1233757014	Head-joined twins	NA
+1234104012	Pregnancy confirmed	NA
+1235620010	Post-term pregnancy	NA
+12452501000006116	Pregnancy alcohol advice	NA
+12452521000006114	Pregnant - ? planned	NA
+12452531000006112	Pregnant - on abdom. palpation	NA
+12481781000006120	A/N care from G.P.	NA
+12481791000006116	A/N care: grand multip	NA
+12481811000006116	A/N U/S scan normal += dates	NA
+12481831000006112	A/N U/S scan offered	NA
+12482531000006116	AFP blood test offered	NA
+12482651000006112	Antenatal care: gravida No.	NA
+125351000006115	Staphylococcal intra-amniotic infection NEC	NA
+125571000006118	Static weight gain pregnancy	NA
+126111000006113	Stenosis of cervix - baby delivered with postpartum complication	NA
+126121000006117	Stenosis of cervix complicating antenatal care - baby not yet delivered	NA
+126131000006119	Stenosis of cervix complicating postnatal care - baby delivered during previous episode of care	NA
+12618531000006116	Vacuum extraction delivery failed	NA
+12618541000006112	Failed vacuum extraction delivery	NA
+12619951000006114	Clitoral tear during delivery	NA
+12624361000006118	Forceps delivery of own birth failed	NA
+12624381000006112	Vacuum extraction delivery of own birth failed	NA
+12624391000006114	Ventouse delivery of own birth failed	NA
+126461000006115	Stenosis of vagina - baby delivered with postpartum complication	NA
+126481000006113	Stenosis of vagina complicating antenatal care - baby not yet delivered	NA
+126491000006111	Stenosis of vagina complicating postpartum care - baby delivered during previous episode of care	NA
+12703861000006112	Manually assisted spontaneous delivery	NA
+12704021000006112	A/N Rh screen not offered	NA
+12717231000006110	Mild or unspecified pre-eclampsia - delivered	NA
+12717241000006116	Unspecified hypertension complicating pregnancy, childbirth and the puerperium - delivered with postnatal complication	NA
+12736971000006112	Born by low forceps delivery	NA
+1278831000033110	Valupak Pregnancy	NA
+130101000000115	Amniotic fluid AFP (alpha-fetoprotein) level	NA
+130121000006117	Spontaneous breech delivery	NA
+130131000006119	Spontaneous breech delivery	NA
+130231000006113	Spontaneous vaginal delivery	NA
+132729017	Malpresentation of fetus	NA
+133391000000115	Amniotic fluid L/S ratio	NA
+133961000000110	Amniotic fluid cholinesterase	NA
+134101000000110	Serum oestriol level	NA
+135361000006115	Spinal and epidural anaesthesia-induced headache during labour and delivery	NA
+136771000006117	Slow fetal growth AND/OR fetal malnutrition	NA
+137031000006119	Small for gestational age fetus	NA
+138360013	Fetal structure	NA
+13902991000006118	Lower uterine segment caesarean section	NA
+13903021000006110	LUSCS - lower uterine segment caesarean section	NA
+14142801000006112	Pharmacy delivery service	NA
+142942011	Polyhydramnios	NA
+142943018	Hydramnios	NA
+14502291000006116	Rectocoele complicating postpartum care - baby delivered during previous episode of care	NA
+14502311000006116	Rectocoele - delivered with postpartum complication	NA
+14502331000006110	Rectocoele - baby delivered	NA
+147383012	Maternal hypotension syndrome	NA
+147395012	Fatigue during pregnancy	NA
+1476317010	Born by caesarean section	NA
+1476382013	Born by elective caesarean section	NA
+1481757015	Cardiotochogram	NA
+1484817011	Midwife unit delivery booking	NA
+1484821016	Antenatal HIV screening	NA
+1485007014	Serum alkaline phosphatase placental enzyme level	NA
+1485302010	Fluid sample AFP (alpha-fetoprotein) level	NA
+1485519013	MS alpha-fetoprotein level	NA
+1488305011	Antenatal clinic	NA
+148911000006114	Septate vagina complicating antenatal care - baby not yet delivered	NA
+148921000006118	Septate vagina complicating postpartum care - baby delivered during previous episode of care	NA
+1489338013	Born by forceps delivery	NA
+1489339017	Born by normal vaginal delivery	NA
+1490431013	Erythroblastosis fetalis	NA
+1490641019	Urinary tract infection complicating pregnancy	NA
+1491660018	Obstetric operations	NA
+1492205015	Foetal monitoring	NA
+1492206019	Fetal monitoring	NA
+1493826016	Curettage of delivered uterus	NA
+1495099019	Diagnostic endoscopic examination of fetus using fetoscope	NA
+1495545018	Amniotic cavity infection	NA
+150853015	Incompetence of pelvic fundus	NA
+152031000006115	Secondary postpartum haemorrhage - delivered with postnatal problem	NA
+1541071000006116	Implantation of intrathecal drug delivery device adjacent to spinal cord	NA
+1541091000006115	Removal of intrathecal drug delivery device adjacent to spinal cord	NA
+1550951000000112	Referral for obstetric ultrasound scan	NA
+1551331000006118	Fetoscopic insertion of tracheal plug for congenital diaphragmatic hernia	NA
+1551361000006110	Percutaneous insertion of tracheal plug for congenital diaphragmatic hernia of fetus	NA
+1551401000006117	Endoscopic laser ablation of placental arterio-venous anastomosis	NA
+1551411000006119	Endoscopic serial drainage of amniotic fluid	NA
+1551421000006110	OS therapeutic endoscopic operations twin-twin transfusion	NA
+1551431000006113	Therapeutic endoscopic operations twin-twin transfusion NOS	NA
+1551441000006115	Therapeutic percutaneous operation for twin-twin transfusion syndrome	NA
+1551451000006118	Percutaneous laser ablation of placental arterio-venous anastomosis	NA
+1551471000006111	OS therapeutic percutaneous operations twin-twin transfusion	NA
+1551481000006114	Therapeut percutaneous operations twin-twin transfusion NOS	NA
+1551521000006114	Viability scan	NA
+1551571000006110	Biophysical profile of fetus	NA
+1551601000006115	Ultrasound scan for foetal nuchal translucency	NA
+1551631000006111	OS non routine obstetric scan for fetal observations	NA
+1551661000006119	Placental localisation scan	NA
+1551671000006114	Ultrasound scan for amniotic fluid volume	NA
+155468010	Primary malignant neoplasm of placenta	NA
+1555071000006116	Delivery of simple parenteral chemotherapy for neoplasm at first attendance	NA
+1556111000006118	Delivery of a fraction of simple radiotherapy on a megavoltage machine	NA
+1556121000006114	Delivery of a fraction of radiotherapy on a superficial or orthovoltage machine	NA
+157121000006115	Second degree perineal tear during delivery with postnatal problem	NA
+1575951000006112	Ante-Natal Profile (Fbc,Group,Rh,Antib)	NA
+1577961000006118	Pregnant - Number Of Weeks	NA
+1577971000006113	O/E - Fundal Size	NA
+157921000000112	Sure Start antenatal visit	NA
+1585381000006112	Serum pregnancy associated plasma protein-A mean of median	NA
+1585391000006110	Plasma pregnancy associated plasma protein A multiple of median measurement	NA
+1588381000006118	Therap endoscopic operations for twin-twin transfusion syn	NA
+1588391000006115	Endoscopic serial drainage of amniotic fluid for twin-twin transfusion syndrome	NA
+1588401000006118	Therapeutic percutaneous operation twin-twin transfusion syn	NA
+1588411000006115	Percutaneous serial drainage of amniotic fluid for twin-twin transfusion syndrome	NA
+158981000006117	Rupture of uterus during and after labour - delivered with postnatal problem	NA
+158991000006119	Rupture of uterus during and after labour - delivered with postnatal problem	NA
+1626161000006110	Fetus with cardiovascular abnormality	NA
+163661000006116	Rigid perineum complicating antenatal care - baby not yet delivered	NA
+163671000006111	Rigid perineum complicating postpartum care - baby delivered during previous episode of care	NA
+164131000006115	Risk life pregnant woman greater than if pregnancy terminatd	NA
+1646561000000111	Length of gestation at time of test	NA
+1662441000006110	Unborn child on protection register	NA
+166282017	Multigravida	NA
+1673021000006111	Ultrasonic guidance for amniocentesis	NA
+1673191000006114	Ultrasound scan for fetal growth	NA
+1673321000006114	Transvaginal nuchal ultrasound scan	NA
+1675551000006114	Sickle cell screening declined	NA
+168041000006115	Rhesus screening - 1st pregnancy sample	NA
+168051000006118	Rh screen - 2nd preg. sample	NA
+168061000006116	Rh screen - 3rd preg. sample	NA
+1686291000000113	Insertion of umbilical arterial catheter	NA
+169351000006112	Retained placenta with no haemorrhage - deliv with p/n prob	NA
+1697741000006118	Antenatal sickle cell screening test offered	NA
+1701001000006117	Antenatal screening shows non significant carrier of sickle cell or thalassaemia	NA
+1701011000006119	Antenatal screening shows significant carrier of sickle cell or thalassaemia	NA
+1701121000006111	Antenatal screening shows iron deficiency or possible non significant alpha thalassaemia	NA
+1701131000006114	Antenatal screening shows homozygote or compound heterozygote of no genetic significance	NA
+1701141000006116	Antenatal screening shows homozygote or compound heterozygote of genetic significance	NA
+1701211000006114	Antenatal screening, partner tested and no genetic risk identified	NA
+1703761000000114	Gestational diabetes information leaflet given	NA
+170381000006118	Retracted nipple in pregnancy, the puerperium or lactation - delivered with postnatal complication	NA
+170411000006115	Retracted nipple in pregnancy, the puerperium or lactation - delivered	NA
+1707141000000117	Down's syndrome antenatal screening information leaflet given	NA
+170841000006118	Retroverted incarcerated gravid uterus - delivered with postnatal complication	NA
+170871000006114	Retroverted incarcerated gravid uterus with antenatal problem	NA
+1709831000006118	E6 - Form Mat B1 Issued - Pregnant	NA
+1717041000000115	Self referral to termination of pregnancy service	NA
+1717291000000119	Transmyometrial transfer of embryo to uterus	NA
+1733031000000110	Referral to teenage pregnancy and parenting support service	NA
+174421000006118	Repositioning of inverted delivered uterus	NA
+1751611000006118	NHS Sickle Cell and Thalassaemia Screening Programme family origin	NA
+1751621000006114	NHS Sickle Cell and Thalassaemia Screening Programme family origin African or African-Caribbean (black)	NA
+1751631000006112	NHS Sickle Cell and Thalassaemia Screening Programme Caribbean Islands family origin	NA
+1751641000006119	NHS Sickle Cell and Thalassaemia Screening Programme African family origin	NA
+1751651000006117	NHS Sickle Cell and Thalassaemia Screening Programme family origin South Asia (Asian)	NA
+1751661000006115	NHS Sickle Cell and Thalassaemia Screening Programme India or African-Indian family origin	NA
+1751671000006110	NHS Sickle Cell and Thalassaemia Screening Programme Pakistan family origin	NA
+1751681000006113	NHS Sickle Cell and Thalassaemia Screening Programme Bangladesh family origin	NA
+1751691000006111	NHS Sickle Cell and Thalassaemia Screening Programme family origin South East Asia (Asian)	NA
+1751701000006111	NHS Sickle Cell and Thalassaemia Screening Programme Chinese family origin	NA
+1751711000006114	NHS Sickle Cell and Thalassaemia Screening Programme Thailand, Indonesia, Burma family origin	NA
+1751721000006118	NHS Sickle Cell and Thalassaemia Screening Programme Malaysia, Vietnam, Philippines, Cambodia, Laos family origin	NA
+1751731000006115	NHS Sickle Cell and Thalassaemia Screening Programme family origin other non-European excluding African or African-Caribbean, South or South East Asian (other)	NA
+1751741000006113	NHS Sickle Cell and Thalassaemia Screening Programme North Africa family origin	NA
+1751751000006110	NHS Sickle Cell and Thalassaemia Screening Programme South America family origin	NA
+1751761000006112	NHS Sickle Cell and Thalassaemia Screening Programme Middle East family origin	NA
+1751771000006117	NHS Sickle Cell and Thalassaemia Screening Programme family origin Southern and other European (white)	NA
+1751781000006119	NHS Sickle Cell and Thalassaemia Screening Programme Sardinia family origin	NA
+1751791000006116	NHS Sickle Cell and Thalassaemia Screening Programme Greece, Turkey, Cyprus family origin	NA
+1751801000006115	NHS Sickle Cell and Thalassaemia Screening Programme Italy, Portugal, Spain family origin	NA
+1751811000006117	NHS Sickle Cell and Thalassaemia Screening Programme family origin United Kingdom (white)	NA
+1751821000006113	NHS Sickle Cell and Thalassaemia Screening Programme family origin Northern European (white)	NA
+1751831000006111	NHS Sickle Cell and Thalassaemia Screening Programme Austria, Belgium, Ireland, France, Germany, Netherlands family origin	NA
+1751841000006118	NHS Sickle Cell and Thalassaemia Screening Programme Scandinavia, Switzerland family origin	NA
+1753151000006110	Antenatal screening shows non significant haemoglobinopathy carrier	NA
+1753161000006112	Antenatal screening shows carrier of significant haemoglobinopathy including sickle cell or thalassaemia	NA
+1757081000006111	Test request : Serum alpha-feto protein	NA
+1760901000006114	Ventilator delivered tidal volume	NA
+1761371000000115	Estimated date of delivery by antenatal ultrasound scan	NA
+176931000006115	Renal hypertension complicating pregnancy, childbirth and the puerperium - delivered with postnatal complication	NA
+176941000006113	Renal hypertension complicating pregnancy, childbirth and the puerperium - not delivered	NA
+176951000006110	Renal hypertension complicating pregnancy, childbirth and the puerperium - delivered	NA
+1771531000006110	Antenatal depression	NA
+1772845015	Caesarean wound disruption	NA
+1774941000006110	Antenatal blood group antibody screen	NA
+1774951000006112	Test request : Antenatal blood group antibody screen	NA
+1775661000000110	Seen in early pregnancy assessment unit	NA
+1776431000006117	Reason for referral: Antenatal Care	NA
+1778141000006116	Group session: Antenatal session	NA
+1778714018	[X]Abnormal finding on antenatal screening of mother	NA
+1780294012	Cold agglutinins level: foetal cells	NA
+1784777016	Abnormal ultrasonic finding on antenatal screening of mother	NA
+1785881000006119	Antenatal depression	NA
+178682016	Conjoined twins causing disproportion	NA
+1786841000006118	Gestational diabetes mellitus annual review	NA
+1800911000006114	Education about listeria precautions during pregnancy	NA
+1804271000006118	Height of gravid uterus	NA
+1805951000006117	A/N care: no social risk	NA
+1805971000006110	A/N care: no obstetric risk	NA
+1811481000006115	Pregnancy associated plasma protein A level	NA
+1811491000006117	Pregnancy associated plasma protein A multiple of median	NA
+181151000006110	Removal of cerclage from cervix of gravid uterus	NA
+1816741000006114	Premature labour and delivery	NA
+1816751000006111	Premature labour without delivery	NA
+1816761000006113	Premature labour with premature delivery	NA
+1816771000006118	Premature labour with term delivery	NA
+1816781000006115	Premature delivery without labour	NA
+18241000000110	FP24 - mat claim-on obst.list	NA
+1824831000006112	Adverse reaction to Pregnacare	NA
+18251000000113	FP24 signed by patient	NA
+182631000006117	Removal of Shirodkar suture	NA
+18271000000116	FP24 claim checked by staff	NA
+18281000000119	FP24 sent to FPC	NA
+18301000000118	FP24 paid by FPC - underpaid	NA
+18311000000116	FP24 paid by FPC - overpaid	NA
+18321000000110	FP24 -FPC contacted re mistake	NA
+18331000000112	FP24 -FPC make up payment	NA
+18341000000115	FP24 -FPC dispute fee due	NA
+18351000000117	FP24 mat.claim status NOS	NA
+183511000006117	Reduced fetal movement	NA
+18380016	Amnionitis	NA
+18381000000111	FP24A signed by patient	NA
+1838991000006111	A/N 25 week examination	NA
+1839001000006111	A/N 22 week examination	NA
+1839011000006114	A/N 31 week examination	NA
+1839721000006116	Cardiotocogram (CTG)	NA
+18401000000111	FP24A claim checked by staff	NA
+18411000000113	FP24A sent to FPC	NA
+18421000000119	FP24A paid by FPC - checked	NA
+18431000000117	FP24A paid by FPC - underpaid	NA
+18441000000114	FP24A paid by FPC - overpaid	NA
+18481000000118	FP24A mat.claim status NOS	NA
+1848841000006111	DNA pertussis vaccination in pregnancy-enhanced serv admin	NA
+18491000000116	Mat booking after 31 weeks	NA
+1850951000006116	Reason for influenza vaccine - pregnant	NA
+18511000000112	HSA1-therap. abort. green form	NA
+18521000000118	HSA1- form eligible	NA
+18531000000116	HSA1- form signed	NA
+18541000000113	HSA1- refused to sign	NA
+18551000000111	HSA1- green form NOS	NA
+18571000000119	GMS2 claim signed by patient	NA
+18591000000115	GMS2 claim checked by staff	NA
+18601000000114	GMS2 claim sent to HA	NA
+18611000000111	GMS2 claim paid by HA - checked	NA
+18671000000118	GMS2 claim - HA contacted re mistake	NA
+1868571000006112	Pertussis vaccination programme for pregnant women enhanced service administration	NA
+18691000000119	GMS2 claim - HA make up payment	NA
+18711000000117	GMS2 claim - HA dispute fee due	NA
+1871721000006118	Test request : Sickle cell disease screen	NA
+1876071000006110	Health visitor antenatal visit	NA
+1883151000006117	Gravida more than 10	NA
+1884341000006118	Complete placenta at delivery	NA
+1884361000006119	Membranes complete	NA
+1884371000006114	Membranes incomplete	NA
+1884381000006112	Time of delivery	NA
+1884761000006118	Advice on risks of harm to mother from maternal medication during pregnancy	NA
+1884771000006113	Advice on risks of harm to fetus from maternal medication during pregnancy	NA
+1886831000006114	On DALLAS (Delivering Assisted Living Lifestyles at Scale) programme	NA
+188881000006115	Rectocele complicating antenatal care - baby not yet delivered	NA
+188891000006117	Rectocele complicating postpartum care - baby delivered during previous episode of care	NA
+1894211000006113	Did not attend antenatal appointment	NA
+1896071000006116	Antenatal risk assessment	NA
+1898141000006112	Antepartum stillbirth	NA
+1899391000006110	Unborn child is cause for concern	NA
+19021000006110	Other problems of amniotic cavity and membranes	NA
+1904691000006114	Concealed pregnancy	NA
+1907701000006117	Substance misuse treatment programme delivered by other healthcare provider	NA
+1908131000033112	Pregnacare	NA
+1917021000006111	Actual delivery place	NA
+1917031000006114	Actual delivery - in NHS hospital with midwife ward facilities	NA
+1917041000006116	Actual delivery - at a domestic address	NA
+1917051000006119	Actual delivery - in NHS hospital with consultant ward facilities	NA
+1917061000006117	Actual delivery - in NHS hospital with GP ward facilities	NA
+1917071000006112	Actual delivery - in NHS hospital consultant/GP/midwife ward (any combination of two)	NA
+1917081000006110	Actual delivery - in private hospital	NA
+1917091000006113	Actual delivery - in other hospital or institution	NA
+1917101000006119	Actual delivery - in NHS hospital without unit/ward delivery facilities	NA
+1917111000006116	Actual delivery - not otherwise specified	NA
+1917121000006112	Actual delivery - not known	NA
+1924391000006113	Order of birth at delivery	NA
+1933441000006112	CPU medical advice line-unborn child's expected date of delivery	NA
+1934241000006113	Parenting intervention delivered by community nursery nurse	NA
+1934251000006110	Parenting intervention delivered by school nurse	NA
+1934261000006112	Parenting intervention delivered by staff nurse	NA
+1934271000006117	Parenting intervention delivered by health visitor	NA
+1934281000006119	Parenting intervention delivered by voluntary agency	NA
+1934291000006116	Parenting intervention delivered by social services	NA
+1934301000006115	Parenting intervention delivered by education service	NA
+1934311000006117	Parenting intervention delivered by health service	NA
+1934511000006111	Parenting intervention delivered by library service	NA
+1934521000006115	Parenting intervention delivered by housing association	NA
+1938621000006113	Home delivery of urinary catheters arranged	NA
+19421000006119	Other pre-exist hypertension in preg/childb/puerp-not deliv	NA
+19431000006116	Other pre-existing hypertension in preg/childb/puerp - deliv	NA
+1944331000006112	Congenital hypothyroidism screening, too premature for testing	NA
+19491000006117	Other pregnancy complication - delivered with postnatal comp	NA
+1954971000006114	Gynaecology - early pregnancy (secondary group)	NA
+1955921000006112	Traumatic injury to abdomen during pregnancy	NA
+197232014	Placenta praevia	NA
+1980751000006118	Parenting intervention delivered by healthcare support worker	NA
+1984271000006112	Manchester triage - Pregnancy	NA
+19871000006116	Other phlebitis/thrombosis in pregnancy/puerperium - deliv	NA
+1988741000006117	Pregnancy and non-insulin-dependent diabetes mellitus	NA
+1988841000006112	Intraventricular (nontraumatic) haemorrhage, grade 4, of fetus and newborn	NA
+1994691000006111	Antenatal examination - 1st contact with healthcare professional	NA
+2001881000006116	Health visitor antenatal visit: 32-34 weeks	NA
+200391000006111	Pubiotomy to facilitate delivery	NA
+200591000006119	Puerperal cerebrovascular disorder - delivered with postnatal complication	NA
+20065015	Chorioamnionitis	NA
+20066019	Membranitis	NA
+200661000006111	Puerperal endometritis - delivered with postnatal complication	NA
+200721000006113	Puerperal peritonitis - delivered with postnatal complication	NA
+200814016	Vasa praevia	NA
+200831000006115	Puerperal pyrexia of unknown origin - delivered with postnatal complication	NA
+200871000006117	Puerperal salpingitis - delivered with postnatal complication	NA
+200921000006110	Puerperal septicaemia - delivered with postnatal complication	NA
+20191016	Gestational diabetes mellitus	NA
+202661000006110	Prolonged pregnancy	NA
+202741000006117	Prolonged spont/unspec rupture of membranes - delivered	NA
+208371000006112	Preterm delivery-associated jaundice	NA
+211691000006114	Postnatal deep vein thrombosis - delivered with postnatal complication	NA
+211811000006115	Postnatal visits	NA
+212211000006112	Postpartum coagulation defects - delivered with postnatal problem	NA
+2125971000000115	Nuchal translucency multiple of median	NA
+2128081000000111	Gestational diabetes mellitus annual review	NA
+212961000006118	Pre-eclampsia or eclampsia + pre-existing hypertension NOS	NA
+212981000006111	Pre-eclampsia or eclampsia with pre-existing hypertension - delivered with postnatal complication	NA
+212991000006114	Pre-eclampsia or eclampsia with pre-existing hypertension - delivered	NA
+213001000006110	Pre-eclampsia or eclampsia with pre-existing hypertension - not delivered	NA
+213011000006113	Pre-eclampsia or eclampsia with hypertension unspecified	NA
+2133401000000118	Unborn child subject to child protection plan	NA
+213701000006113	Pregnancy prescription exemption advice	NA
+213711000006111	Preg. termination counselling	NA
+213861000006116	Pregnancy induced oedema+proteinuria without hypertension	NA
+213941000006113	Pregnancy vitamin/iron prophylaxis	NA
+2141521000000111	Education about listeria precautions during pregnancy	NA
+214711000006114	Polyhydramnios and hydramnios	NA
+214721000006118	Polyhydramnios NOS	NA
+215131000006117	Polyp of cervix - baby delivered with postpartum complication	NA
+215141000006110	Polyp of cervix complicating antenatal care - baby not yet delivered	NA
+215151000006112	Polyp of cervix complicating postnatal care - baby delivered during previous episode of care	NA
+215381000000114	Shirodkar's cervical cerclage	NA
+2153870017	Emergency caesarean section	NA
+2154174017	Born by emergency caesarean section	NA
+2154381019	Elective caesarean delivery	NA
+2159214016	Born by breech delivery	NA
+2159215015	Born by ventouse delivery	NA
+2159809011	Fetal cell test	NA
+216241019	Routine antenatal care	NA
+216650011	Pregnancy review	NA
+216651010	Review of pregnancy	NA
+216662010	Antenatal education	NA
+216871000006118	Post-coital IUCD failure	NA
+216891000006117	Post-coital OCP failure	NA
+216921000006111	Post-delivery acute renal failure - delivered with p/n prob	NA
+217311000006117	Post-term pregnancy	NA
+2173421000000112	Provision of information about antenatal screening	NA
+218701000000110	Fetal US scan	NA
+218711000000112	Ultra-sound scan - obstetric	NA
+218741000000113	Pregnant	NA
+218761000000114	Maternal postnatal 6 week examination	NA
+218771000000119	Postnatal maternal examination	NA
+220801000000113	Antepartum bleeding	NA
+220811000000110	Maternal obesity syndrome	NA
+220861000000112	Vascular lesion of cord	NA
+220881000000115	Deliveries by vacuum extractor	NA
+220891000000118	Ventouse delivery	NA
+2227331000000112	Antenatal 22 week examination	NA
+2227371000000114	Antenatal 25 week examination	NA
+2227411000000113	Antenatal 31 week examination	NA
+2238101000000116	Pertussis vaccination in pregnancy invitation	NA
+2238581000000118	Pertussis vaccination in pregnancy invitation first letter	NA
+2238711000000118	Pertussis vaccination in pregnancy invitation second letter	NA
+2238841000000112	Pertussis vaccination in pregnancy invitation third letter	NA
+2239111000000111	Did not attend pertussis vaccination in pregnancy	NA
+2240061000000116	Pertussis vaccination in pregnancy declined	NA
+224141000000113	Pregnancy operations	NA
+2253531000000114	Cardiotocography	NA
+2266061000000110	Unborn child is cause for safeguarding concern	NA
+2279571000000112	Health visitor antenatal visit	NA
+228311000006114	Placenta Praevia - major (across internal os)	NA
+228321000006118	Placenta Praevia - minor (not across os)	NA
+228431000006110	Placenta U-S scan	NA
+228551000006119	Placental infarct	NA
+228591000006113	Placental lactogen	NA
+228601000006117	HPL (human placental lactogen) level	NA
+228711000006110	Placentogr.-X-ray,plain	NA
+229501000006111	Persistent hymen - baby delivered with postpartum complication	NA
+229521000006118	Persistent hymen complicating antenatal care - baby not yet delivered	NA
+229531000006115	Persistent hymen complicating postpartum care - baby delivered during previous episode of care	NA
+229681000006115	Persistent occipitoposterior or occipitoanterior position with antenatal problem	NA
+229691000006117	Persistent occipitoposterior or occipitoanterior position - delivered	NA
+229701000006117	Persistent occipitopost/occipitoant position, unspecified	NA
+229721000006110	Persistent occipitoposterior/occipitoanterior position NOS	NA
+2300631000000118	Deinfibulation of vulva to facilitate delivery	NA
+2335841000000112	Pertussis vaccination given by other healthcare provider	NA
+235741000006115	Peripheral neuritis in pregnancy - delivered with p/n comp	NA
+2359181000000113	Did not attend antenatal appointment	NA
+2373411000000113	Gestation less than 28 weeks	NA
+2374271000000119	Centile age adjustment for gestational age	NA
+237521000006114	Pelvic soft tissue abnormality in pregnancy, childbirth and the puerperium - delivered with postnatal complication	NA
+237551000006117	Pelvic soft tissue abnormality in pregnancy, childbirth and the puerperium - delivered	NA
+2380601000000111	Antenatal risk assessment	NA
+238901000006112	Percutaneous blood transfusion of fetus	NA
+239141000006116	Percutaneous insertion of fetal pleuroamniotic shunt	NA
+239151000006119	Percutaneous insertion of fetal vesicoamniotic shunt	NA
+239371000006114	Percutaneous sampling of fetal blood	NA
+239381000006112	Percutaneous sampling of foetal blood	NA
+23994012	Hyperemesis gravidarum	NA
+2409161000000119	H/O: defibulation of vulva to facilitate delivery	NA
+2422651000000111	Sickle cell screening related finding	NA
+2422691000000115	Sickle cell screening declined, no history of being screened	NA
+2423411000000115	Sickle cell screening, too young for reliable screening	NA
+2423491000000112	Sickle cell screening, insufficient sample	NA
+2432531000000119	Sickle cell screening, unsuitable sample: expired card used	NA
+2432611000000114	Sickle cell screening, unsuitable sample: damaged in transit	NA
+2432811000000113	Sickle cell screening, too premature for testing	NA
+2440671000000116	Pertussis vaccination in pregnancy contraindicated	NA
+2443421000000112	Serum pregnancy associated plasma protein A concentration	NA
+2461871000000118	Health visitor antenatal visit declined	NA
+2475004013	Infection of caesarean section AND/OR perineal wound	NA
+2478460012	Fluid sample lactate level	NA
+2478758011	Fetal gestational age	NA
+24851000006118	Obstetric operation	NA
+24951000006110	Other obstetric pulmonary embolism - delivered + p/n comp	NA
+24981000006119	Other obstetric pulmonary embolism with antenatal comp	NA
+2501000000110	Complete maternity services claimed	NA
+250151000006110	Papyraceous fetus	NA
+251068010	Pregnancy benefit NOS	NA
+2511000000112	Maternity booking before 16th week	NA
+251998017	Estimated date of delivery	NA
+252061018	H/O: premature delivery	NA
+2521000000118	Maternity booking 17-30 weeks	NA
+252139014	H/O: caesarean section	NA
+252151000006111	Other uterine/pelvic floor abn - baby delivered previously	NA
+252156018	H/O: previous forceps delivery	NA
+252161000006113	Other uterine/pelvic floor abn - delivered+postpartum compl	NA
+252181000006115	Other uterine/pelvic floor abnormal - baby not yet delivered	NA
+252371000006116	Other venous comp of pregnancy/puerperium + a/n comp	NA
+252391000006115	Other venous comp of pregnancy/puerperium - deliv + p/n comp	NA
+252421000006111	Other venous complication of pregnancy/puerperium -delivered	NA
+252691000006111	Other vulval/perineal trauma during delivery + p/n problem	NA
+252711000006114	Other vulval/perineal trauma during delivery, unspecified	NA
+2527321000006111	Forceps delivery failed	NA
+2527331000006114	Failed forceps delivery	NA
+2531018	Generally contracted pelvis	NA
+2532961010	Foetal chromosomal abnormality screening	NA
+2533807017	Placental abruption	NA
+2534097016	Referral for termination of pregnancy	NA
+253491000006118	Outlet pelvic contraction	NA
+2536060011	Fetal malnutrition	NA
+2537192015	Ablatio placentae	NA
+254316012	O/E - striae gravidarum	NA
+254576019	O/E - VE - gravid uterus	NA
+254691014	O/E - uterus size - obstetric	NA
+254692019	O/E - fundus size - obstetric	NA
+254694018	O/E - fundus 12-16 week size	NA
+254695017	O/E - fundus 16-20 week size	NA
+254696016	O/E - fundus 20-24 week size	NA
+254697013	O/E - fundus 24-28 week size	NA
+254700012	O/E - fundus 28-32 week size	NA
+254701011	O/E - fundus 32-34 week size	NA
+254702016	O/E - fundus 34-36 week size	NA
+254703014	O/E - fundus 36-38 week size	NA
+254704015	O/E -fundus 38 weeks-term size	NA
+254705019	O/E - fundus = term size	NA
+254706018	O/E - fundal size = dates	NA
+254707010	O/E - gravid uterus size NOS	NA
+254712011	O/E - vertex presentation	NA
+254713018	O/E - breech presentation	NA
+254714012	O/E - oblique lie	NA
+254715013	O/E - transverse lie	NA
+254721012	O/E -fetal presentation unsure	NA
+254722017	O/E - fetal presentation NOS	NA
+254723010	O/E - presenting part position	NA
+254724016	O/E - position-presenting part	NA
+254725015	O/E - LOA	NA
+254726019	O/E - presenting part LOA	NA
+254727011	O/E - presenting ROA	NA
+254728018	O/E - ROA	NA
+254729014	O/E - LOP	NA
+254730016	O/E - presenting part LOP	NA
+254731017	O/E - ROP	NA
+254732012	O/E - presenting part ROP	NA
+254733019	O/E - presenting part LSA	NA
+254734013	O/E - LSA	NA
+254735014	O/E - RSA	NA
+254736010	O/E - presenting part RSA	NA
+254746012	O/E - presenting part free-5/5	NA
+254747015	O/E - presenting part free-4/5	NA
+254748013	O/E - partial engagement - 3/5	NA
+254749017	O/E - partial engagement - 2/5	NA
+254750017	O/E - presentation engaged-1/5	NA
+254751018	On examination - presenting part station	NA
+254752013	O/E - fetal movements	NA
+254753015	O/E - no fetal movements	NA
+254754014	O/E - fetal movements seen	NA
+254755010	O/E - fetal movements felt	NA
+254756011	O/E - fetus very active	NA
+254757019	O/E - fetal movement diminished	NA
+254758012	O/E - fetal movements NOS	NA
+254759016	O/E - fetal heart heard	NA
+254760014	O/E - fetal heart not heard	NA
+254761013	O/E - fetal heart < 40	NA
+254762018	O/E - fetal heart 40-80	NA
+254763011	O/E - fetal heart 80-100	NA
+254764017	O/E - fetal heart 100-120	NA
+254765016	O/E - fetal heart 120-160	NA
+254766015	O/E - fetal heart 160-180	NA
+254767012	O/E - fetal heart 180-200	NA
+254768019	O/E - fetal heart > 200	NA
+254769010	O/E - fetal heart -type 1 dips	NA
+254770011	O/E - fetal heart -type 2 dips	NA
+254771010	Fetal heart finding	NA
+254772015	O/E - VE for pelvic assessment	NA
+254773013	O/E - VE - pelvis adequate	NA
+254774019	O/E - VE - pelvis not adequate	NA
+254775018	O/E - VE-pelvic assessment NOS	NA
+254776017	O/E - vaginal examination - cervical ripeness	NA
+254777014	O/E - VE - cervix not ripe	NA
+254778016	O/E - VE - cervix ripe	NA
+254779012	O/E - VE - cervix ripeness NOS	NA
+254780010	O/E - VE - cervical dilatation	NA
+254781014	O/E - VE - cervical os closed	NA
+254782019	O/E - vaginal examination - os 0-1 cm dilated	NA
+254783012	O/E - vaginal examination - os 1-2cm dilated	NA
+254784018	O/E - vaginal examination - os 2-4 cm dilated	NA
+254785017	O/E - vaginal examination - os 4-6cm dilated	NA
+254786016	O/E - vaginal examination - os 6-8cm dilated	NA
+254787013	O/E - vaginal examination - os 8-10cm dilated	NA
+254788015	O/E - vaginal examination - os fully dilated	NA
+254789011	O/E - VE - cervix dilat. NOS	NA
+254794011	On examination - vaginal examination - presenting part high	NA
+254795012	On examination - vaginal examination - presenting part in mid cavity	NA
+254796013	On examination - vaginal examination - presenting part at spines	NA
+254797016	On examination - vaginal examination - presenting part visible	NA
+254798014	O/E - VE - descent of P.P NOS	NA
+2549789015	Refer to early pregnancy unit	NA
+25601000006119	Other obstetric breast infection - deliv with p/n comp	NA
+256393018	Placental localisation	NA
+2576321000006114	Anaesthesia for caesarean section	NA
+2579233015	Scanzoni forceps cephalic delivery with rotation	NA
+25847015	Liver disorder in pregnancy	NA
+258621014	Human placental lactogen level normal	NA
+258622019	HPL - Human placental lactogen abnormal	NA
+258632014	Placental function test	NA
+258633016	Placental function test normal	NA
+258634010	Placental function test abnormal	NA
+258639017	Serum pregnancy test positive	NA
+2588081000006117	Assisted spontaneous delivery	NA
+2588571000000117	Unborn child no longer cause for safeguarding concern	NA
+2588611000000114	Unborn child no longer subject to child protection plan	NA
+259782016	Urine pregnancy test positive	NA
+260431000033117	Pregnavite Forte F	NA
+261070016	Amniotic fluid examination	NA
+261071017	Amniotic fluid exam. - general	NA
+261073019	Amniotic fluid normal	NA
+261075014	Amniotic fluid exam. gen. NOS	NA
+261076010	Amniotic fluid appearance	NA
+261077018	Amniotic fluid - clear	NA
+261079015	Amniotic fluid -meconium stain	NA
+261080017	Amniotic fluid appearance NOS	NA
+261081018	Amniotic fluid microscopy	NA
+261082013	Amniotic fluid microscopy -NAD	NA
+261083015	Abnormal amniotic fluid microscopy	NA
+261084014	Amniotic fluid cell content OK	NA
+261085010	Amniotic fluid microscopy NOS	NA
+261087019	Amniotic fluid chemistry	NA
+261088012	Amniotic fluid chemistry: NAD	NA
+261089016	Abnormal amniotic fluid chemistry	NA
+261094016	Amniotic fluid palmitic acid	NA
+261096019	Amniotic fluid chemistry NOS	NA
+261097011	Amniotic fluid AFP normal	NA
+261098018	Amniotic fluid AFP equivocal	NA
+261099014	Amniotic fluid AFP abnormal	NA
+261100018	Amniotic fluid AFP NOS	NA
+261101019	Amnicator test - nitrazamine	NA
+261102014	Nitrazine yellow test for detection of rupture of amniotic membrane positive	NA
+261103016	Nitrazine yellow test for detection of rupture of amniotic membrane negative	NA
+261104010	Measurement of pH in vaginal fluid specimen using nitrazine yellow for detection of rupture of amniotic membrane	NA
+261105011	Amniotic fetal cell study	NA
+261106012	Amniotic fetal cell study: NAD	NA
+261107015	Amniotic fetal cell abnormal	NA
+261108013	Trisomy 21 in amniotic foetal cell	NA
+261109017	Amniotic fetal cell study NOS	NA
+261110010	Amniotic fluid exam. NOS	NA
+2613081000000111	Quantity of postpartum maternal blood loss	NA
+262004014	Abdominal obstetric X-ray	NA
+262005010	Obstetric X-ray - fetus	NA
+262007019	Abdominal obstetric X-ray NOS	NA
+2621564018	Fourth degree perineal tear during delivery	NA
+262175014	Placentography requested	NA
+262176010	Placentography normal	NA
+262177018	Placentography abnormal	NA
+262179015	Amniography	NA
+262180017	Placental vasography	NA
+262181018	Placentography NOS	NA
+262667016	Dating obstetric ultrasound scan	NA
+262669018	Viability US scan	NA
+262670017	Antenatal ultrasound result received	NA
+262968012	Combined oral contraceptive pill failure	NA
+262969016	Progestogen-only pill failure	NA
+262993014	Pregnant, IUD failure	NA
+262994015	IUD failure - pregnant	NA
+263013015	Pregnant, diaphragm failure	NA
+263026016	Pregnant, sheath failure	NA
+263052010	Depot contraceptive failure	NA
+263064019	Contraceptive sponge failure	NA
+263080012	Vasectomy failure	NA
+263085019	Female sterilisation failure	NA
+263100011	Pregnant - urine test confirms	NA
+263101010	Pregnant - blood test confirms	NA
+263102015	Pregnant - V.E. confirms	NA
+263103013	Pregnant - on history	NA
+263104019	Pregnant - on abdominal palpation	NA
+263105018	Pregnant - planned	NA
+263107014	Pregnant - unplanned - wanted	NA
+263108016	Pregnant -unplanned-not wanted	NA
+263109012	Unplanned pregnancy unknown if child is wanted	NA
+263110019	Questionable if pregnancy was planned	NA
+263112010	Patient pregnant NOS	NA
+263113017	Antenatal care categorised by gravida number	NA
+263114011	Antenatal care: primigravida	NA
+263115012	Antenatal care: 2nd pregnancy	NA
+263116013	Antenatal care: 3rd pregnancy	NA
+263117016	Antenatal care: multip	NA
+263118014	Antenatal care: gravida NOS	NA
+263120012	A/N care: uncertain dates	NA
+263121011	A/N care: recurrent aborter	NA
+263122016	Antenatal care: grand multiparity	NA
+263123014	A/N care: H/O stillbirth	NA
+263124015	A/N care: H/O perinatal death	NA
+263127010	A/N care: obstetric risk NOS	NA
+263128017	A/N care: precious pregnancy	NA
+263130015	A/N care: H/O infertility	NA
+263132011	A/N care: social risk	NA
+263133018	A/N care: poor home conditions	NA
+263134012	A/N care: poor A/N attender	NA
+263135013	A/N care: late booker	NA
+263136014	A/N care: H/O child abuse	NA
+263137017	A/N care: social risk NOS	NA
+263138010	A/N care: medical risk	NA
+263141018	A/N risk factors	NA
+263142013	A/N care: under 5ft tall	NA
+263149016	A/N risk NOS	NA
+263156010	A/N care provider	NA
+263157018	Antenatal care from general practitioner	NA
+263158011	A/N care from consultant	NA
+263159015	A/N - shared care	NA
+263161012	A/N care provider NOS	NA
+263166019	Delivery: no place booked	NA
+263167011	Home delivery booked	NA
+263170010	Private home delivery booking	NA
+263171014	Delivery booking place changed	NA
+263173012	Delivery place booked	NA
+263175017	Short stay delivery booking	NA
+263176016	Full stay delivery booking	NA
+263177013	Delivery booking - length of stay	NA
+263194010	Intends to bottle feed	NA
+263195011	Feeding intention - bottle	NA
+263196012	Feeding intention - NOS	NA
+263197015	Antenatal amniocentesis	NA
+263198013	Amniocentesis not offered	NA
+263199017	A/N amniocentesis - offered	NA
+263200019	A/N amniocentesis - not wanted	NA
+263201015	A/N amniocentesis wanted	NA
+263202010	A/N amniocentesis - awaited	NA
+263203017	A/N amniocentesis - normal	NA
+263204011	A/N amniocentesis - abnormal	NA
+263207016	Antenatal amniocentesis NOS	NA
+263209018	Obstetric ultrasonography not offered	NA
+263210011	A/N U/S scan offered	NA
+263211010	A/N U/S scan not wanted	NA
+263212015	A/N U/S scan wanted	NA
+263213013	A/N U/S scan awaited	NA
+263214019	Antenatal ultrasound scan normal and appropriate for dates	NA
+263216017	A/N U/S scan abnormal	NA
+263218016	A/N U/S scan for slow growth	NA
+263220018	Antenatal ultrasound scan at 9-16 weeks	NA
+263221019	Antenatal ultrasound scan at 17-22 weeks	NA
+263223016	Antenatal ultrasound scan NOS	NA
+263256015	A/N syphilis screen-blood sent	NA
+263271016	A/N 16 week examination	NA
+263286010	Antenatal examination NOS	NA
+263296018	Fetal movements seen	NA
+263299013	Fetal maturity: dates = size	NA
+263303015	Fetal maturity: dates not=size	NA
+263314017	Antenatal data	NA
+263381015	Triple test offered	NA
+263382010	Double test offered	NA
+263383017	Triple test not offered	NA
+263384011	Double test not offered	NA
+263385012	Triple test wanted	NA
+263386013	Double test wanted	NA
+263387016	Triple test not wanted	NA
+263388014	Double test not wanted	NA
+263405014	Birth details	NA
+263408011	GP unit birth	NA
+263409015	Consultant unit birth	NA
+263435019	Single live birth	NA
+263444018	Finding of outcome of delivery	NA
+263453013	Baby male	NA
+263454019	Baby female	NA
+2635711000000112	At risk of forced labour	NA
+263662016	Infant feeding at 1 year	NA
+2645503011	Antenatal care	NA
+2649301016	Pregnancy care	NA
+265091015	Diet in pregnancy advice	NA
+265092010	Pregnancy smoking advice	NA
+265093017	Pregnancy exercise advice	NA
+265094011	Pregnancy alcohol education	NA
+265096013	Pregnancy dental advice	NA
+265098014	Maternity grant advice	NA
+26531000006116	Other mat infective/parasit dis in pregnancy - not delivered	NA
+265311000006110	O/E - presenting part posn.NOS	NA
+26561000006113	Other mat. venereal dis. in puerperium-baby previously deliv	NA
+26571000006118	Other mat.infect/parasit dis in puerperium - baby delivered	NA
+26601000006113	Other mat.infective/parasitic dis in pregnancy - delivered	NA
+26621000006115	Other mat.viral dis. in puerperium-baby previously delivered	NA
+26661000006114	Other maternal venereal dis. in pregnancy-baby not delivered	NA
+26671000006119	Other maternal venereal disease during pregnancy- baby deliv	NA
+26681000006116	Other maternal venereal disease in puerperium-baby delivered	NA
+266981000006111	Oedema or excessive weight gain in pregnancy - not delivered	NA
+267001000006118	Oedema or excessive weight gain in pregnancy, delivered	NA
+267011000006115	Oedema or excessive weight gain in pregnancy, unspecified	NA
+267021000006111	Oedema/excess weight gain preg - delivered + postnatal compl	NA
+267031000006114	Oedema/excessive weight gain in preg+postnatal complication	NA
+26721000006111	Other maternal viral dis.in pregnancy-baby not yet delivered	NA
+26731000006114	Other maternal viral disease in pregnancy - baby delivered	NA
+2673912010	Traumatic injury during pregnancy	NA
+26741000006116	Other maternal viral disease in puerperium - baby delivered	NA
+2676371013	Obstetric uterine artery Doppler	NA
+2676372018	Doppler ultrasound scan of uterine artery	NA
+2676374017	Obstetric umbilical artery Doppler	NA
+2676375016	Doppler ultrasound scan of umbilical artery	NA
+2682621000006115	CS - Caesarean section	NA
+268591000006115	Obstetric perineal wound disruption - delivered with postnatal complication	NA
+2686061000006119	GDM	NA
+2686071000006114	Gestational diabetes	NA
+2686101000006116	GDM - Gestational diabetes mellitus	NA
+268671000006117	Obstetric pulmonary embolism NOS - delivered with p/n comp	NA
+268721000006114	Obstetric pyaemic and septic pulmonary embolism with antenatal complication	NA
+269051000006112	Obstetric inversion of uterus - delivered with postnatal problem	NA
+269181000006115	Obstetric nipple infection - delivered with postnatal complication	NA
+269241000006117	Obstetric nonpurulent mastitis - deliv with p/n complication	NA
+269251000006115	Obstetric non-purulent mastitis - delivered	NA
+269361000006111	Obstetric anaesthetic complications NOS - deliv + p/n prob	NA
+269411000006115	Obstetric blood-clot pulmonary embolism - delivered with postnatal complication	NA
+2694165019	Sickle cell screening declined	NA
+269431000006114	Obstetric blood-clot pulmonary embolism with antenatal complication	NA
+269491000006113	Obstetric breast abscess - delivered with postnatal complication	NA
+2695033010	Percutaneous laser ablation of lesion of fetus	NA
+269581000006114	Obstetric breast infection NOS - deliv with p/n complication	NA
+269651000006117	Obstetric coop card	NA
+269661000006115	Obstetric coop card duplicate	NA
+269671000006110	Obstetric coop card issued	NA
+269681000006113	Obstetric coop card lost	NA
+269691000006111	Obstetric coop card NOS	NA
+269701000006111	Obstetric coop card updated	NA
+269731000006115	Obstetric pelvic haematoma - delivered with postnatal problem	NA
+269831000006111	Obstet. X-ray abdomen	NA
+26988014	Eclampsia	NA
+270081000006118	Obstetric anaesthesia with pulmonary complications - delivered	NA
+2701000000119	Maternity anaesthetic service claim	NA
+273611000006111	O/E - VE - presenting part	NA
+2741000000116	Mat B1 - cert of expected conf	NA
+274176010	Therapeutic fetoscopic operations on fetus	NA
+274177018	Therapeutic foetoscopic operations on fetus	NA
+274178011	Therapeutic endoscopic operations on fetus	NA
+274179015	Fetoscopic blood transfusion of fetus	NA
+274180017	Other specified therapeutic fetoscopic operation	NA
+274181018	Therapeutic fetoscopic operation NOS	NA
+274205019	Other specified therapeutic percutaneous operation on fetus	NA
+274206018	Therapeutic percutaneous operation on fetus NOS	NA
+274210015	Percutaneous biopsy of fetus	NA
+274211016	Percutaneous sampling of chorionic villus	NA
+274213018	Other specified diagnostic percutaneous examination of fetus	NA
+274214012	Diagnostic percutaneous examination of fetus NOS	NA
+274215013	Operation on amniotic cavity	NA
+274220013	Sampling of chorionic villus	NA
+274222017	Other specified other operation on amniotic cavity	NA
+274223010	Other operation on amniotic cavity NOS	NA
+274233019	Repositioning of retroverted gravid uterus	NA
+274234013	External version of breech	NA
+274236010	Operation on gravid uterus	NA
+274238011	Operation on gravid uterus NOS	NA
+274239015	Other specified operations on fetus or gravid uterus	NA
+274240018	Fetus and gravid uterus operations NOS	NA
+274248013	Surgical induction of labour	NA
+274253015	Other specified surgical induction of labour	NA
+274286016	Other specified elective caesarean delivery	NA
+274289011	Elective caesarean delivery NOS	NA
+274290019	Caesarean section	NA
+274293017	Upper uterine segment caesarean delivery NEC	NA
+274294011	Low cervical caesarean section	NA
+274297016	Other specified other caesarean delivery	NA
+274298014	Other caesarean delivery NOS	NA
+274302018	Breech extraction delivery with version	NA
+274304017	Other specified breech extraction delivery	NA
+274305016	Breech extraction delivery NOS	NA
+274306015	Other breech delivery	NA
+274307012	Spontaneous breech delivery	NA
+274308019	Assisted breech delivery	NA
+274309010	Other specified other breech delivery	NA
+274310017	Other breech delivery NOS	NA
+274311018	Forceps cephalic delivery	NA
+274312013	High forceps cephalic delivery with rotation	NA
+274313015	High forceps cephalic delivery NEC	NA
+274318012	Barton forceps cephalic delivery with rotation	NA
+274319016	Dehee forceps cephalic delivery with rotation	NA
+274321014	Piper forceps delivery	NA
+274322019	Other specified forceps cephalic delivery	NA
+274323012	Forceps cephalic delivery NOS	NA
+274324018	High vacuum delivery	NA
+274325017	Low vacuum delivery	NA
+274326016	Vacuum delivery before full dilation of cervix	NA
+274327013	Trial of vacuum delivery	NA
+274328015	Other specified vacuum delivery	NA
+274329011	Vacuum delivery NOS	NA
+274336012	Normal delivery	NA
+274338013	Water birth delivery	NA
+274339017	Other specified normal delivery	NA
+274340015	Normal delivery procedure	NA
+274341016	Delivery procedure	NA
+274344012	Other specified other method of delivery	NA
+274345013	Other method of delivery NOS	NA
+274346014	Operation to facilitate delivery	NA
+274349019	Other specified other operation to facilitate delivery	NA
+274350019	Other operation to facilitate delivery NOS	NA
+274351015	Other specified induction or delivery operations	NA
+274352010	Induction and delivery operations NOS	NA
+274353017	Other obstetric operations	NA
+274358014	Manual removal of placenta from delivered uterus	NA
+274361010	Other operations on delivered uterus	NA
+274366017	Instrumental exploration of delivered uterus NEC	NA
+274367014	Manual exploration of delivered uterus NEC	NA
+274368016	Normal delivery of placenta	NA
+274377011	Other specified other operation on delivered uterus	NA
+274378018	Other operation on delivered uterus NOS	NA
+274398011	Other specified other obstetric operation	NA
+274399015	Other obstetric operation NOS	NA
+274407013	Fetal heart monitoring	NA
+274410018	Other specified obstetric monitoring	NA
+274411019	Obstetric monitoring NOS	NA
+274413016	Other obstetric operations NOS	NA
+274414010	Other specified obstetric operations	NA
+274415011	Obstetric operations NOS	NA
+2756941000006119	Oxygen delivery	NA
+2761000000115	Mat B1 certificate due	NA
+27701016	Multiple pregnancy	NA
+2771000000110	Mat B1 signed	NA
+2781000000112	Mat B1 certificate status	NA
+2783301000006116	Low forceps delivery with episiotomy	NA
+2792983014	Education about toxoplasmosis precautions during pregnancy	NA
+2801000000113	Mat B2 - cert of confinement	NA
+2823301000006114	Amniography	NA
+282803012	Pregnancy prophylactic therapy	NA
+282822015	Iron supplement in pregnancy	NA
+282823013	Vitamin supplement - pregnancy	NA
+28371017	Albuminuria in pregnancy without hypertension	NA
+283737019	Referral for counselling for termination of pregnancy	NA
+283814015	Discharged from hospital within 6 hours of delivery	NA
+283909015	Obstetric D.V. requested	NA
+283951010	Obstetric D.V. done	NA
+284066015	Referral to antenatal clinic	NA
+284094011	Private referral to obstetrician	NA
+284238018	Requests pregnancy termination	NA
+284614013	Kick chart	NA
+284615014	Kick chart issued	NA
+284616010	Kick chart lost	NA
+284617018	Kick chart duplicate issued	NA
+284618011	Kick chart checked	NA
+284619015	Kick chart NOS	NA
+285219018	Seen in antenatal clinic	NA
+2871584019	Antepartum foetal death	NA
+28821000006115	Other immediate postpartum haemorrhage - deliv with p/n prob	NA
+29133010	Fetal valproate syndrome	NA
+2913301000006114	Mid forceps delivery with episiotomy	NA
+2921211000006110	Delivery by vacuum extraction with episiotomy	NA
+29390018	Cervical incompetence	NA
+2967831017	Pre-existing type 1 diabetes mellitus in pregnancy	NA
+297841000006111	Delivery normal	NA
+2981000000110	FW 8 - application for prescription exemption	NA
+2991000000112	Prescription exemption form - pregnancy	NA
+30054019	Peripheral neuritis in pregnancy	NA
+30111000006119	Other fetal abnormality causing disproportion with a/n prob	NA
+30181000006114	Other fetal malposition and malpresentation with a/n prob	NA
+301902016	Antenatal enamel hypoplasia	NA
+30191000006112	Other fetal problems	NA
+30211000006113	Other feto-placental problems	NA
+305290019	Delivery of viable fetus in abdominal pregnancy	NA
+305530017	Failed attempted abortion with renal failure	NA
+305531018	Failed attempted abortion with metabolic disorder	NA
+305532013	Failed attempted abortion with shock	NA
+305533015	Failed attempted abortion with embolism	NA
+305536011	Failed attempted abortion with other specified complication	NA
+305538012	Failed attempted abortion with complication NOS	NA
+305539016	Failed attempted termination of pregnancy	NA
+305540019	Failed attempted abortion NOS	NA
+305610013	Failed medical abortion, complicated by embolism	NA
+305612017	Failed medical abortion, without complication	NA
+305615015	Complication occurring during pregnancy	NA
+305616019	Threatened miscarriage	NA
+305617011	Threatened abortion - delivered	NA
+305618018	Threatened abortion - not delivered	NA
+305619014	Threatened abortion NOS	NA
+305626014	Other haemorrhage in early pregnancy unspecified	NA
+305627017	Haemorrhage in early pregnancy, delivered	NA
+305630012	Haemorrhage in early pregnancy, antepartum	NA
+305631011	Other haemorrhage in early pregnancy NOS	NA
+305634015	Early pregnancy haemorrhage NOS	NA
+305635019	Early pregnancy haemorrhage NOS unspecified	NA
+305638017	Early pregnancy haemorrhage NOS - delivered	NA
+305639013	Early pregnancy haemorrhage NOS - not delivered	NA
+305655018	Placenta praevia without haemorrhage unspecified	NA
+305658016	Placenta praevia without haemorrhage - delivered	NA
+305659012	Placenta praevia without haemorrhage - not delivered	NA
+305664011	Placenta praevia without haemorrhage NOS	NA
+305665012	Placenta praevia with haemorrhage	NA
+305668014	Placenta praevia with haemorrhage unspecified	NA
+305669018	Placenta praevia with haemorrhage - delivered	NA
+305672013	Placenta praevia with haemorrhage - not delivered	NA
+305673015	Placenta praevia with haemorrhage NOS	NA
+305679016	Placental abruption unspecified	NA
+305680018	Placental abruption - delivered	NA
+305681019	Placental abruption - not delivered	NA
+305682014	Premature separation of placenta with coagulation defect	NA
+305683016	Placental abruption NOS	NA
+305696015	Antepartum haemorrhage with coagulation defect unspecified	NA
+305697012	Antepartum haemorrhage with coagulation defect - delivered	NA
+305702015	Antepartum haemorrhage with coagulation defect NOS	NA
+305703013	Antepartum haemorrhage with trauma	NA
+305706017	Antepartum haemorrhage with trauma unspecified	NA
+305707014	Antepartum haemorrhage with trauma - delivered	NA
+305710019	Antepartum haemorrhage with trauma - not delivered	NA
+305711015	Antepartum haemorrhage with trauma NOS	NA
+305716013	Antepartum haemorrhage with uterine leiomyoma	NA
+305717016	Antepartum haemorrhage with fibroid	NA
+305718014	Antepartum haemorrhage with uterine fibroid	NA
+305719018	Antepartum haemorrhage with uterine leiomyoma unspecified	NA
+305722016	Antepartum haemorrhage with uterine leiomyoma - delivered	NA
+305726018	Antepartum haemorrhage with uterine leiomyoma NOS	NA
+305730015	Other antepartum haemorrhage	NA
+305731016	Other antepartum haemorrhage unspecified	NA
+305734012	Other antepartum haemorrhage - delivered	NA
+305735013	Other antepartum haemorrhage - not delivered	NA
+305738010	Other antepartum haemorrhage NOS	NA
+305742013	Antepartum haemorrhage NOS, unspecified	NA
+305743015	Antepartum haemorrhage NOS - delivered	NA
+305746011	Antepartum haemorrhage NOS - not deliv	NA
+305747019	Antepartum haemorrhage NOS	NA
+305773012	Transient hypertension of pregnancy unspecified	NA
+305774018	Transient hypertension of pregnancy - delivered	NA
+305776016	Transient hypertension of pregnancy - not delivered	NA
+305780014	Transient hypertension of pregnancy NOS	NA
+305788019	Mild or unspecified pre-eclampsia unspecified	NA
+305789010	Mild or unspecified pre-eclampsia - delivered	NA
+305791019	Mild or unspecified pre-eclampsia - not delivered	NA
+305795011	Mild or unspecified pre-eclampsia NOS	NA
+305800018	Severe pre-eclampsia unspecified	NA
+305801019	Severe pre-eclampsia - delivered	NA
+305802014	Severe pre-eclampsia - delivered with postnatal complication	NA
+305803016	Severe pre-eclampsia - not delivered	NA
+305805011	Severe pre-eclampsia NOS	NA
+305807015	Eclampsia unspecified	NA
+305808013	Eclampsia - delivered	NA
+305809017	Eclampsia - delivered with postnatal complication	NA
+305810010	Eclampsia in pregnancy	NA
+305811014	Eclampsia - not delivered	NA
+305817013	Eclampsia NOS	NA
+305818015	Pre-eclampsia or eclampsia with pre-existing hypertension	NA
+305846018	Mild hyperemesis unspecified	NA
+305847010	Mild hyperemesis-delivered	NA
+305848017	Mild hyperemesis-not delivered	NA
+305849013	Mild hyperemesis gravidarum NOS	NA
+305850013	Hyperemesis gravidarum with metabolic disturbance	NA
+305854016	Hyperemesis gravidarum with metabolic disturbance NOS	NA
+305856019	Late pregnancy vomiting unspecified	NA
+305857011	Late pregnancy vomiting - delivered	NA
+305858018	Late pregnancy vomiting - not delivered	NA
+305859014	Late pregnancy vomiting NOS	NA
+305860016	Vomiting of pregnancy	NA
+305861017	Other pregnancy vomiting unspecified	NA
+305862012	Other pregnancy vomiting - delivered	NA
+305863019	Other pregnancy vomiting - not delivered	NA
+305864013	Other pregnancy vomiting NOS	NA
+305865014	Unspecified pregnancy vomiting	NA
+305866010	Unspecified pregnancy vomiting unspecified	NA
+305867018	Unspecified pregnancy vomiting - delivered	NA
+305868011	Unspecified pregnancy vomiting - not delivered	NA
+305870019	Unspecified pregnancy vomiting NOS	NA
+305880015	Threatened premature labour	NA
+305882011	False labour	NA
+305883018	Threatened premature labour unspecified	NA
+305886014	Threatened premature labour - not delivered	NA
+305887017	False labour at or after 37 completed weeks of gestation	NA
+305890011	False labor	NA
+305891010	Other threatened labour	NA
+305894019	Other threatened labour unspecified	NA
+305895018	Other threatened labour - not delivered	NA
+305898016	Other threatened labour NOS	NA
+305902010	Early onset of delivery unspecified	NA
+305903017	Early onset of delivery - delivered	NA
+305904011	Early onset of delivery NOS	NA
+305905012	Early or threatened labour NOS	NA
+305908014	Post-term pregnancy unspecified	NA
+305909018	Post-term pregnancy - delivered	NA
+305910011	Post-term pregnancy - not delivered	NA
+305911010	Post-term pregnancy NOS	NA
+305912015	Prolonged pregnancy NOS	NA
+305913013	Other pregnancy complication NEC	NA
+305914019	Papyraceous fetus unspecified	NA
+305915018	Papyraceous fetus - delivered	NA
+305916017	Papyraceous fetus - not delivered	NA
+305917014	Papyraceous fetus NOS	NA
+305936016	Oedema or excessive weight gain in pregnancy NOS	NA
+305944016	Unspecified renal disease in pregnancy unspecified	NA
+305945015	Unspecified renal disease in pregnancy - delivered	NA
+305947011	Unspecified renal disease in pregnancy - not delivered	NA
+305949014	Unspecified renal disease in pregnancy NOS	NA
+305951013	Habitual aborter - delivered	NA
+305952018	Habitual aborter - not delivered	NA
+305953011	Pregnancy care of habitual aborter	NA
+305956015	Peripheral neuritis in pregnancy unspecified	NA
+305957012	Peripheral neuritis in pregnancy - delivered	NA
+305959010	Peripheral neuritis in pregnancy - not delivered	NA
+305961018	Peripheral neuritis in pregnancy NOS	NA
+305962013	Asymptomatic bacteriuria in pregnancy unspecified	NA
+305963015	Asymptomatic bacteriuria in pregnancy - delivered	NA
+305965010	Asymptomatic bacteriuria in pregnancy - not delivered	NA
+305967019	Asymptomatic bacteriuria in pregnancy NOS	NA
+305971016	Genitourinary tract infection in pregnancy unspecified	NA
+305972011	Genitourinary tract infection in pregnancy - delivered	NA
+305974012	Genitourinary tract infection in pregnancy - not delivered	NA
+305976014	Infections of kidney in pregnancy	NA
+305977017	Urinary tract infection following delivery	NA
+305978010	Infections of the genital tract in pregnancy	NA
+305985014	Liver disorder in pregnancy unspecified	NA
+305986010	Liver disorder in pregnancy - delivered	NA
+305987018	Liver disorder in pregnancy - not delivered	NA
+305988011	Liver disorder in pregnancy NOS	NA
+305989015	Fatigue during pregnancy unspecified	NA
+305990012	Fatigue during pregnancy - delivered	NA
+305992016	Fatigue during pregnancy - not delivered	NA
+305994015	Fatigue during pregnancy NOS	NA
+305996018	Herpes gestationis - delivered	NA
+305997010	Herpes gestationis - delivered with postnatal complication	NA
+305998017	Herpes gestationis - not delivered	NA
+306002019	Glycosuria during pregnancy	NA
+306003012	Glycosuria during pregnancy unspecified	NA
+306004018	Glycosuria during pregnancy - delivered	NA
+306006016	Glycosuria during pregnancy - not delivered	NA
+306008015	Glycosuria during pregnancy NOS	NA
+306013016	Gestational oedema with proteinuria	NA
+306017015	Other pregnancy complications	NA
+306018013	Other pregnancy complication unspecified	NA
+306019017	Other pregnancy complication - delivered	NA
+306021010	Other pregnancy complication - not delivered	NA
+306024019	Other pregnancy complication NOS	NA
+306025018	Complication of pregnancy, childbirth and/or the puerperium	NA
+306029012	Maternal syphilis during pregnancy - baby delivered	NA
+306031015	Maternal syphilis during pregnancy - baby not yet delivered	NA
+306038014	Maternal gonorrhoea during pregnancy - baby delivered	NA
+306065019	Maternal malaria during pregnancy - baby delivered	NA
+306067010	Maternal malaria during pregnancy - baby not yet delivered	NA
+306074017	Maternal rubella during pregnancy - baby delivered	NA
+306076015	Maternal rubella during pregnancy - baby not yet delivered	NA
+306087011	Infections of bladder in pregnancy	NA
+306088018	Infections of urethra in pregnancy	NA
+306108017	Diabetes mellitus during pregnancy - baby delivered	NA
+306110015	Diabetes mellitus during pregnancy - baby not yet delivered	NA
+306120013	Thyroid dysfunction during pregnancy - baby delivered	NA
+306129014	Anaemia during pregnancy - baby delivered	NA
+306133019	Anaemia during pregnancy - baby not yet delivered	NA
+306137018	Iron deficiency anaemia of pregnancy	NA
+306144010	Drug dependence during pregnancy - baby delivered	NA
+306145011	Drug dependence in the puerperium - baby delivered	NA
+306146012	Drug dependence during pregnancy - baby not yet delivered	NA
+306151018	Mental disorder during pregnancy - baby delivered	NA
+306152013	Mental disorder in the puerperium - baby delivered	NA
+306153015	Mental disorder during pregnancy - baby not yet delivered	NA
+306179012	Orthopaedic disorder during pregnancy - baby delivered	NA
+306203018	Medical condition NOS during pregnancy - baby delivered	NA
+306208010	Complications specific to multiple gestation	NA
+306209019	Continuing pregnancy after abortion of one fetus or more	NA
+306210012	Continuing pregnancy after intrauterine death one fetus or more	NA
+306216018	Risk factors in pregnancy	NA
+306220019	Normal delivery but antenatal or postnatal conditions present	NA
+306221015	Normal delivery in completely normal case NOS	NA
+306222010	Twin pregnancy unspecified	NA
+306223017	Twin pregnancy - delivered	NA
+306224011	Twin pregnancy with antenatal problem	NA
+306225012	Twin pregnancy NOS	NA
+306226013	Triplet pregnancy unspecified	NA
+306227016	Triplet pregnancy - delivered	NA
+306228014	Triplet pregnancy with antenatal problem	NA
+306229018	Triplet pregnancy NOS	NA
+306230011	Quadruplet pregnancy unspecified	NA
+306231010	Quadruplet pregnancy - delivered	NA
+306232015	Quadruplet pregnancy with antenatal problem	NA
+306233013	Quadruplet pregnancy NOS	NA
+306235018	Multiple delivery, all spontaneous	NA
+306236017	Multiple delivery, all by forceps and vacuum extractor	NA
+306237014	Multiple delivery, all by caesarean section	NA
+306239012	Other multiple pregnancy	NA
+306240014	Other multiple pregnancy unspecified	NA
+306241013	Other multiple pregnancy - delivered	NA
+306242018	Other multiple pregnancy with antenatal problem	NA
+306243011	Other multiple pregnancy NOS	NA
+306244017	Multiple pregnancy NOS	NA
+306245016	Multiple pregnancy NOS, unspecified	NA
+306246015	Multiple pregnancy NOS - delivered	NA
+306247012	Multiple pregnancy NOS with antenatal problem	NA
+306252019	Unstable lie unspecified	NA
+306253012	Unstable lie - delivered	NA
+306254018	Unstable lie with antenatal problem	NA
+306255017	Unstable lie NOS	NA
+306256016	Cephalic version NOS	NA
+306257013	Cephalic version NOS, unspecified	NA
+306258015	Cephalic version NOS - delivered	NA
+306259011	Cephalic version NOS with antenatal problem	NA
+306266012	Breech presentation unspecified	NA
+306267015	Breech presentation - delivered	NA
+306268013	Breech presentation with antenatal problem	NA
+306269017	Breech presentation NOS	NA
+306270016	Oblique lie unspecified	NA
+306271017	Oblique lie - delivered	NA
+306272012	Oblique lie with antenatal problem	NA
+306274013	Transverse lie unspecified	NA
+306275014	Transverse lie - delivered	NA
+306276010	Transverse lie with antenatal problem	NA
+306281018	Face presentation - delivered	NA
+306285010	Brow presentation - delivered	NA
+306290013	High head at term	NA
+306291012	High head at term unspecified	NA
+306292017	High head at term - delivered	NA
+306293010	High head at term with antenatal problem	NA
+306294016	High head at term NOS	NA
+306295015	Multiple pregnancy with malpresentation	NA
+306296019	Multiple pregnancy with malpresentation unspecified	NA
+306297011	Multiple pregnancy with malpresentation - delivered	NA
+306299014	Multiple pregnancy with malpresentation NOS	NA
+306301019	Prolapsed arm - delivered	NA
+306307015	Other fetal malposition and malpresentation unspecified	NA
+306310010	Other fetal malposition and malpresentation NOS	NA
+306311014	Fetal malposition and malpresentation NOS	NA
+306312019	Fetal malposition and malpresentation NOS, unspecified	NA
+306313012	Fetal malposition and malpresentation NOS - delivered	NA
+306319011	Disproportion - major pelvic abnormality	NA
+306320017	Disproportion - major pelvic abnormality unspecified	NA
+306321018	Disproportion - major pelvic abnormality - delivered	NA
+306325010	Disproportion - major pelvic abnormality NOS	NA
+306326011	Generally contracted pelvis unspecified	NA
+306327019	Generally contracted pelvis - delivered	NA
+306328012	Generally contracted pelvis with antenatal problem	NA
+306329016	Generally contracted pelvis NOS	NA
+306330014	Inlet pelvic contraction unspecified	NA
+306331013	Inlet pelvic contraction - delivered	NA
+306332018	Inlet pelvic contraction with antenatal problem	NA
+306333011	Inlet pelvic contraction NOS	NA
+306334017	Outlet pelvic contraction unspecified	NA
+306335016	Outlet pelvic contraction - delivered	NA
+306336015	Outlet pelvic contraction with antenatal problem	NA
+306337012	Outlet pelvic contraction NOS	NA
+306338019	Mixed feto-pelvic disproportion	NA
+306339010	Mixed feto-pelvic disproportion unspecified	NA
+306340012	Mixed feto-pelvic disproportion - delivered	NA
+306341011	Mixed feto-pelvic disproportion with antenatal problem	NA
+306342016	Mixed feto-pelvic disproportion NOS	NA
+306343014	Large fetus causing disproportion unspecified	NA
+306344015	Large fetus causing disproportion - delivered	NA
+306345019	Large fetus causing disproportion with antenatal problem	NA
+306346018	Large fetus causing disproportion NOS	NA
+306347010	Hydrocephalic disproportion	NA
+306348017	Hydrocephalic disproportion unspecified	NA
+306349013	Hydrocephalic disproportion - delivered	NA
+306350013	Hydrocephalic disproportion with antenatal problem	NA
+306351012	Hydrocephalic disproportion NOS	NA
+306355015	Other fetal abnormality causing disproportion unspecified	NA
+306356019	Other fetal abnormality causing disproportion - delivered	NA
+306358018	Other fetal abnormality causing disproportion NOS	NA
+306359014	Other disproportion	NA
+306360016	Other disproportion unspecified	NA
+306361017	Other disproportion - delivered	NA
+306362012	Other disproportion with antenatal problem	NA
+306364013	Other disproportion NOS	NA
+306365014	Disproportion NOS	NA
+306366010	Disproportion NOS, unspecified	NA
+306367018	Disproportion NOS - delivered	NA
+306368011	Disproportion NOS with antenatal problem	NA
+306433010	Retroverted incarcerated gravid uterus	NA
+306434016	Retroverted incarcerated gravid uterus unspecified	NA
+306435015	Retroverted incarcerated gravid uterus - delivered	NA
+306439014	Retroverted incarcerated gravid uterus NOS	NA
+306472014	Cervical incompetence unspecified	NA
+306473016	Cervical incompetence - delivered	NA
+306475011	Cervical incompetence with antenatal problem	NA
+306477015	Cervical incompetence NOS	NA
+306482010	Other cervical abnormality affecting obstetric care	NA
+306483017	Other cervical abnormality - baby delivered	NA
+306568012	Known or suspected fetal abnormality	NA
+306574012	Fetus with central nervous system malformation unspecified	NA
+306575013	Fetus with central nervous system malformation - delivered	NA
+306579019	Fetus with central nervous system malformation NOS	NA
+306584013	Fetus with chromosomal abnormality unspecified	NA
+306585014	Fetus with chromosomal abnormality - delivered	NA
+306586010	Fetus with chromosomal abnormality with antenatal problem	NA
+306589015	Fetus with chromosomal abnormality NOS	NA
+306590012	Fetus with hereditary disease	NA
+306591011	Fetus with hereditary disease unspecified	NA
+306592016	Fetus with hereditary disease - delivered	NA
+306593014	Fetus with hereditary disease with antenatal problem	NA
+306594015	Fetus with hereditary disease NOS	NA
+306598017	Fetus with viral damage via mother unspecified	NA
+306599013	Fetus with viral damage via mother - delivered	NA
+306600011	Fetus with viral damage via mother with antenatal problem	NA
+306602015	Fetus with viral damage via mother NOS	NA
+306607014	Fetus with damage due to other maternal disease unspecified	NA
+306608016	Fetus with damage due to other maternal disease - delivered	NA
+306610019	Fetus with damage due to other maternal disease NOS	NA
+306611015	Fetus with drug damage	NA
+306612010	Fetus with drug damage unspecified	NA
+306613017	Fetus with drug damage - delivered	NA
+306614011	Fetus with drug damage with antenatal problem	NA
+306615012	Maternal care for (suspected) damage to fetus from alcohol	NA
+306616013	Fetus with drug damage NOS	NA
+306617016	Fetus with radiation damage	NA
+306618014	Fetus with radiation damage unspecified	NA
+306619018	Fetus with radiation damage - delivered	NA
+306620012	Fetus with radiation damage with antenatal problem	NA
+306621011	Fetus with radiation damage NOS	NA
+306623014	Fetus with damage due to coil	NA
+306628017	Fetus with other damage NEC	NA
+306629013	Fetus with other damage NEC, unspecified	NA
+306630015	Fetus with other damage NEC - delivered	NA
+306631016	Fetus with other damage NEC with antenatal problem	NA
+306632011	Fetus with other damage NEC NOS	NA
+306633018	Fetus with damage NOS	NA
+306634012	Fetus with damage NOS, unspecified	NA
+306635013	Fetus with damage NOS - delivered	NA
+306636014	Fetus with damage NOS with antenatal problem	NA
+306640017	Other fetal and placental problems	NA
+306641018	Fetal-maternal haemorrhage unspecified	NA
+306644014	Fetal-maternal haemorrhage - delivered	NA
+306645010	Fetal-maternal haemorrhage with antenatal problem	NA
+306648012	Fetal-maternal haemorrhage NOS	NA
+306656010	Rhesus isoimmunisation - delivered	NA
+306659015	Rhesus isoimmunisation with antenatal problem	NA
+306681013	Nonreassuring foetal status	NA
+306682018	Fetal distress - delivered	NA
+306683011	Fetal distress with antenatal problem	NA
+306690018	Labour and delivery complic by meconium in amniotic fluid	NA
+306695011	Maternal care for fetal hypoxia	NA
+306703019	Foetal distress	NA
+306708011	Dead foetus in utero	NA
+306710013	Intrauterine death unspecified	NA
+306711012	Intrauterine death - delivered	NA
+306712017	Intrauterine death with antenatal problem	NA
+306713010	Intrauterine death NOS	NA
+306717011	Small-for-dates unspecified	NA
+306719014	Small-for-dates - delivered	NA
+306721016	Small-for-dates with antenatal problem	NA
+306723018	Small-for-dates NOS	NA
+306731011	Large-for-dates unspecified	NA
+306732016	Large-for-dates with antenatal problem	NA
+306736018	Large-for-dates NOS	NA
+306740010	Other placental conditions unspecified	NA
+306741014	Other placental conditions - delivered	NA
+306742019	Other placental conditions with antenatal problem	NA
+306743012	Placental transfusion syndromes	NA
+306749011	Other placental conditions NOS	NA
+306750011	Other fetal problems	NA
+306757014	Other feto-placental problems unspecified	NA
+306759012	Other feto-placental problems with antenatal problem	NA
+306760019	Other feto-placental problems NOS	NA
+306761015	Feto-placental problems NOS	NA
+306762010	Feto-placental problems NOS, unspecified	NA
+306763017	Feto-placental problems NOS - delivered	NA
+306764011	Feto-placental problems NOS with antenatal problem	NA
+306769018	Polyhydramnios unspecified	NA
+306770017	Polyhydramnios - delivered	NA
+306771018	Polyhydramnios with antenatal problem	NA
+306773015	Polyhydramnios NOS	NA
+306776011	Other problems of amniotic cavity and membranes	NA
+306777019	Oligohydramnios unspecified	NA
+306778012	Oligohydramnios - delivered	NA
+306779016	Oligohydramnios with antenatal problem	NA
+306781019	Oligohydramnios NOS	NA
+306782014	Premature rupture of membranes unspecified	NA
+306783016	Premature rupture of membranes - delivered	NA
+306784010	Premature rupture of membranes with antenatal problem	NA
+306788013	Premature rupture of membranes, labour delayed by therapy	NA
+306791013	Premature rupture of membranes NOS	NA
+306800014	Prolonged artificial rupture of membranes - delivered	NA
+306801000006117	[M]Chorioangioma	NA
+306809010	Amniotic cavity infection unspecified	NA
+306810017	Amniotic cavity infection - delivered	NA
+306811018	Amniotic cavity infection with antenatal problem	NA
+306812013	Amniotic cavity infection NOS	NA
+306818012	Other problem of amniotic cavity and membranes unspecified	NA
+306819016	Other problem of amniotic cavity and membranes - delivered	NA
+306823012	Other problem of amniotic cavity and membranes NOS	NA
+306824018	Amniotic cavity and membrane problems NOS	NA
+306825017	Amniotic cavity and membrane problem NOS, unspecified	NA
+306826016	Amniotic cavity and membrane problem NOS - delivered	NA
+306828015	Amniotic cavity and membrane problem NOS	NA
+306832014	Failed mechanical induction - delivered	NA
+306843018	Failed medical or unspecified induction - delivered	NA
+306851015	Unspecified maternal pyrexia during labour - delivered	NA
+306861010	Septicaemia during labour - delivered	NA
+306867014	Grand multiparity - delivered	NA
+306868016	Grand multiparity with antenatal problem	NA
+306869012	Grand multiparity NOS	NA
+306870013	Elderly primigravida unspecified	NA
+306871012	Elderly primigravida - delivered	NA
+306872017	Elderly primigravida with antenatal problem	NA
+306873010	Elderly primigravida NOS	NA
+306880012	Other problems affecting labour - delivered	NA
+306890016	Problems affecting labour NOS - delivered	NA
+306896010	Abnormal findings on antenatal screening of mother	NA
+306906019	Malnutrition in pregnancy	NA
+306907011	Retained intrauterine contraceptive device in pregnancy	NA
+306908018	Other specified risk factors in pregnancy	NA
+306909014	Finding related to risk factor in pregnancy	NA
+306910016	Complications occurring during labour and delivery	NA
+306919015	Obstructed labour due to fetal malposition - delivered	NA
+306939016	Obstructed labour caused by bony pelvis - delivered	NA
+306959017	Obstructed labour caused by pelvic soft tissues - delivered	NA
+306967013	Deep transverse arrest - delivered	NA
+306970012	Persistent occipitoposterior or occipitoanterior position	NA
+306976018	Shoulder dystocia - delivered	NA
+306980011	Locked twins - delivered	NA
+306987014	Other failed trial of labour - delivered	NA
+307000016	Other failed forceps - delivered	NA
+307005014	Other failed ventouse extraction - delivered	NA
+307015015	Other causes of obstructed labour - delivered	NA
+307024012	Obstructed labour NOS - delivered	NA
+307038017	Primary uterine inertia - delivered	NA
+307044018	Secondary uterine inertia - delivered	NA
+307052015	Other uterine inertia - delivered	NA
+307058016	Precipitate labour - delivered	NA
+307073015	Hypertonic uterine inertia - delivered	NA
+307081019	Abnormality of forces of labour NOS - delivered	NA
+307087015	Prolonged first stage - delivered	NA
+307094017	Unspecified prolonged labour - delivered	NA
+307102010	Prolonged second stage - delivered	NA
+307105012	Delayed delivery of second twin, triplet etc	NA
+307106013	Delayed delivery second twin unspecified	NA
+307107016	Delayed delivery second twin - delivered	NA
+307108014	Delayed delivery second twin with antenatal problem	NA
+307109018	Delayed delivery second twin etc NOS	NA
+307117014	Prolapse of cord - delivered	NA
+307122014	Cord tight round neck - delivered	NA
+307136016	Cord tangled with compression - delivered	NA
+307141012	Other cord entanglement - delivered	NA
+307145015	Short cord - delivered	NA
+307157012	Vasa praevia unspecified	NA
+307160017	Vasa praevia - delivered	NA
+307161018	Vasa praevia with antenatal problem	NA
+307164014	Vasa praevia NOS	NA
+307168012	Vascular lesions of cord unspecified	NA
+307169016	Vascular lesions of cord - delivered	NA
+307172011	Vascular lesions of cord with antenatal problem	NA
+307175013	Vascular lesions of cord NOS	NA
+307176014	Other umbilical cord complications	NA
+307177017	Other umbilical cord complications unspecified	NA
+307178010	Other umbilical cord complications - delivered	NA
+307179019	Other umbilical cord complications with antenatal problem	NA
+307180016	Other umbilical cord complications NOS	NA
+307181017	Umbilical cord complications NOS	NA
+307182012	Umbilical cord complications NOS, unspecified	NA
+307183019	Umbilical cord complications NOS - delivered	NA
+307184013	Umbilical cord complications NOS with antenatal problem	NA
+307197010	First degree perineal tear during delivery, unspecified	NA
+307198017	First degree perineal tear during delivery - delivered	NA
+307204019	First degree perineal tear during delivery NOS	NA
+307210019	Second degree perineal tear during delivery, unspecified	NA
+307211015	Second degree perineal tear during delivery - delivered	NA
+307213017	Second degree perineal tear during delivery NOS	NA
+307217016	Third degree perineal tear during delivery, unspecified	NA
+307218014	Third degree perineal tear during delivery - delivered	NA
+307220012	Third degree perineal tear during delivery NOS	NA
+307221011	Fourth degree perineal tear during delivery, unspecified	NA
+307222016	Fourth degree perineal tear during delivery - delivered	NA
+307224015	Fourth degree perineal tear during delivery NOS	NA
+307225019	Perineal laceration during delivery	NA
+307226018	Unspecified perineal laceration during delivery, unspecified	NA
+307227010	Unspecified perineal laceration during delivery - delivered	NA
+307229013	Unspecified perineal laceration during delivery NOS	NA
+307237017	Vulval and perineal haematoma during delivery, unspecified	NA
+307238010	Vulval and perineal haematoma during delivery - delivered	NA
+307242013	Vulval and/or perineal haematoma during delivery	NA
+307244014	Other vulval and perineal trauma during delivery	NA
+307246011	Other vulval/perineal trauma during delivery- delivered	NA
+307248012	Other vulval/perineal trauma during delivery NOS	NA
+307249016	Vulval/perineal trauma during delivery NOS	NA
+307250016	Vulval/perineal trauma during delivery NOS unspec	NA
+307251017	Vulval/perineal trauma during delivery NOS - delivered	NA
+307259015	Rupture of uterus before labour - delivered	NA
+307269014	Rupture of uterus during and after labour - delivered	NA
+307287012	Obstetric laceration of cervix - delivered	NA
+307293016	Obstetric high vaginal laceration - delivered	NA
+307301012	Other obstetric pelvic organ damage - delivered	NA
+307315014	Obstetric damage to pelvic joints and ligaments - delivered	NA
+307323011	Obstetric pelvic haematoma - delivered	NA
+307332013	Other obstetric trauma - delivered	NA
+307333015	Other obstetric trauma - delivered with postnatal problem	NA
+307339016	Obstetric trauma NOS - delivered	NA
+307425017	Complications of anaesthesia during labour and delivery	NA
+307484015	Failed or difficult intubation during pregnancy	NA
+307496010	Failed or difficult intubation during labour and delivery	NA
+307521012	Obstetric anaesthetic complications NOS - delivered	NA
+307530016	Other complications of labour and delivery NEC	NA
+307533019	Maternal distress - delivered	NA
+307534013	Maternal distress - delivered with postnatal problem	NA
+307535014	Maternal distress with antenatal problem	NA
+307539015	Obstetric shock - delivered	NA
+307540018	Obstetric shock - delivered with postnatal problem	NA
+307544010	Maternal hypotension syndrome unspecified	NA
+307545011	Maternal hypotension syndrome - delivered	NA
+307547015	Maternal hypotension syndrome with antenatal problem	NA
+307549017	Maternal hypotension syndrome NOS	NA
+307550017	Post-delivery acute renal failure unspecified	NA
+307552013	Post-delivery acute renal failure with postnatal problem	NA
+307553015	Post-delivery acute renal failure NOS	NA
+307554014	Other complications of obstetric procedures	NA
+307555010	Other complications of obstetric procedures unspecified	NA
+307563011	Other complications of obstetric procedures NOS	NA
+307569010	Forceps delivery unspecified	NA
+307570011	Forceps delivery - delivered	NA
+307577014	Delivery by combination of forceps and vacuum extractor	NA
+307579012	Forceps delivery NOS	NA
+307583012	Vacuum extractor delivery unspecified	NA
+307584018	Vacuum extractor delivery - delivered	NA
+307585017	Vacuum extractor delivery NOS	NA
+307590019	Breech extraction - delivered	NA
+307595012	Caesarean delivery unspecified	NA
+307596013	Caesarean delivery - delivered	NA
+307599018	Caesarean section - pregnancy at term	NA
+307600015	Delivery by elective caesarean section	NA
+307603018	Delivery by emergency caesarean section	NA
+307604012	Delivery by caesarean hysterectomy	NA
+307608010	Caesarean delivery NOS	NA
+307617010	Other complications of labour and delivery	NA
+307618017	Other complications of labour and delivery unspecified	NA
+307621015	Other complications of labour and delivery - delivered	NA
+307636017	Other complications of labour and delivery NOS	NA
+307641013	Complications of labour and delivery NOS, unspecified	NA
+307642018	Complications of labour and delivery NOS - delivered	NA
+307657013	Other specified complications of labour or delivery	NA
+307658015	Complications of labour and delivery NOS	NA
+307739018	Antenatal deep vein thrombosis unspecified	NA
+307740016	Antenatal deep vein thrombosis - delivered	NA
+307741017	Antenatal deep vein thrombosis with antenatal complication	NA
+307742012	Antenatal deep vein thrombosis NOS	NA
+307765019	Haemorrhoids in pregnancy and the puerperium - delivered	NA
+307781012	Cerebral venous thrombosis in pregnancy	NA
+307821017	Obstetric air pulmonary embolism - delivered	NA
+307827018	Amniotic fluid pulmonary embolism - delivered	NA
+307834016	Obstetric blood-clot pulmonary embolism - delivered	NA
+307862011	Other obstetric pulmonary embolism - delivered	NA
+307869019	Obstetric pulmonary embolism NOS - delivered	NA
+307871019	Obstetric pulmonary embolism NOS with antenatal complication	NA
+307880019	Puerperal cerebrovascular disorder - delivered	NA
+307889018	Caesarean wound disruption unspecified	NA
+307893012	Caesarean wound disruption with postnatal complication	NA
+307896016	Caesarean wound disruption NOS	NA
+307916016	Placental polyp - delivered with postnatal complication	NA
+307939010	Obstetric nipple infection - delivered	NA
+307941011	Obstetric nipple infection with antenatal complication	NA
+307948017	Obstetric breast abscess - delivered	NA
+307950013	Obstetric breast abscess with antenatal complication	NA
+307966010	Other obstetric breast infection - delivered	NA
+307968011	Other obstetric breast infection with antenatal complication	NA
+307973017	Obstetric breast infection NOS - delivered	NA
+307975012	Obstetric breast infection NOS with antenatal complication	NA
+308017013	Failure of lactation - delivered	NA
+308018015	Failure of lactation - delivered with postnatal complication	NA
+308023015	Suppressed lactation - delivered	NA
+308024014	Suppressed lactation - delivered with postnatal complication	NA
+308033011	Galactorrhoea in pregnancy and the puerperium - delivered	NA
+308047010	Other disorder of lactation - delivered	NA
+308054016	Disorder of lactation NOS - delivered	NA
+308061017	Maternal care for fetus	NA
+308063019	Maternal care for other known or suspected fetal problems	NA
+308064013	Maternal care for hydrops fetalis	NA
+308066010	Maternal care for diminished fetal movements	NA
+308070019	Maternal care for intrauterine growth retardation	NA
+308071015	Maternal care for poor fetal growth	NA
+308081016	Abnormal products of conception	NA
+308098016	[X]Other haemorrhage in early pregnancy	NA
+308100016	[X]Other vomiting complicating pregnancy	NA
+308101017	[X]Other venous complications in pregnancy	NA
+308102012	Urinary tract infection in pregnancy	NA
+308104013	Finding related to pregnancy	NA
+308105014	[X]Other abnormal findings on antenatal screening of mother	NA
+308113010	[X]Other multiple gestation	NA
+308114016	[X]Other complications specific to multiple gestation	NA
+308115015	[X]Maternal care for other malpresentation of fetus	NA
+308116019	Disorder of uterine cervix	NA
+308117011	[X]Maternal care for other abnormalities of gravid uterus	NA
+308118018	Abnormality of organs AND/OR soft tissues of pelvis affecting pregnancy	NA
+308125013	[X]Other disorders of amniotic fluid and membranes	NA
+308126014	[X]Other placental disorders	NA
+308127017	[X]Other premature separation of placenta	NA
+308131011	[X]Complications of labour and delivery	NA
+308165012	[X]Other complications of obstetric surgery and procedures	NA
+308167016	[X]Other specified complications of labour and delivery	NA
+308176011	Delivery finding	NA
+308177019	[X]Other single spontaneous delivery	NA
+308178012	[X]Other and unspecified forceps delivery	NA
+308179016	[X]Other single delivery by caesarean section	NA
+308181019	[X]Other assisted breech delivery	NA
+308182014	[X]Other manipulation-assisted delivery	NA
+308183016	[X]Other specified assisted single delivery	NA
+308185011	[X]Other multiple delivery	NA
+308186012	[X]Assisted single delivery, unspecified	NA
+308187015	Multiple birth delivery	NA
+308189017	[X]Other infection of genital tract following delivery	NA
+308190014	[X]Other genitourinary tract infections following delivery	NA
+309006017	Alopecia of pregnancy	NA
+30911000006117	Other blood-group isoimmunisation with antenatal problem	NA
+3119641000006110	Frank breech delivery	NA
+313531010	Absence or hypoplasia of the umbilical artery	NA
+313532015	Single umbilical artery	NA
+313533013	Absence or hypoplasia of the umbilical artery NOS	NA
+31406012	Low forceps delivery	NA
+31456019	Grand multipara	NA
+315211010	Harlequin fetus	NA
+315560016	Other specified conjoined twins	NA
+315571015	Fetal alcohol syndrome	NA
+315864018	Fetus or neonate affected by maternal incompetent cervix	NA
+315866016	Fetus or neonate affected by maternal oligohydramnios	NA
+315911016	Fetus or neonate affected by placenta previa	NA
+315932012	Fetus or neonate affected by marginal sinus rupture	NA
+315943016	Fetus or neonate affected by placental dysfunction	NA
+315944010	Fetus or neonate affected by placental infarction	NA
+315945011	Fetus or neonate affected by placental insufficiency	NA
+315947015	Fetus or neonate affected by placental abnormality NOS	NA
+315973013	Fetus or neonate affected by placentitis unspecified	NA
+316013010	Fetus or neonate affected by forceps delivery	NA
+316014016	Fetus or neonate affected by vacuum extraction delivery	NA
+316015015	Fetus or neonate affected by caesarean section	NA
+316037010	Fetus or neonate affected by precipitate delivery	NA
+316071018	Fetus or neonate affected by instrumental delivery	NA
+316092018	Fetus small-for-dates with signs of malnutrition	NA
+316094017	Fetal malnutrition without mention of 'light for dates'	NA
+3161311000006116	Total hysterectomy after caesarean delivery	NA
+316237017	Scalpel wound of fetal skin due to delivery procedure	NA
+316465018	Clostridial intra-amniotic fetal infection	NA
+316466017	Eschericha coli intra-amniotic fetal infection	NA
+316502016	Fetal blood loss	NA
+316505019	Fetal blood loss, unspecified	NA
+316508017	Other specified fetal blood loss	NA
+316509013	Fetal blood loss NOS	NA
+316730019	Congenital anaemia from fetal blood loss	NA
+316764015	Idiopathic hydrops fetalis	NA
+316924014	[X]Other fetal blood loss	NA
+317731011	Abnormal amniotic fluid	NA
+317815010	[D]Placental imaging abnormal	NA
+317863013	[D]Abnormal placental function test	NA
+319331000006113	[SO]Amniotic membrane	NA
+3212181000006118	Retained products of conception, following delivery with haemorrhage	NA
+321791000006118	Delivered uterus	NA
+32261000006110	Other disorder of lactation - delivered with p/n comp	NA
+323191000006118	[SO]Fetus	NA
+3238421000006117	Vaginal delivery with forceps including postpartum care	NA
+324051000006111	[SO]Gravid uterus	NA
+3258001000006116	Gestational diabetes mellitus, class A>2<	NA
+3265501000006112	Hospital admission, mother, for observation, delivered outside of hospital	NA
+3273591000006114	Haemorrhage after delivery of fetus	NA
+3289421000006118	FTND - Full term normal delivery	NA
+3289431000006115	SVD - Spontaneous vaginal delivery	NA
+3289441000006113	Normal delivery	NA
+329273012	Amniocentesis with complication, without blame	NA
+329371000006119	Placenta	NA
+32948013	Mild hyperemesis gravidarum	NA
+3301951000006113	Premature pregnancy delivered	NA
+337091000006114	[V]Amniotic fluid to screen for alphafetoprotein levels	NA
+338612017	Pre-termination counselling	NA
+34291000006114	Other complications of labour and delivery - deliv +p/n prob	NA
+34341000006112	Other complications of labour and delivery with a/n problem	NA
+34351000006114	Other complications of labour and delivery with p/n problem	NA
+34491000006113	Other complications of the puerperium - delivered + p/n comp	NA
+3463071000006110	Undelivered in utero fetal death	NA
+3463081000006113	Undelivered in utero foetal death	NA
+3475441000006118	Hospital admission, infant, for observation, delivered outside of hospital	NA
+3491181000006110	Separation of symphysis pubis during delivery	NA
+349391000006115	[V]Supervision of pregnancy with history of insufficient antenatal care	NA
+35001000006114	Other complication obstetric surg wound -delivered +p/n comp	NA
+3503056015	Delivery by mid-vacuum extraction	NA
+350686016	Genital varices in pregnancy	NA
+350687013	Perineal varices in pregnancy	NA
+3516233017	Emergency classical caesarean section with bilateral tubal ligation	NA
+3516241017	Elective upper segment caesarean section with bilateral tubal ligation	NA
+3516291000006115	Mid forceps delivery	NA
+3518481017	Twin live born in hospital by vaginal delivery	NA
+3530782018	Estimated date of delivery from antenatal ultrasound scan	NA
+353610019	Cholestasis of pregnancy	NA
+3544551000006114	Traumatic lesion during delivery	NA
+355467015	Suspected foetal damage from maternal alcohol	NA
+355468013	Suspected foetal damage from maternal toxoplasmosis	NA
+355469017	Fetus with suspected rubella damage via mother	NA
+355471017	Suspect cystic fibrosis fetus	NA
+355472012	Suspect fetal spina bifida	NA
+355473019	Suspect fetal hydrocephaly	NA
+355474013	Suspected foetal anencephaly	NA
+355480017	Rigid perineum - baby delivered with postpartum complication	NA
+355481018	Rigid perineum - baby delivered	NA
+355488012	Persistent hymen - baby delivered	NA
+355503015	Septate vagina - baby delivered with postpartum complication	NA
+355504014	Septate vagina - baby delivered	NA
+355522012	Rectocele - delivered with postpartum complication	NA
+355523019	Cystocele - delivered with postpartum complication	NA
+355524013	Cystocele affecting obstetric care	NA
+355526010	Rectocele - baby delivered	NA
+355527018	Cystocele - baby delivered	NA
+355535015	Uterine fibroid - baby delivered	NA
+355536019	Uterine fibroid affecting obstetric care	NA
+355544019	Bicornuate uterus - baby delivered	NA
+355545018	Bicornuate uterus affecting obstetric care	NA
+355548016	Heart disease during pregnancy	NA
+355549012	Congenital heart disease in pregnancy	NA
+355550012	Pregnancy and drug dependence	NA
+355551011	Rubella contact in pregnancy	NA
+355552016	Uraemia in pregnancy without hypertension	NA
+355554015	Nephropathy NOS in pregnancy without hypertension	NA
+355557010	Concealed pregnancy	NA
+355564012	Teenage pregnancy	NA
+355605016	Antepartum haemorrhage with hypofibrinogenaemia	NA
+355606015	Antepartum haemorrhage with hyperfibrinolysis	NA
+355609010	Antepartum haemorrhage with afibrinogenaemia	NA
+355621014	Transient hypertension of pregnancy	NA
+355622019	Toxaemia of pregnancy	NA
+355625017	Moderate pre-eclampsia	NA
+355631019	Gestational oedema	NA
+355633016	Vaginal varices in pregnancy	NA
+355634010	Vulval varices in pregnancy	NA
+355642011	Placental insufficiency	NA
+355648010	Morbidly adherent placenta	NA
+355656013	Anti-D isoimmunisation affecting pregnancy	NA
+355670013	Breech delivery	NA
+355677011	Vaginal delivery following previous caesarean section	NA
+355682016	Uterine or cervical spasm	NA
+355743010	Fetal intrapartum death	NA
+3560811000006110	Delivery by midwife	NA
+358325012	Pregnancy pruritus	NA
+35861000006115	Other cervical abn complicating a/n care- baby not delivered	NA
+35871000006110	Other cervical abn complicating p/n care - baby deliv prev	NA
+35891000006111	Other cervical abnormality - baby delivered+postpartum compl	NA
+359943012	External cephalic version	NA
+359966013	Fetal tachycardia	NA
+359967016	Fetal bradycardia	NA
+359975010	Fetal acidosis	NA
+359997012	Fetus affected by placental insufficiency	NA
+361030010	Obstetric X-ray - placenta	NA
+361118019	Placentography-contrast	NA
+361321000000115	Gestational age	NA
+361432012	Placenta isotope study	NA
+361612019	Fetal echocardiography	NA
+36271000006119	Other cardiovasc dis in puerp - baby previously delivered	NA
+36281000006116	Other cardiovasc dis in puerperium - baby delivered	NA
+36301000006117	Other cardiovascular dis in pregnancy - baby not delivered	NA
+36311000006119	Other cardiovascular disease in pregnancy - baby delivered	NA
+363331000006114	[X]Antenatal screening for fetal growth retardation using ultrasonics and other physical methods	NA
+363341000006116	[X]Antenatal screening for malformations using ultrasonics and other physical methods	NA
+364616017	Antenatal screening	NA
+36501000006110	Other blood-group isoimmunisation - delivered	NA
+365051000000112	Percutaneous serial drainage of amniotic fluid	NA
+365071000000115	Maternal cervical assessment	NA
+3657551000006113	Forceps delivery with rotation of fetal head	NA
+366071000000112	Therapeutic endoscopic operations for twin-twin transfusion	NA
+366111000000118	Routine obstetric scan	NA
+366131000000114	Dating scan	NA
+366171000000111	Percutaneous insertion of bladder drain to fetus	NA
+366191000000110	Other non routine obstetric scan	NA
+366211000000114	Other maternal physiological assessments	NA
+366231000000118	Cervical length scanning at 24 weeks	NA
+366251000000113	US obstetric doppler	NA
+366271000000116	Mid trimester scan	NA
+366531000000116	Fetal anatomy study	NA
+366551000000111	Non routine obstetric scan for fetal observations	NA
+366571000000119	Fetal ascites scan	NA
+366591000000115	Rhesus detailed scan	NA
+366631000000115	Percutaneous insertion of fetal pleural drain	NA
+366931000000111	Ultrasound monitoring of early pregnancy	NA
+366951000000116	Ultrasound monitoring of luteal phase	NA
+367011000000116	Obstetric ultrasound monitoring	NA
+36966018	Intrauterine growth retardation	NA
+3698941000006110	Neonatal jaundice associated with preterm delivery	NA
+3698991000006118	Neonatal jaundice after preterm delivery	NA
+371261000000111	Delivery of rehabilitation for rheumatoid arthritis	NA
+371261000006116	[X]Complication of anaesthesia during labour and deliv unsp	NA
+371351000006112	[X]Conditions involving the integument and temperature regulation of fetus and newborn	NA
+371606013	Height of uterine fundus	NA
+371636016	Quickening	NA
+371828010	Membranes complete	NA
+371830012	Membranes incomplete	NA
+371881019	Vaginal tear during delivery	NA
+3719631000006112	Gestational diabetes mellitus, class A>1<	NA
+3719641000006119	GDM, class A>1<	NA
+372041000000113	Over 20 weeks gestational age	NA
+372221000000111	14 - 20 weeks gestational age	NA
+372241000000116	9 - 13 weeks gestational age	NA
+372261000000115	Under 9 weeks gestational age	NA
+372281000000112	Finding of gestational age	NA
+372301000000113	Gestational age NOS	NA
+373602019	Lecithin - amniotic	NA
+373603012	Sphingomyelin -amniotic	NA
+373730011	Unconjugated oestriol level	NA
+375691000000117	Transfer of embryo to uterus	NA
+379921000000110	Other specified routine obstetric scan	NA
+379941000000115	Other specified other non routine obstetric scan	NA
+380021000000114	Non routine obstetric scan for fetal observations NOS	NA
+380121000000113	Obstetric Doppler studies NOS	NA
+380181000000114	Obstetric ultrasound monitoring NOS	NA
+38051000006119	Other amniotic/membrane problem with antenatal problem	NA
+381101000000113	Delivery of rehabilitation for trauma NEC	NA
+381941000000114	Delivery of a fraction of intracavitary radiotherapy	NA
+381961000000110	Radiotherapy delivery NOS	NA
+384471000006116	[X]Failed medical abortion,wth other+unspcfied complications	NA
+385981000000115	Fetal biometry	NA
+386021000000111	Routine obstetric scan NOS	NA
+386041000000116	Other non routine obstetric scan NOS	NA
+386061000000115	Other specified obstetric Doppler studies	NA
+386081000000112	Doppler ultrasound scan of middle cerebral artery of foetus	NA
+386101000000118	Other specified obstetric ultrasound monitoring	NA
+386811000006118	Fetal or neonatal effect of placental disorder	NA
+386881000006113	[X]Fetus+newborn affectd/other abnormalities/chorion+amnion	NA
+386911000006113	Fetal or neonatal effect of compression of umbilical cord	NA
+386941000006112	Fetal or neonatal effect of placental separation and/or haemorrhage	NA
+386951000006114	Fetal or neonatal effect of complication of labour and/or delivery	NA
+3869671000006113	Classical caesarean section	NA
+387371000000114	Delivery of exclusively oral chemotherapy for neoplasm	NA
+387871000000117	Other specified delivery of chemotherapy for neoplasm	NA
+387891000000118	Other specified delivery of oral chemotherapy for neoplasm	NA
+394472013	Fetus and gravid uterus operations	NA
+394475010	Diagnostic percutaneous examination of fetus	NA
+394476011	Diagnostic amniocentesis	NA
+394483016	Surgical induction of labour NOS	NA
+394491013	Obstetric monitoring	NA
+394701000006116	[X]Labour and delivery complicated by fetal stress, unspecified	NA
+394711000006118	[X]Labour and delivery complicated by other evidence of fetal distress	NA
+394721000006114	[X]Labour+delivery complicated by other cord complications	NA
+394731000006112	[X]Labour+delivery complicated by other cord entanglement	NA
+3952341000006118	Delivery by Kielland rotation	NA
+3952361000006119	KRFD - Kielland's rotational forceps delivery	NA
+3952371000006114	Kielland's rotational forceps delivery	NA
+3960501000006117	High forceps delivery	NA
+396881000006112	[X]Maternal care related to the fetus and amniotic cavity and possible delivery problems	NA
+396891000006110	[X]Maternal care/(suspected)damage/fetus/oth medicl procedur	NA
+396901000006114	[X]Maternal care/known or suspected fetal problem,unspecifd	NA
+396911000006112	[X]Maternal care/oth spcf known or suspected fetal problems	NA
+397854016	H/O: full term delivery	NA
+398335013	Other haemorrhage in early pregnancy	NA
+398341018	Antepartum haemorrhage with coagulation defect	NA
+398342013	Pre-eclampsia	NA
+398343015	Premature or threatened labour	NA
+398347019	Unspecified renal disease in pregnancy	NA
+398348012	Genitourinary tract infections in pregnancy	NA
+398349016	Genitourinary tract infection in pregnancy	NA
+398353019	Transverse lie NOS	NA
+398355014	Other fetal abnormality causing disproportion	NA
+398357018	Congenital abnormality of uterus affecting obstetric care	NA
+398358011	Congenital abnormality of uterus - baby delivered	NA
+398366019	Tumour of uterine body affecting obstetric care	NA
+398367011	Tumour of uterine body - baby delivered	NA
+398379011	Other uterine/pelvic floor abnormality - baby delivered	NA
+398390018	Vaginal abnormality affecting obstetric care	NA
+398391019	Vaginal abnormality - baby delivered	NA
+398398013	Vulval abnormality - baby delivered	NA
+398403014	Fetus with central nervous system malformation	NA
+398404015	Fetus with chromosomal abnormality	NA
+398405019	Fetus with viral damage via mother	NA
+398406018	Foetal damage from disease in the mother	NA
+398408017	Fetal distress - affecting management	NA
+398410015	Labor and delivery complicated by fetal heart rate anomaly	NA
+398415013	Other placental conditions	NA
+398424016	Trauma to perineum and vulva during delivery	NA
+398425015	Vulval and perineal haematoma during delivery	NA
+401465011	Misc. antenatal data	NA
+401467015	Fetal movements felt	NA
+401474013	Barts test	NA
+401475014	Outcome of delivery	NA
+401661010	Placental infarct	NA
+401662015	Placental infarction	NA
+402165017	Fetus affected by maternal toxaemia	NA
+402171011	Fetus or neonate affected by maternal polyhydramnios	NA
+402172016	Fetus affected by hydramnios	NA
+402173014	Fetus affected by maternal death	NA
+402175019	Fetus affected by malpresentation	NA
+402182015	Fetus affected by placental abruption	NA
+402183013	Fetus or neonate affected by abruptio placentae	NA
+402188016	Fetus/neonate affected by placental abnormality NEC	NA
+402191016	Fetus affected by breech delivery	NA
+402202012	Foetal growth retardation	NA
+402236018	Intrauterine fetal sepsis, unspecified	NA
+402493013	O/E - fetal presentation	NA
+402494019	O/E - presenting part	NA
+402496017	O/E - presenting part station	NA
+402497014	O/E - station of pres. part	NA
+402498016	O/E - VE - descent of fetus	NA
+402499012	O/E - VE - descent of P. part	NA
+404531000006114	[X]Oth complicatn/spinl+epidur anaesths during lab+delivery	NA
+404610016	Amniotic fluid for organism	NA
+404991000006115	[X]Oth pulmonary complicatns/anaesthesia during lab+delivery	NA
+405076011	Pregnancy benefits	NA
+405120018	Early onset of delivery	NA
+405122014	Malposition and malpresentation of fetus	NA
+405123016	Other fetal malposition and malpresentation	NA
+405161000006110	[X]Oth specif condition of integument specif to fetus/newb	NA
+405741000006110	[X]Oth+unspc fail induc abortn,complict/delay/exces h'morrhg	NA
+405751000006112	[X]Oth+unspcf failed inducd abort,complct gen tract+pelv inf	NA
+405761000006114	[X]Oth+unspcf failed inducd abortn,wth oth+unspcf complicatn	NA
+406321000006111	[X]Other and unspecif oedema specific to fetus and newborn	NA
+407103016	History of past delivery	NA
+407691000006115	[X]Other complications of anaesthesia during labour+delivery	NA
+4081901000006112	Post-term delivery	NA
+411106013	Simpson's forceps delivery	NA
+411339016	Intrauterine hypoxia	NA
+411392011	Cystitis of pregnancy	NA
+411563011	H/O: normal delivery	NA
+411564017	H/O: delivery no details	NA
+411772018	Delivery booking place	NA
+411793015	AFP test - antenatal	NA
+411795010	Double test	NA
+411796011	Triple test	NA
+411818019	Amniotic fluid for C/S	NA
+411941011	O/E - lie of fetus	NA
+411942016	On examination - triplet presentation	NA
+411943014	O/E - twin presentation	NA
+411944015	O/E - PP free - not engaged	NA
+411945019	O/E - presenting part engaged	NA
+4123016	Failed forceps delivery	NA
+412444014	Crown rump length	NA
+4126051000006119	Maternal AND/OR foetal condition affecting labour AND/OR delivery	NA
+4126061000006117	Maternal AND/OR fetal condition affecting labor AND/OR delivery	NA
+412666014	Non-immune hydrops fetalis	NA
+415251000006115	[X]Other specified disturbanc of temp regulation of newborn	NA
+41651000006119	Orthopaedic disorder during pregnancy - baby not yet delivered	NA
+417381000006111	[X]Other+unspcf failed induced abortion,complicated/embolism	NA
+417391000006114	[X]Other+unspcf failed induced abortion,without complication	NA
+417401000006111	[X]Other+unspcf genitourinary tract infection in pregnancy	NA
+418852012	Phlegmasia alba dolens - obstetric	NA
+418956014	Delivery - sex of baby	NA
+420192012	Premature delivery	NA
+42771000006110	Operations on gravid uterus	NA
+428381000006118	[X]Supervision of pregnancy with other poor reproductive obstetric history	NA
+429026013	Estimated date of delivery from last period	NA
+4301491000006111	Number of deliveries	NA
+435421000006116	Antenatal 12 weeks examination	NA
+435441000006111	Antenatal 20 week examination	NA
+435451000006113	Antenatal 24 week examination	NA
+435461000006110	Antenatal 28 week examination	NA
+435471000006115	Antenatal 30 week examination	NA
+435481000006117	Antenatal 32 week examination	NA
+435491000006119	Antenatal 34 week examination	NA
+435501000006110	Antenatal 35 week examination	NA
+435511000006113	Antenatal 36 week examination	NA
+435521000006117	Antenatal 37 week examination	NA
+435531000006119	Antenatal 38 week examination	NA
+435541000006112	Antenatal 39 week examination	NA
+435551000006114	Antenatal 40 week examination	NA
+435561000006111	Antenatal 41 week examination	NA
+435571000006116	A/N 42 week examination	NA
+435581000006118	A/N amnio. for ? chrom.abnorm.	NA
+435591000006115	A/N amnio. for ? neural tube	NA
+435671000006117	A/N blood gp screen not done	NA
+435681000006119	Antenatal blood group screening done	NA
+435691000006116	A/N blood group screen NOS	NA
+435701000006116	Antenatal booking examination	NA
+435761000006115	A/N care: elderly primip.	NA
+435781000006113	A/N care: gynae. risk	NA
+435831000006116	A/N care: H/O trophoblast.dis.	NA
+435861000006113	A/N care: multiparous, older than 35 years	NA
+435871000006118	A/N care: obstetric risk	NA
+435911000006115	A/N care: poor obstetric history	NA
+435921000006111	A/N care: precious preg. NOS	NA
+435941000006116	A/N care: primip. < 17 years	NA
+435951000006119	A/N care: primiparous, older than 30 years	NA
+436021000006116	A/N care:10yrs+since last preg	NA
+436031000006118	Antenatal Rhesus antibody screening	NA
+436041000006111	A/N Rh antibody screen NOS	NA
+436051000006113	A/N Rh screen not offered	NA
+436061000006110	Antenatal Rhesus screening offered	NA
+436081000006117	Antenatal sickle cell screening done	NA
+436091000006119	A/N sickle cell screen NOS	NA
+436101000006113	A/N sickle screen not done	NA
+436111000006111	A/N syphilis screen not done	NA
+436151000006112	Antenatal ultrasound scan for possible abnormality	NA
+436181000006116	A/N U/S scan normal +? dates	NA
+437251000006118	Abnormal biochemical finding on antenatal screening of mother	NA
+437261000006116	Abnormal chromosomal and genetic finding on antenatal screening of mother	NA
+437271000006111	Abnormal cytological finding on antenatal screening of mother	NA
+437301000006113	Abnormal finding on antenatal screening of mother	NA
+437361000006114	Abnormal glucose tolerance test during pregnancy - baby delivered	NA
+437371000006119	Abnormal glucose tolerance test during pregnancy - baby not yet delivered	NA
+437391000006118	Abnormal glucose tolerance test in the puerperium - baby delivered during current episode of care	NA
+437401000006116	Abnormal glucose tolerance test in the puerperium - baby delivered during previous episode of care	NA
+437411000006118	Abnormal haematologic finding on antenatal screening of mother	NA
+437521000006113	Abnormal radiological finding on antenatal screening of mother	NA
+444045013	Forceps delivery	NA
+445777014	Fetoscopy	NA
+445779012	Diagnostic percutaneous examination of placenta	NA
+445914015	Amniocentesis	NA
+450823012	UTI - urinary tract infection in pregnancy	NA
+451195018	Antenatal ultrasound scan at 22-40 weeks	NA
+451447016	Varicose veins of legs in pregnancy	NA
+451451019	Thrombophlebitis of legs in pregnancy	NA
+451452014	Superficial thrombophlebitis in pregnancy	NA
+451455011	Other phlebitis in pregnancy	NA
+451457015	Haemorrhoids in pregnancy	NA
+451459017	Venous complication of pregnancy, unspecified	NA
+451486017	Possible pregnancy	NA
+452906013	Spontaneous vertex delivery	NA
+453214019	Abdominal pain in pregnancy	NA
+453215018	Suspected macroscopic fetus	NA
+453237013	[X]Cervicitis following delivery	NA
+453238015	[X]Vaginitis following delivery	NA
+453850018	A/N care midwifery led	NA
+454182012	Delivery place planned	NA
+454183019	Home delivery planned	NA
+454192016	Pregnancy prolonged - 41 weeks	NA
+4543221000006116	EDD - Expected date of delivery	NA
+456055016	O/E - viable fetus	NA
+456109016	Antenatal blood tests	NA
+456408017	Maternal care for suspected chromosomal abnormality in fetus	NA
+456410015	Maternal care for chromosomal abnormality in fetus	NA
+456411016	Maternal care for damage to fetus from maternal rubella	NA
+456413018	Maternal care for fetal abnormality and damage, unspecified	NA
+456796014	Maternal care for fetal bradycardia during pregnancy	NA
+456797017	Maternal care for reduced fetal heart rate during pregnancy	NA
+456810012	Maternal care for fetal decelerations during pregnancy	NA
+456811011	Maternal care for fetal tachycardia during pregnancy	NA
+456812016	Maternal care for fetal acidosis during pregnancy	NA
+456831010	Ultrasonic doppler for fetal heart sounds	NA
+456842018	Anhydramnios	NA
+457034014	Gestation <24 weeks	NA
+457035010	Gestation = 24 weeks	NA
+457036011	Gestation >24 weeks	NA
+457458015	CSF (cerebrospinal fluid) lactate level	NA
+458021011	Serum alpha foetoprotein mean of median	NA
+458192011	Fluid lactate dehydrogenase level	NA
+459591017	Downs screening test	NA
+460121000006110	Acute renal failure following labour and delivery	NA
+460135012	Domino delivery	NA
+460449010	Normal pregnancy	NA
+460450010	[V]First normal pregnancy supervision	NA
+460451014	[V]Other normal pregnancy supervision	NA
+460452019	[V]Pregnancy confirmed	NA
+460453012	[V]Pregnant state, incidental	NA
+460454018	[V]Supervision of other normal pregnancy	NA
+460455017	Finding related to pregnancy	NA
+460456016	[V]Unspecified pregnant state	NA
+460457013	Supervision of high risk pregnancy	NA
+460458015	[V]Pregnancy with history of infertility	NA
+460459011	A/N care: H/O trophoblastic disease	NA
+460460018	[V]Pregnancy with history of abortion	NA
+460461019	[V]Grand multiparity	NA
+460462014	[V]Pregnancy with other poor obstetric history	NA
+460463016	[V]Pregnancy with other poor reproductive history	NA
+460465011	Supervision of high risk pregnancy for primigravida age 15 years or younger	NA
+460466012	Supervision of high risk pregnancy for social problem	NA
+460467015	[V]Other specified high-risk pregnancy	NA
+460468013	High risk pregnancy	NA
+460528011	[V]Outcome of delivery	NA
+460529015	[V]Single live birth	NA
+460537011	[V]Other specified outcome of delivery	NA
+460538018	[V]Unspecified delivery outcome	NA
+460539014	[V]Antenatal screening	NA
+460540011	[V]Amniocentesis to screen for chromosomal anomalies	NA
+460542015	[V]Other screening based on amniocentesis	NA
+460543013	[V]Screening for malformations using ultrasonics	NA
+460544019	[V]Screening for fetal growth retardation using ultrasonics	NA
+460545018	[V]Screening for isoimmunisation	NA
+460547014	[V]Other specified antenatal screening	NA
+460548016	[V]Unspecified antenatal screening	NA
+460817017	Psychosocial problems related to unwanted pregnancy	NA
+460986015	[V]Multiparity	NA
+460988019	[V]Illegitimate pregnancy	NA
+460991019	[V]Other unwanted pregnancy	NA
+4610831000006114	Abnormal amniotic fluid microscopy	NA
+4610911000006110	Abnormal amniotic fluid chemistry	NA
+4610951000006111	Amniotic fluid palmitic acid	NA
+4611091000006111	Trisomy 21 in amniotic foetal cell	NA
+461389014	[X]Supervision of other normal pregnancy	NA
+461391018	[X]Supervision of other high-risk pregnancies	NA
+461392013	[X]Other antenatal screening based on amniocentesis	NA
+461395010	[X]Other antenatal screening	NA
+4625061000006110	No antenatal care	NA
+4625071000006115	Antenatal care: not offered	NA
+4625081000006117	Antenatal care: not wanted	NA
+4625091000006119	Antenatal care: not attended	NA
+4676681000006115	Elective caesarean section	NA
+4676701000006117	Elective cesarean delivery	NA
+4676721000006110	Elective upper segment caesarean section	NA
+4676811000006111	Midforceps cephalic delivery with rotation	NA
+4676971000006113	ND - Normal delivery	NA
+476066010	Illegitimate pregnancy	NA
+476186012	Sickle cell screening test	NA
+477413013	Hydrops fetalis due to isoimmunisation	NA
+478421000006110	Alpha-feto protein equivocal	NA
+478431000006113	Alpha-feto protein low	NA
+478451000006118	Alpha-feto protein NOS	NA
+478461000006116	Alpha-feto protein raised	NA
+478471000006111	Alpha-fetoprotein test - antenatal	NA
+479251000006111	Amnicator test	NA
+479381000006113	Amniotic cavity and membrane problem NOS with a/n problem	NA
+479521000006116	Amniotic fluid - abnormality	NA
+479531000006118	Amniotic fluid - blood stained	NA
+4795381000006117	Threatened premature labor - not delivered	NA
+4795481000006114	History of recurrent miscarriage - delivered	NA
+4796401000006112	Thyroid dysfunction in the puerperium - baby delivered during previous episode of care	NA
+4796981000006113	Normal delivery but ante- or post- natal conditions present	NA
+4798221000006117	Labour and delivery complication by meconium in amniotic fluid	NA
+479841000006113	Amniotic fluid pulmonary embolism - delivered with postnatal complication	NA
+479891000006116	Amniotic fluid pulmonary embolism with antenatal complication	NA
+479911000006119	Amniotic fluid sent for exam.	NA
+4799871000006111	Umbilical cord tight around neck - delivered	NA
+4801211000006117	Spinal and epidural anesthesia-induced headache during labor and delivery	NA
+4801431000006110	Delivered by mid-cavity forceps with rotation	NA
+4801461000006118	Deliveries by caesarean	NA
+4801471000006113	Deliveries by cesarean	NA
+4801481000006111	Cesarean delivery	NA
+4801511000006115	Cesarean delivery - delivered	NA
+4801551000006119	Delivery by elective cesarean section	NA
+4801571000006112	Delivery by emergency cesarean section	NA
+480821000006118	Anaemia in the puerperium - baby delivered during current episode of care	NA
+480831000006115	Anaemia in the puerperium - baby delivered during previous episode of care	NA
+483053014	Bleeding in early pregnancy	NA
+483054015	Haemorrhage in early pregnancy	NA
+4833441000006112	Fetal or neonatal effect of placental damage caused by caesarean section	NA
+4834681000006117	Fetal or neonatal effect of forceps delivery	NA
+4834731000006110	Fetal or neonatal effect of vacuum extraction delivery	NA
+4834781000006111	Fetal or neonatal effect of caesarean section	NA
+4835111000006119	Fetal or neonatal effect of precipitate delivery	NA
+4835441000006113	Fetal or neonatal effect of instrumental delivery	NA
+483747019	Multiparous	NA
+485321000006115	Ante-natal care: not attended	NA
+485331000006117	Ante-natal care: not offered	NA
+485341000006110	Ante-natal care: not wanted	NA
+485351000006112	Antenatal exercises	NA
+485361000006114	Ante-natal relaxation classes	NA
+485401000006116	Antenatal blood group screening	NA
+485407010	Placenta accreta without haemorrhage	NA
+485550015	Malformation of placenta	NA
+485561000006119	Antenatal examination	NA
+485581000006112	Antenatal sickle cell screening	NA
+485591000006110	Antenatal syphilis screening	NA
+485601000006119	Antenatal syphilis screen NOS	NA
+485621000006112	Antenatal ultrasound confirms intrauterine pregnancy	NA
+485641000006117	Antenatal ultrasound scan status	NA
+485691000006114	Antenatal ultrasound scan 4-8 weeks	NA
+485721000006116	Antepartum haemorrhage NOS	NA
+485801000006118	Antepartum haemorrhage with coagulation defect - not delivered	NA
+485941000006114	Antepartum haemorrhage with uterine leiomyoma - not delivered	NA
+485971000006118	Antepartum haemorrhage, abruptio placentae and placenta praevia	NA
+485971018	Antepartum haemorrhage	NA
+486071000000115	Serum unconjugated oestriol mean of median measurement	NA
+486131000000118	Plasma unconjugated oestriol multiple of median measurement	NA
+488904014	Large-for-dates - delivered	NA
+490949011	Conjoined twins with two heads	NA
+491591000000118	From 9 weeks to <14 weeks gestational age	NA
+49189012	Elderly primigravida	NA
+494017018	Excessive weight gain in pregnancy	NA
+494487019	Fourchette tear during delivery	NA
+494622019	Proteinuric hypertension of pregnancy	NA
+494641000006117	Aspiration pneumonitis due to anaesthesia during labour and delivery	NA
+495022012	Gestational hypertension	NA
+495552014	Antenatal deep vein thrombosis	NA
+495700011	Fetal blood loss from vasa praevia	NA
+495951000006112	Assisted breech delivery	NA
+496701000006119	Asymptomatic bacteriuria in pregnancy - delivered with postnatal complication	NA
+497301012	Manually assisted vaginal delivery	NA
+497838018	Extraperitoneal caesarean section	NA
+499316017	Mid-cavity forceps delivery	NA
+499664017	Oblique lie	NA
+499688015	Premature labour	NA
+501402015	Shirodkar suture present	NA
+501758012	Fetal haemorrhage into mother's circulation	NA
+501763011	Fetal-maternal haemorrhage	NA
+502367012	Transverse lie	NA
+502879016	Vulval tear during delivery	NA
+503324011	Labial tear during delivery	NA
+503558016	Patient currently pregnant	NA
+503708013	Placenta praevia without haemorrhage	NA
+504761000006115	Benign essential hypertension complicating pregnancy, childbirth and the puerperium - delivered with postnatal complication	NA
+504791000006111	Benign essential hypertension complicating pregnancy, childbirth and the puerperium - delivered	NA
+504821000006119	Benign essential hypertension complicating pregnancy, childbirth and the puerperium - not delivered	NA
+505420016	Unplanned pregnancy	NA
+505912012	Fetal placental blood loss	NA
+507054013	Unstable lie	NA
+507056010	Fetus - unstable lie	NA
+5101421000006113	Instrumental delivery	NA
+5101431000006111	Nonrotational forceps delivery	NA
+5101441000006118	Outlet forceps delivery	NA
+5101651000006119	Emergency lower segment caesarean section	NA
+5101671000006112	Emergency upper segment caesarean section	NA
+5101691000006113	Emergency caesarean hysterectomy	NA
+5101711000006111	Elective caesarean hysterectomy	NA
+5101831000006113	Placental delivery procedure	NA
+5101841000006115	Delivery of placenta	NA
+5102051000006115	Manoeuvres for delivery in shoulder dystocia	NA
+510531000006113	Bicornuate uterus - baby delivered with postpartum complication	NA
+5105411000006115	Placenta adherent to previous caesarean scar	NA
+510551000006118	Bicornuate uterus complicating postpartum care - baby delivered during previous episode of care	NA
+5105591000006112	Complete breech delivery	NA
+510561000006116	Bicornuate uterus complicating antenatal care, baby not yet delivered	NA
+5105621000006114	Multiple delivery	NA
+5105651000006117	VBAC - Vaginal birth after caesarean section	NA
+5105671000006110	Vaginal delivery following previous cesarean section	NA
+511769018	Neoplasm of uncertain behaviour of placenta	NA
+511991000000117	Delivery of a fraction of total body irradiation	NA
+512021000000111	Other specified obstetric doppler ultrasound	NA
+512031000000113	Obstetric doppler ultrasound NOS	NA
+512061000000115	Doppler ultrasound scan of middle cerebral artery of fetus	NA
+518471000006110	Blood sent: alpha-feto protein	NA
+5215451000006119	Entire delivered uterus	NA
+524761000006114	Braxton Hicks contractions	NA
+525041000006113	Breast engorgement in pregnancy, the puerperium or lactation - delivered with postnatal complication	NA
+525071000006117	Breast engorgement in pregnancy, the puerperium or lactation - delivered	NA
+525781000006117	Breech extraction delivery	NA
+5264891000006110	Number of live deliveries	NA
+5267981000006113	Condition of membranes at delivery	NA
+52764015	Asymptomatic bacteriuria in pregnancy	NA
+5287101000006115	Lecithin - amniotic	NA
+5310801000006116	Number of caesarean sections	NA
+532021000006113	Caesarean delivery	NA
+532041000006118	Caesarean section following previous caesarean section	NA
+532091000006110	Caesarean wound disruption - delivered with postnatal complication	NA
+537261000006112	Cardiac complications of anaesthesia during labour and delivery	NA
+538391000006111	Care of teeth advice -in preg.	NA
+542051000006115	Cephalic vagin deliv abnorm pres head without instrument NOS	NA
+542061000006118	Cephalic vagin deliv abnorm pres head without instrument OS	NA
+542071000006113	Cephalic vaginal delivery with abnormal presentation of head at delivery without instrument	NA
+542081000006111	Cephalic version	NA
+542131000006111	Cephalo-pelvic disproportion	NA
+542241000006110	Cerclage of cervix of gravid uterus	NA
+543691000006112	Cervical incompetence - delivered with postnatal complication	NA
+5499431000006110	Labour and delivery complicated by foetal heart rate anomaly	NA
+5499451000006115	Labour and delivery complicated by fetal heart rate anomaly	NA
+5499621000006110	Trauma to perineum and/or vulva during delivery	NA
+5505291000006116	Incomplete placenta at delivery	NA
+5523911000006110	Delivered by low forceps delivery	NA
+5523921000006119	Delivered by mid-cavity forceps delivery	NA
+5523931000006116	Deliveries by breech extraction	NA
+5560361000006114	Abnormal delivery	NA
+5560381000006116	Face delivery	NA
+558681000006119	Cleidotomy of fetus to facilitate delivery	NA
+5591271000006118	Implanted drug delivery system procedure	NA
+5591281000006115	Implantation of drug delivery reservoir	NA
+56041000006118	Xiphoid- and pelvis-joined twins	NA
+5608891000006119	Normal rate of delivery	NA
+562571000000116	Partner pregnant	NA
+5646821000006112	Sex of baby at delivery	NA
+567541000000113	Seen in fetal medicine clinic	NA
+57021000006111	Varicose veins of perineum and vulva in pregnancy and the puerperium - delivered	NA
+57031000006114	Varicose veins of perineum and vulva in pregnancy and the puerperium - delivered with postnatal complication	NA
+57049017	Gestational proteinuria	NA
+571041000006111	Central nervous system complications of anaesthesia during labour and delivery	NA
+571721000000114	Newborn blood spot screening programme - sickle cell not screened for or screening incomplete	NA
+5728741000006115	Breech/instrumental delivery operations	NA
+5729301000006111	Hysterectomy in pregnancy	NA
+5729981000006118	Fetal head - manual flexion	NA
+5730481000006119	Supervision - normal delivery	NA
+5730571000006118	Normal delivery - occipitoanterior	NA
+5731041000006113	Born after precipitate delivery	NA
+5744011000006110	Mother delivered	NA
+5744021000006119	Mother not delivered	NA
+5744051000006111	Vaginal delivery	NA
+5744081000006115	Delivery problem	NA
+5753521000006113	Pregnancy	NA
+577391000006113	Complication of anaesthesia during labour and deliv unsp	NA
+577511000006114	Complications of labour and delivery NOS	NA
+577521000006118	Complications of labour and delivery NOS	NA
+577541000006113	Complication occurring during labour and delivery	NA
+577561000006112	Complications of labour and delivery NOS with antenatal prob	NA
+577571000006117	Complications of labour and delivery NOS with p/n problem	NA
+577681000006115	Complications of the puerperium NOS - delivered + p/n comp	NA
+578681000006116	Congenital abnormality of uterus complicating postpartum care - baby delivered during previous episode of care	NA
+578691000006118	Congenital abnormality of uterus complicating antenatal care, baby not yet delivered	NA
+578701000006118	Congenital abnormality of uterus - baby delivered with postpartum complication	NA
+579811000006119	Congenital absence of umbilical artery, unspecified	NA
+580921000006118	Congenital cardiovascular disorder during pregnancy - baby delivered	NA
+580931000006115	Congenital cardiovascular disorder during pregnancy - baby not yet delivered	NA
+580941000006113	Congenital cardiovascular disorder in the puerperium - baby delivered during current episode of care	NA
+580951000006110	Congenital cardiovascular disorder in the puerperium - baby delivered during previous episode of care	NA
+585691000006119	Non-manipulative cephalic vaginal delivery with abnormal presentation of head at delivery without instrument	NA
+588121000000114	Fetus with cardiovascular abnormality	NA
+5904701000006113	Delivered by caesarean section - pregnancy at term	NA
+5904711000006111	Delivered by cesarean section - pregnancy at term	NA
+5904721000006115	Delivered by caesarean delivery following previous caesarean delivery	NA
+5904741000006110	Delivered by caesarean deliv following previous caesarean delivery	NA
+5906231000006119	FD - Forceps delivery	NA
+599321000006114	Cracked nipple in pregnancy, the puerperium or lactation - delivered with postnatal complication	NA
+599351000006117	Cracked nipple in pregnancy, the puerperium or lactation - delivered	NA
+6054381000006119	Downs screening test	NA
+606751000006116	Cystocele complicating antenatal care - baby not yet delivered	NA
+606761000006119	Cystocele complicating postpartum care - baby delivered during previous episode of care	NA
+608311000006117	Death from any obstetric cause occurring more than 42 days but less than one year after delivery	NA
+612041000006115	Delay deliv after spontaneous or unsp rupture of membranes	NA
+612551000006112	Deliv.booking - length of stay	NA
+614931000006115	Destruction of fetus to facilitate delivery	NA
+615591000006110	Destructive operation for delivery	NA
+616151000006118	Diabetes mellitus - unspec whether in pregnancy/puerperium	NA
+616191000006112	Diabetes mellitus during pregnancy, childbirth and the puerperium	NA
+616211000006113	Diabetes mellitus in pregnancy/childbirth/puerperium NOS	NA
+616221000006117	Diabetes mellitus in the puerperium - baby delivered during previous episode of care	NA
+616231000006119	Diabetes mellitus in the puerperium - baby delivered during current episode of care	NA
+617391000006112	Diagnost endoscopic examination foetus using foetoscope NOS	NA
+617891000006117	Diagnostic endoscopic examination fetus using fetoscope NOS	NA
+617901000006118	Diagnostic endoscopic examination fetus using fetoscope OS	NA
+618001000006115	Diagnostic endoscopic examination of foetus using fetoscope	NA
+61871015	Placentography	NA
+619201000000110	Seen in foetal medicine clinic	NA
+622051000000118	History of gestational diabetes mellitus	NA
+62321000000112	Maternity registration	NA
+625031000006111	Disproportion - major pelvic abnormality with antenatal problem	NA
+625041000006118	Disproportion NOS	NA
+6261401000006119	Outcome of delivery - finding	NA
+6261431000006110	Fetal gestation at delivery - finding	NA
+628311000006111	Down's screening - blood test	NA
+628321000006115	Down's screening blood test abnormal	NA
+628331000006117	Down's screening blood test normal	NA
+628341000006110	Down's screening - blood sent	NA
+628351000006112	Downs screening blood test NOS	NA
+628561000006119	Drainage of amniotic cavity	NA
+628881000006110	Drainage of hydrocephalus of fetus to facilitate delivery	NA
+630331000006116	Drug dependence in the puerperium - baby delivered during previous episode of care	NA
+631861000006114	Due to deliver - EDC	NA
+632731000006118	Antenatal DVT	NA
+634181000006111	Hemorrhage in early pregnancy	NA
+6357691000006119	Haematoma of caesarean section	NA
+637821000006114	Elective lower segment caesarean section	NA
+637831000006112	Elective lower uterine segment caesarean section (LSCS)	NA
+637851000006117	Elective upper uterine segment caesarean delivery	NA
+64001000006115	Congenital or acquired abnormality of vulva complicating antenatal care - baby not yet delivered	NA
+64011000006117	Congenital or acquired abnormality of vulva complicating postpartum care - baby delivered during previous episode of care	NA
+64031000006111	Congenital or acquired abnormality of vulva - baby delivered with postpartum complication	NA
+64071000006114	Vulval and perineal haematoma during delivery	NA
+64091000006110	Vulval and perineal haematoma during delivery with postnatal problem	NA
+64141000006119	Vulval delivery trauma	NA
+64151010	Vomiting during third trimester of pregnancy	NA
+6427801000006118	Delivery of vertex presentation	NA
+6427811000006115	Delivery of cephalic presentation	NA
+64281000006117	Vulval/perineal trauma during delivery NOS	NA
+64321000006111	Vulval/perineal trauma during delivery NOS with p/n problem	NA
+6451801000006111	Pregnancy delivered	NA
+6451811000006114	Delivery	NA
+6452101000006113	Caesarean section care	NA
+649001000006115	Estimated date of delivery by dates	NA
+649011000006117	Estimated date of delivery by scan	NA
+650891000006111	Excessive weight gain in pregnancy	NA
+6517121000006115	Serum alkaline phosphatase placental enzyme level	NA
+6523321000006118	MS alpha-fetoprotein level	NA
+6527151000006118	Dilation and curettage of uterus after delivery	NA
+653016	Gravida 2	NA
+654010	Gravida 3	NA
+655011	Gravida 4	NA
+65511000006113	Varicose veins of legs in pregnancy and the puerperium - delivered	NA
+65521000006117	Varicose veins of legs in pregnancy and the puerperium - delivered with postnatal complication	NA
+6557371000006112	Born by normal vagin delivery	NA
+656012	Gravida 5	NA
+657015	Gravida 6	NA
+658013	Gravida 7	NA
+65822018	Placentitis	NA
+6589571000006118	Finding related to care delivery	NA
+659017	Gravida 8	NA
+660010	Gravida 9	NA
+6601621000006113	LSCS - Lower segment caesarean section	NA
+6601631000006111	LUSCS - Lower uterine segment caesarean section	NA
+6601691000006110	Lower uterine segment caesarean section	NA
+661014	Gravida 10	NA
+662019	Gravida more than 10	NA
+662661000006111	Failed attempted abortion	NA
+662681000006118	Failed attempted abortion with damage to pelvic organs or tissues	NA
+662691000006115	Failed attempted abortion with delayed or excessive haemorrhage	NA
+662701000006115	Failed attempted abortion with genital tract or pelvic infection	NA
+662961000006116	Failed medical abortion, complicated by delayed or excessive haemorrhage	NA
+662971000006111	Failed medical abortion, complicated by genital tract and pelvic infection	NA
+66381000006119	Velamentous insertion of cord	NA
+667361000006117	Fatigue during pregnancy - delivered with postnatal complication	NA
+667711000006119	Feeding intention - baby	NA
+66801000006116	Venous complication pregnancy and puerperium NOS - delivered	NA
+66811000006118	Venous complication pregnancy/puerperium NOS + a/n comp	NA
+669211000006118	Fetal alcohol syndrome	NA
+669341000006114	Fetal circulation	NA
+669381000006115	Fetal death in utero	NA
+66941000006112	Delivery by vacuum extraction	NA
+669491000006110	Fetal haemorrhage into co-twin	NA
+669561000006118	Fetal malnutrition, no mention light or small for gest age	NA
+669571000006113	Fetal malposition and malpresentation NOS	NA
+669601000006118	Fetal malposition and malpresentation NOS with a/n problem	NA
+669621000006111	Fetal maturity - A/N	NA
+669831000006113	Feto-placental problems NOS	NA
+669881000006114	Feto/placen. hormones normal	NA
+669891000006112	Feto/placent. hormones abnorm.	NA
+669901000006111	Feto/placental hormones	NA
+669911000006114	Feto/placental hormones NOS	NA
+669941000006113	Fetoscopic examination of fetus and biopsy of fetus	NA
+669951000006110	Fetoscopic examination of fetus and sampling of fetal blood	NA
+669981000006119	Fetus & gravid uterus ops	NA
+669991000006116	Fetus - abdominal X-ray, obst.	NA
+670011000006110	Fetus affected by APH - antepartum haemorrhage	NA
+670031000006116	Fetus affected by cord problems	NA
+670061000006113	Fetus affected by malpresentation during delivery	NA
+670181000006119	Fetus operations	NA
+670271000006112	Fetus or neonate affected by complication of labour/delivery	NA
+670721000006117	Fetus or neonate affected by placental abnormality OS	NA
+670731000006119	Fetus or neonate affected by placental damage OS	NA
+670801000006119	Fetal or neonatal effect of abruptio placentae	NA
+670871000006113	Fetus or neonate affected by transverse lie during labour and delivery	NA
+671011000006119	Fetus small-for-dates (SFD) with signs of malnutrition	NA
+671021000006110	Fetus small-for-dates (SFD), without mention of malnutrition	NA
+671041000006115	Fetus small-for-dates, without mention of malnutrition	NA
+671061000006116	Fetus with central nervous system malformation + a/n problem	NA
+671161000006117	Fetus with damage due to intrauterine contraceptive device	NA
+671171000006112	Fetus with damage due to intra-uterine contraceptive device	NA
+671181000006110	Fetus with damage due to intrauterine contraceptive device - delivered	NA
+671191000006113	Fetus with damage due to IUCD NOS	NA
+671201000006111	Fetus with damage due to IUCD unspecified	NA
+671211000006114	Fetus with damage due to intrauterine contraceptive device with antenatal problem	NA
+671231000006115	Fetus with damage due to other maternal disease + a/n prob	NA
+671271000006117	Fetus with damage NOS	NA
+6716071000006119	Labour and delivery unit	NA
+671611000006112	Fetus/neonate affect other placental separation/haemorrhage	NA
+671621000006116	Fetus or neonate affected by persistent occipito-posterior malposition during labour and delivery	NA
+671651000006113	Fetal or neonatal effect of poison transferred via placenta or breast	NA
+671661000006110	Fetus/neonate affected - poison transfer placenta/breast OS	NA
+671701000006119	Fetus or neonate affected by abnormality of maternal soft tissue	NA
+671711000006116	Fetus/neonate affected by antepartum haemorrhage unspecified	NA
+671731000006110	Fetus/neonate affected by complic labour/delivery NOS	NA
+671741000006117	Fetus/neonate affected by complic of placenta/cord/membrane	NA
+671751000006115	Fetus or neonate affected by destructive operation to aid delivery	NA
+671761000006118	Fetus or neonate affected by disproportion during labour and delivery	NA
+671771000006113	Fetus or neonate affected by face presentation during labour and delivery	NA
+671811000006113	Fetus/neonate affected by labour/delivery complication NOS	NA
+671821000006117	Fetus/neonate affected by labour/delivery complication OS	NA
+671841000006112	Fetus or neonate affected by malposition or disproportion during labour or delivery	NA
+671871000006116	Fetus or neonate affected by maternal anaesthetic agent during labour and delivery	NA
+671881000006118	Fetus or neonate affected by maternal anaesthetic and analgesic agents during labour and delivery	NA
+671891000006115	Fetus or neonate affected by maternal analgesic agent during labour and delivery	NA
+671901000006116	Fetus or neonate affected by maternal bony pelvis abnormality during labour and delivery	NA
+671911000006118	Fetus or neonate affected by maternal contracted pelvis during labour and delivery	NA
+671921000006114	Fetus or neonate affected by maternal epidural anaesthesia during labour and delivery	NA
+671931000006112	Fetus or neonate affected by maternal general anaesthesia during labour and delivery	NA
+671941000006119	Fetus/neonate affected by mat tranquillizers in labour/deliv	NA
+671981000006113	Fetus or neonate affected by maternal pethidine during labour and delivery	NA
+672051000006112	Fetus/neonate affected by other labour and delivery problems	NA
+672091000006118	Fetus or neonate affected by placental damage caused by amniocentesis	NA
+672101000006112	Fetus or neonate affected by placental damage caused by caesarean section	NA
+672151000006111	Fetus or neonate affected by shoulder presentation during labour and delivery	NA
+672171000006118	Fetus or neonate affected by uterine inertia or dysfunction during labour and delivery	NA
+672181000006115	Fetus/neonate affected by uterine inertia in labour/delivery	NA
+672191000006117	Fetus/neonate affected malpos/malpres/disprop - lab/deliv OS	NA
+672201000006119	Fetus or neonate affected by maternal premature rupture of membrane	NA
+672211000006116	Fetus/neonate affected other abnormalities of chorion/amnion	NA
+672221000006112	Fetus/neonate affected placental separation/haemorrhage NOS	NA
+672231000006110	Fetus/neonate affected placental separation/haemorrhage OS	NA
+672241000006117	Fetus or neonate affected by cephalopelvic disproportion during labour and delivery	NA
+672371000006116	Fetus/neonate affected-prem placental separation+acc haem'ge	NA
+674361000006117	Nitrazamine test	NA
+674521000006118	No A/N care: not known preg.	NA
+674551000006110	No ante-natal care	NA
+674561000006112	No ante-natal care NOS	NA
+675211000006111	Neville-Barnes forceps delivery	NA
+6767541000006116	Amniotomy at delivery	NA
+6767611000006119	Delivery of placenta by maternal effort	NA
+6771171000006117	Delivery care	NA
+6772211000006113	Delivery risk	NA
+6798961000006112	Delivery place booking	NA
+6832031000006112	Fluid sample lactate level	NA
+68497011	Caesarean hysterectomy	NA
+6849761000006111	Delivery suite	NA
+68583017	Mild pre-eclampsia	NA
+68950016	Conjoined twins	NA
+694831000006112	Multiple pregnancy NOS	NA
+694921000006117	Multiple pregnancy with malpresentation with antenatal problem	NA
+695721000006115	Multiple delivery	NA
+699091000006118	Manipulative cephalic vaginal delivery with abnormal presentation of head at delivery without instrument	NA
+7004511000006114	Antenatal ultrasound scan normal and possibly inconsistent with estimated date of delivery	NA
+7006551000006119	Difficulty bonding with unborn baby	NA
+7018181000006119	Fears delivery procedure	NA
+702961000006110	Mild or unspecified pre-eclampsia - delivered with p/n comp	NA
+703011000006115	Mild pre-eclampsia	NA
+703361000006115	Mid forceps cephalic delivery NEC	NA
+703371000006110	Mid forceps cephalic delivery with rotation	NA
+7049841000006117	Doppler ultrasound scan of middle cerebral artery of foetus	NA
+705571000006116	Mental disorder in the puerperium - baby delivered during previous episode of care	NA
+712801000006117	Medical condition NOS in pregnancy - baby not yet delivered	NA
+7128031000006119	Failed instrumental delivery	NA
+712851000006118	Medical condition NOS in puerperium - baby delivered	NA
+712861000006116	Medical condition NOS in puerperium - baby previously deliv	NA
+71331000006115	Uterine fibroid - baby delivered with postpartum complication	NA
+71351000006110	Uterine fibroid complicating antenatal care, baby not yet delivered	NA
+71361000006112	Uterine fibroid complicating postpartum care - baby delivered during previous episode of care	NA
+71431000006110	Uterine scar from previous surgery in pregnancy, childbirth and the puerperium - delivered	NA
+714511000006111	McDonald cerclage of cervix	NA
+715181000006114	Maturity of baby	NA
+715471000006117	Maternal malaria in the puerperium - baby delivered during current episode of care	NA
+715481000006119	Maternal malaria in the puerperium - baby delivered during previous episode of care	NA
+715661000006114	Maternal rubella in the puerperium - baby delivered during current episode of care	NA
+715671000006119	Maternal rubella in the puerperium - baby delivered during previous episode of care	NA
+715731000006114	Maternal syphilis in the puerperium - baby delivered during current episode of care	NA
+715741000006116	Maternal syphilis in the puerperium - baby delivered during previous episode of care	NA
+715781000006110	Tuberculosis in pregnancy, childbirth and the puerperium - delivered	NA
+715791000006113	Maternal tuberculosis during pregnancy - baby not yet delivered	NA
+715821000006116	Maternal tuberculosis in the puerperium - baby delivered during current episode of care	NA
+715831000006118	Maternal tuberculosis in the puerperium - baby delivered during previous episode of care	NA
+715861000006110	Maternal care for poor fetal growth	NA
+715891000006119	Maternal care for suspect fetal abnormal and damage, unspec	NA
+715911000006117	Maternal care for suspected central nervous system malformation in fetus	NA
+715941000006118	Maternal care/known or suspected fetal problem,unspecifd	NA
+716061000006112	Maternal gonorrhoea during pregnancy - baby not yet delivered	NA
+716081000006119	Maternal gonorrhoea in the puerperium - baby delivered during current episode of care	NA
+716091000006116	Maternal gonorrhoea in the puerperium - baby delivered during previous episode of care	NA
+716131000006119	Maternal hypotension syndrome - delivered with postnatal problem	NA
+716391000006118	Mat infect/parasitic dis NOS in pregnancy - baby delivered	NA
+716401000006116	Mat infect/parasitic dis NOS in pregnancy-baby not delivered	NA
+716411000006118	Mat infect/parasitic dis NOS in puerp-baby previously deliv	NA
+716421000006114	Mat infect/parasitic dis NOS in puerperium - baby delivered	NA
+716511000006117	Maternal care for central nervous system malformation in fetus	NA
+716591000006110	Maternal care for fetal hypoxia	NA
+717731000006115	Manual removal products of conception delivered uterus NOS	NA
+717741000006113	Manual removal products of conception delivered uterus OS	NA
+717751000006110	Manual removal of products of conception from delivered uterus	NA
+71831000006112	Vacuum delivery	NA
+71951000006114	Vaginal 'show'	NA
+71961000006111	Vaginal 'show' - A/N	NA
+71981000006118	Vaginal abnormality - baby delivered with postpartum complication	NA
+72001000006118	Vaginal abnormality complicating antenatal care - baby not yet delivered	NA
+72011000006115	Congenital or acquired abnormality of vagina complicating postpartum care - baby delivered during previous episode of care	NA
+7217901000006119	Dietary education for gestational diabetes	NA
+7231761000006117	Education about vaginal birth after caesarean section (VBAC)	NA
+7261481000006112	Oxygen percentage delivered	NA
+7261501000006119	Delivered oxygen therapy percentage	NA
+7262951000006119	Twin liveborn born in hospital by caesarean section	NA
+7262971000006112	Twin birth, in hospital, delivered by cesarean section	NA
+7263321000006118	Liveborn born in hospital by caesarean section	NA
+7288601000006111	Estimated foetal gestational age at delivery	NA
+7288611000006114	Estimated fetal gestational age at delivery	NA
+730441000006114	Major puerperal infection NOS - delivered with p/n comp	NA
+733521000006113	Lower uterine segment caesarean section (LSCS) NEC	NA
+733561000006119	Lss 24 wk inv risk inj phys/men hlth ext child preg wom fmly	NA
+733921000006119	Low forceps cephalic delivery	NA
+734181000006116	Low maternal weight gain	NA
+735281000000118	Education about folic acid in first trimester	NA
+735931000006115	Labour and delivery complicated by biochemical evidence of foetal stress	NA
+73748017	Premature rupture of membranes	NA
+7404491000006112	Proton therapy system beam-delivery system	NA
+742121000006114	Liquor examination	NA
+74689019	Maternal obesity syndrome	NA
+747281000006119	Less 24 wk involv risk injury physic/mentl health preg woman	NA
+7480721000006111	H/O gestational diabetes mellitus	NA
+749511000000113	Delivery of a fraction of intraluminal brachytherapy	NA
+7498111000006117	Fetal or neonatal effect of breech delivery	NA
+7500221000006113	Pre-existing type 1 diabetes mellitus in pregnancy	NA
+7511791000006113	Preterm spontaneous labour with preterm delivery	NA
+7511801000006114	Preterm spontaneous labor with preterm delivery	NA
+7511821000006116	Preterm spontaneous labor with term delivery	NA
+751271000006113	Large-for-dates fetus	NA
+752091000006112	Fetal disproportion	NA
+752951000006117	Labour and delivery complicated by foetal heart rate anomaly with meconium in amniotic fluid	NA
+7529701000006110	Vaginal delivery of fetus	NA
+753671000000119	Order of birth at delivery	NA
+754081000006118	Kielland forceps cephalic delivery with rotation	NA
+755061000006112	Kielland forceps delivery with rotation	NA
+758421000000112	Sickle cell repeat screening with further sample required	NA
+759051000000118	Antenatal screening status	NA
+759371000000112	Antenatal screening shows significant disorder	NA
+759431000000115	Repeat antenatal screening required	NA
+759491000000119	Antenatal screening result pending	NA
+759551000000114	Antenatal screening declined	NA
+759611000000114	Antenatal screening not indicated for partner	NA
+759671000000116	Antenatal screening for partner required	NA
+759791000000112	Antenatal screening, at risk couple identified	NA
+759941000006112	First degree perineal tear during delivery with postnatal problem	NA
+760391000000110	Too premature for reliable screening	NA
+763171000006114	Foetoscopic examination foetus and sampling of foetal blood	NA
+76641000006111	Unspecified hypertension in preg/childb/puerp - not deliv	NA
+7693521000006111	Delivery by caesarean section for footling breech presentation	NA
+7693541000006116	Delivery by caesarean section for breech presentation	NA
+769491000006117	Intra-amniotic infection of fetus	NA
+769501000006113	Intra-amniotic fetal infection NOS	NA
+769511000006111	Intra-amniotic fetal infection, unspecified	NA
+770931000006110	Intends to breast-feed	NA
+771961000006112	Instrumental removal of products of conception from delivered uterus	NA
+771991000006116	Instrumental removal products of concep delivered uterus NOS	NA
+772001000006119	Instrumental removal products of concep delivered uterus OS	NA
+774791000006115	Inlet pelvic contraction	NA
+77942011	Severe pre-eclampsia	NA
+77991000006114	Unspecified perineal laceration during delivery + p/n prob	NA
+780971000006118	Infant feeding method	NA
+781431000006115	Induction and delivery procedures	NA
+783151000006119	Incision of cervix to facilitate delivery	NA
+78441000006113	Unspecified renal disease in pregnancy with p/n complication	NA
+7870651000006112	Prostate photodynamic therapy fibreoptic cable, beam-delivery	NA
+7870661000006114	Prostate photodynamic therapy fiberoptic cable, beam-delivery	NA
+7875471000006113	History of elective caesarean section	NA
+790461000006119	Fourth degree perineal tear during delivery with postnatal problem	NA
+791511000006114	FP24 completed by Dr.	NA
+791591000006116	FP24A - mat claim-not obst lis	NA
+791611000006110	FP24A completed by Dr.	NA
+791691000006117	FP24A-FPC contacted re mistake	NA
+791701000006117	FP24A-FPC dispute fee due	NA
+791711000006119	FP24A-FPC make up payment	NA
+79271000006110	Ultrasound scan - obstetric	NA
+79461000006119	Umbilical artery hypoplasia, unspecified	NA
+79471000006114	Umbilical cord complication	NA
+79481000006112	Umbilical cord complications NOS	NA
+795531000006117	Full postnatal examination	NA
+795581000006116	Gestation period, 40 weeks	NA
+79761000006114	Unborn child at risk physi/ment abnormal serious handicap	NA
+797671000006111	General practitioner unit delivery booking	NA
+797801000006116	Galactorrhoea in pregnancy and the puerperium - delivered with postnatal complication	NA
+8004341000006112	Single liveborn born in hospital by vaginal delivery	NA
+801221000006116	Genitourinary tract infection in pregnancy - deliv +p/n comp	NA
+8016611000006112	Gestational diabetes, delivered	NA
+8016621000006116	Gestational diabetes mellitus complicating pregnancy	NA
+801861000006114	Gestation - multiple	NA
+801901000006119	Gestational diabetes mellitus	NA
+804071000006112	Glycosuria during pregnancy - delivered with postnatal complication	NA
+804171000006113	GMS2 claim completed by Dr.	NA
+80443017	Umbilical cord complication	NA
+806931000006117	Primigravida	NA
+807011000006112	Gravida	NA
+8072991000006115	Chemotherapy delivery	NA
+807391000006116	Group A haemolytic streptococcal intra-amniotic infect. NEC	NA
+807411000006116	Group B haemolytic streptococcal intra-amniotic infect. NEC	NA
+8113341000006118	Discussion about caesarean section wound for maternal wellbeing	NA
+8113351000006116	Discussion about caesarean section wound	NA
+8125051000006113	Total number of registerable births at delivery	NA
+814501000006111	Haemorrhoids in pregnancy and the puerperium - delivered with postnatal complication	NA
+819741000006116	HELLP - Syndrome of haemolysis, elevated liver enzymes and low platelet	NA
+8230411000006110	NHS Sickle Cell and Thalassaemia Screening Programme Middle East family origin	NA
+82312017	Failed attempted abortion	NA
+8241711000006112	Discussion about changing insulin requirement in pregnancy	NA
+8264221000006117	Management of gestational diabetes mellitus	NA
+828921000006111	HPL - Human placental lactogen level	NA
+830081000006112	Hydrops fetalis due to other+unspcfd haemolytic disease	NA
+830571000006117	Hyperemesis gravidarum with metabolic disturbance - delivered	NA
+830581000006119	Hyperemesis gravidarum with metabolic disturbance - not delivered	NA
+830601000006112	Hyperemesis gravidarum with metabolic disturbance unsp	NA
+8314001000006112	Defibulation of vulva to facilitate delivery	NA
+8331261000006112	Number of previous normal deliveries	NA
+83411000006114	Tumour of uterine body - baby delivered with postpartum complication	NA
+83431000006115	Tumour of uterine body complicating postpartum care - baby delivered during previous episode of care	NA
+83441000006113	Tumour of uterine body complicating antenatal care, baby not yet delivered	NA
+8350671000006113	Serum pregnancy associated plasma protein A concentration	NA
+8371251000006112	Nitrazamine test	NA
+845341000006111	Diabetes: shared care in pregnancy - diabetologist and obstetrician	NA
+85371000006114	U-S obstetric diagn. scan NOS	NA
+85381000006112	U-S obstetric scan abnormal	NA
+85391000006110	US obstetric scan normal	NA
+85401000006112	US obstetric scan requested	NA
+85431000006116	US obstetric scan abnormal	NA
+85441000006114	U-S scan - fetal cephalometry	NA
+85451000006111	US scan - fetal maturity	NA
+85461000006113	U-S scan - fetal presentation	NA
+85471000006118	U-S scan - multiple fetus	NA
+85481000006115	U-S scan - obstetric, diagn.	NA
+85491000006117	U-S scan -placental localisatn	NA
+85501000006113	U-S scan fetal abdominal circumference	NA
+85511000006111	U-S scan fetal BPD	NA
+85521000006115	U-S scan fetal head circumference	NA
+85531000006117	U-S scan fetal length	NA
+855441000006117	Born by caesarean section	NA
+856241000006110	Post natal examination	NA
+85768019	Fetal blood loss from ruptured cord	NA
+86386010	Morning sickness	NA
+871111000006110	Intra-uterine fetal op.	NA
+871141000006114	Intrauterine exch. transfusion	NA
+871151000006111	Intraut. fetal defect correct	NA
+871171000006118	Intraut. fetal blood sampling	NA
+871181000006115	Fetal scalp electrodes applied	NA
+871191000006117	Obst. amniocentesis operation	NA
+871201000006119	Shirodkar suture -in pregnancy	NA
+871221000006112	Correct retrov.gravid uterus	NA
+871231000006110	Breech - external version	NA
+871241000006117	Intrauterine fetal op. NOS	NA
+871251000006115	Other forceps delivery op.	NA
+871261000006118	Breech/instrumental deliv.ops.	NA
+871341000006112	Caesarean section operation	NA
+871351000006114	Upper uterine segment caesar.	NA
+871361000006111	Lower uterine segment caesar.	NA
+871371000006116	Extraperitoneal caesarean sect	NA
+871381000006118	Caesarean Section	NA
+871391000006115	Caesarean section op. NOS	NA
+871401000006118	Breech delivery op.	NA
+871441000006116	High forceps delivery op.	NA
+871461000006117	Mid forceps delivery op.	NA
+871471000006112	Low forceps delivery op.	NA
+871511000006119	Fetal scalp vacuum traction op	NA
+871541000006115	Fetal head - manual rotation	NA
+871551000006118	Fetal head - manual flexion	NA
+871571000006111	Supervision - normal delivery	NA
+871581000006114	Conduct of delivery	NA
+871591000006112	Manually assist. vaginal deliv	NA
+871601000006116	Conduct of delivery NOS	NA
+871611000006118	Routine delivery manipulation	NA
+871621000006114	Hysterectomy in pregnancy	NA
+871641000006119	Cleidotomy to help delivery	NA
+871661000006115	Other operations to aid deliv.	NA
+871681000006113	Symphysiotomy - delivery aid	NA
+871691000006111	Pubiotomy - delivery aid	NA
+871701000006111	Dilat./incise cervix-deliv.aid	NA
+871781000006119	Torn cervix sutured	NA
+871831000006111	Obstet. laceration repair NOS	NA
+871851000006116	Reposition umbilical cord	NA
+87191000006118	Trial forceps delivery	NA
+88136019	Fetal exsanguination	NA
+887791000006116	Placenta praevia - no h'ge	NA
+887801000006115	Placenta praevia + haemorrhage	NA
+887841000006118	Pre-eclampsia NOS	NA
+887851000006116	Excess vomiting in pregnancy	NA
+887861000006119	Severe hyperemesis gravidarum	NA
+887871000006114	Vomiting of pregnancy NOS	NA
+887881000006112	Premature/false labour	NA
+887891000006110	Threatened/false labour	NA
+887901000006114	Premature/false labour NOS	NA
+887911000006112	Post-term/prolonged pregnancy	NA
+887971000006115	Preg.+ diabetes mellitus	NA
+888051000006111	Normal delivery - occipitoant.	NA
+888091000006117	Transverse/oblique lie	NA
+888121000006118	Disproportion - pelvic cause	NA
+888131000006115	Disproportion - mixed cause	NA
+888141000006113	Disproportion - foetal cause	NA
+888151000006110	Soft tissue pelvic abnormality	NA
+888161000006112	Congenital uterine abnormality	NA
+888211000006115	Fetal CNS malformation	NA
+888221000006111	Fetal chromosomal abnormality	NA
+888231000006114	Fetus + hereditary disease	NA
+888241000006116	Fetus + rubella damage	NA
+888251000006119	Fetus + maternal problem NOS	NA
+888261000006117	Fetus + IUCD	NA
+888271000006112	Intra-uterine death	NA
+888281000006110	Membrane rupt.+ delivery delay	NA
+888321000006116	Elderly primigravida + labour	NA
+888341000006111	Pregnancy risk factors NOS	NA
+888441000006115	Prolapsed umbilical cord	NA
+888451000006118	Umbilical cord problem NOS	NA
+888461000006116	Delivery trauma to perineum	NA
+888471000006111	Perineal delivery trauma NOS	NA
+888581000006113	Method of delivery	NA
+888591000006111	Labour/delivery problems NOS	NA
+888601000006115	High forceps delivery	NA
+888621000006113	Elective caesarean section	NA
+888631000006111	Caesarean section NOS	NA
+888641000006118	Labour/delivery problems NOS	NA
+888651000006116	Method of delivery NOS	NA
+888661000006119	Varicose veins,legs - obst.	NA
+888751000006114	Disruption of caesarean wound	NA
+893591000006115	Obstetr prob affecting fetus	NA
+893681000006119	Fetus poison - placenta/breast	NA
+893801000006112	Maternal cord/placenta problem	NA
+893811000006110	Maternal placenta praevia	NA
+893821000006119	Maternal A.P.H.	NA
+893831000006116	Maternal placental insuffic.	NA
+893841000006114	Maternal prolapsed cord	NA
+893891000006117	Fetus: Labour/delivery problem	NA
+893901000006118	Born by breech delivery	NA
+893911000006115	Born by forceps delivery	NA
+893931000006114	Born by caesarean delivery	NA
+893951000006119	Born after precipitate deliv.	NA
+893971000006112	Mat. labour/deliv. prob. NOS	NA
+893981000006110	Fetal obstetric prob. NOS	NA
+893991000006113	Slow growth/nutrit. as fetus	NA
+894001000006116	Small for dates as fetus	NA
+894011000006118	As fetus: small for dates+maln	NA
+894021000006114	Malnutrition NOS as fetus	NA
+894321000006112	Fetal/neonatal haemorrhage	NA
+894331000006110	Fetal cerebral haemorrhage	NA
+89833018	Threatened abortion	NA
+90065014	Human placental lactogen	NA
+905021000006119	Ante-natal clinic referral	NA
+905281000006110	[RFC] Ante-natal	NA
+906891000006115	[RFC] Labour and delivery	NA
+908471000006117	[RFC] Antenatal care	NA
+909771000006119	[RFC] Routine antenatal care	NA
+909781000006116	[RFC] Teenage antenatal care	NA
+910471000006118	[RFC] Teenage pregnancy	NA
+9157101000006116	Pregnacare	NA
+916201000006114	Antenatal care	NA
+917201000006112	Gravida no	NA
+917241000006114	Primagravida	NA
+917271000006118	Gravida-multiple	NA
+917281000006115	Gravida NOS	NA
+919131000006116	Antenatal care: gravida No.	NA
+919141000006114	Antenatal care: primigravida	NA
+919151000006111	Antenatal care: 2nd pregnancy	NA
+919161000006113	Antenatal care: 3rd pregnancy	NA
+919171000006118	Antenatal care: multip	NA
+919381000006118	Patient currently pregnant	NA
+919391000006115	Pregnant - urine test confirms	NA
+919401000006118	Pregnant blood test confirms	NA
+919411000006115	Pregnant - V.E. confirms	NA
+919421000006111	Pregnant - on history	NA
+919431000006114	Pregnant - on abdom. palpation	NA
+919441000006116	Pregnant - planned	NA
+919451000006119	Pregnant - unplanned - wanted	NA
+919461000006117	Pregnant - unplanned - not wanted	NA
+919471000006112	Pregnant ? pregnant	NA
+919481000006110	Pregnant unplanned ? wanted	NA
+919491000006113	Pregnant - ? planned	NA
+919501000006117	Unplanned pregnancy	NA
+919511000006119	A/N care: obstetric risk	NA
+919521000006110	A/N care: uncertain dates	NA
+919531000006113	A/N care: recurent aborter	NA
+919541000006115	A/N care: grand multip	NA
+919551000006118	A/N care: H/O still birth	NA
+919561000006116	A/N care: H/O perinatal death	NA
+919571000006111	A/N care: poor obstetr history	NA
+919581000006114	A/N care: social risk	NA
+919591000006112	A/N care: poor home conditions	NA
+919601000006116	A/N care: poor A/N attender	NA
+919611000006118	A/N care: late booker	NA
+919621000006114	A/N care: H/O child abuse	NA
+919631000006112	A/N care: medical risk	NA
+919641000006119	A/N care: gynae risk	NA
+919651000006117	No antenatal care	NA
+919661000006115	Antenatal care: not offered	NA
+919671000006110	Antenatal care: not wanted	NA
+919681000006113	Antenatal care: not attended	NA
+919691000006111	A/N care provider	NA
+919701000006111	A/N care from G.P.	NA
+919711000006114	A/N care from consultant	NA
+919721000006118	A/N - shared care	NA
+919731000006115	a/n	NA
+919741000006113	A/N care midwifery led	NA
+919751000006110	Delivery booking place	NA
+919761000006112	Delivery: no place booked	NA
+919771000006117	Home delivery booked	NA
+919781000006119	G.P. unit delivery booking	NA
+919801000006115	Private home delivery booking	NA
+919811000006117	Delivery booking place changed	NA
+919821000006113	Deliv.booking - length of stay	NA
+919831000006111	Short stay delivery booking	NA
+919841000006118	Full stay delivery booking	NA
+919921000006116	Antenatal amniocentesis	NA
+919931000006118	A/N amniocentesis - not wanted	NA
+919941000006111	Amniocentesis wanted	NA
+919951000006113	A/N amniocentesis - awaited	NA
+919961000006110	A/N amniocentesis - normal	NA
+919971000006115	A/N amniocentesis - abnormal	NA
+919981000006117	Antenatal ultrasound scan	NA
+919991000006119	A/N U/S scan offered	NA
+920001000006112	A/N U/S scan not wanted	NA
+920011000006110	A/N U/S scan awaited	NA
+920021000006119	A/N U/S scan normal += dates	NA
+920031000006116	A/N U/S scan normal +? dates	NA
+920041000006114	A/N U/S scan abnormal	NA
+920051000006111	A/N U/S scan for ? abnormality	NA
+920061000006113	A/N U/S scan for slow growth	NA
+920081000006115	A/N Rh screen not offered	NA
+920091000006117	A/N Rh screen offered	NA
+920101000006111	Alpha-feto protein blood test	NA
+920231000006114	Antenatal syphilis screen	NA
+920241000006116	A/N syphilis screen not done	NA
+920251000006119	A/N syphilis screen-blood sent	NA
+920261000006117	Antenatal blood group screen	NA
+920271000006112	A/N blood group screen not done	NA
+920281000006110	A/N blood group screen done	NA
+920291000006113	Antenatal sickle cell screen	NA
+920301000006114	A/N sickle cell screen not done	NA
+920311000006112	A/N sickle cell screen done	NA
+920321000006116	Antenatal examinations	NA
+920331000006118	A/N booking examination	NA
+920341000006111	A/N 12 weeks examination	NA
+920351000006113	A/N 16 week examination	NA
+920361000006110	A/N 20 week examination	NA
+920371000006115	A/N 24 week examination	NA
+920381000006117	A/N 28 week examination	NA
+920391000006119	A/N 30 week examination	NA
+920401000006117	A/N 32 week examination	NA
+920411000006119	A/N 34 week examination	NA
+920421000006110	A/N 35 week examination	NA
+920431000006113	A/N 36 week examination	NA
+920441000006115	A/N 37 week examination	NA
+920451000006118	A/N 38 week examination	NA
+920461000006116	A/N 39 week examination	NA
+920471000006111	A/N 40 week examination	NA
+920481000006114	A/N 41 week examination	NA
+920491000006112	A/N 42 week examination	NA
+920501000006116	Fetal maturity - A/N	NA
+920511000006118	Fetal maturity: dates = size	NA
+920521000006114	Fetal maturity: dates not=size	NA
+920541000006119	O/E - fetal movements	NA
+920551000006117	O/E - fetal movements seen	NA
+920581000006113	O/E - fetal movements felt	NA
+920591000006111	Fetal movemnt.diminished	NA
+920601000006115	O/E - no fetal movements	NA
+920611000006117	O/E - fetus very active	NA
+920621000006113	O/E - fetal heart heard	NA
+920631000006111	O/E - fetal heart not heard	NA
+920651000006116	O/E - fundus 12-16 week size	NA
+920661000006119	O/E - fundus 16-20 week size	NA
+920671000006114	O/E - fundus 20-24 week size	NA
+920681000006112	O/E - fundus 24-28 week size	NA
+920691000006110	O/E - fundus 28-32 week size	NA
+920701000006110	O/E - fundus 34-36 week size	NA
+920711000006113	O/E - fundus 36-38 week size	NA
+920721000006117	O/E - fundus 38 weeks-term size	NA
+920731000006119	O/E - fundal size = dates	NA
+920741000006112	O/E - fundus = term size	NA
+920751000006114	O/E - fetal presentation	NA
+920761000006111	O/E - vertex presentation	NA
+920771000006116	O/E - breech presentation	NA
+920781000006118	O/E - oblique lie	NA
+920811000006116	O/E - fetal presentation unsure	NA
+921361000006119	Infant feeding at 1 year	NA
+923171000006113	Pregnancy advice	NA
+923191000006114	Diet in pregnancy advice	NA
+923211000006110	Pregnancy exercise advice	NA
+923221000006119	Pregnancy alcohol advice	NA
+923241000006114	Pregnancy dental advice	NA
+923251000006111	Maternity grant advice	NA
+923261000006113	Maternity benefit advice	NA
+923271000006118	Maternity milk/ vits advice	NA
+923281000006115	Preg. prescription exempt adv.	NA
+926531000006114	Antenatal relaxation classes	NA
+931951000006119	Emergency caesarian section	NA
+932281000006113	Elective caesarian section	NA
+9324231000006120	Spontaneous onset of labour between 37 and 39 weeks gestation with planned caesarean section	NA
+9324881000006116	Diabetes mellitus in childbirth	NA
+9326461000006120	Vacuum assisted vaginal delivery	NA
+9326571000006112	Preterm labour with preterm delivery	NA
+9326581000006112	Preterm labor with preterm delivery	NA
+932711000006111	Elective caesarean section	NA
+942511000006117	X (pregnancy) MES	NA
+9511000006113	Other specified obstetric operations	NA
+952691000006112	O/E fundal size	NA
+953141000006118	Fundus palpable	NA
+953151000006116	Fundus not palpable	NA
+956371000006118	Pregnant number of weeks	NA
+958831000006114	Pregnancy	NA
+95981000006112	Transient hypertension of pregnancy	NA
+96011000006114	Transient hypertension of pregnancy - delivered with postnatal complication	NA
+960471000006119	Fears delivery procedure	NA
+97258010	Unwanted pregnancy	NA
+974541000006112	Pregnancy NOS	NA
+977581000006111	Nuchal ultrasound scan	NA
+981521000006112	Difficulty bonding with unborn baby	NA
+988331000006111	Other forceps delivery op.	NA
+989251000006118	Congenital uterine abnormality	NA
+98935017	Oligohydramnios	NA
+991571000006114	Pre-eclampsia NOS	NA
+991781000006117	Breech delivery	NA
+99411000006111	Toxic reaction to local anaethetic during labour and delivery	NA
+994321000006117	Cholestasis of pregnancy	NA
+263445017	Birth of child	1
+1222093019	Hysterotomy and termination of pregnancy	1
+1786192014	Episiotomy breakdown	1
+647581000006111	Episiotomy	1
+871671000006110	Episiotomy performed	1
+4505001000006111	Episiotomy care	1
+4677151000006115	Suturing of episiotomy	1
+5101801000006117	Right mediolateral episiotomy	1
+5102331000006113	Repair of right mediolateral episiotomy	NA
+5230501000006116	Type of episiotomy	1
+5701071000006110	Resuture of episiotomy	NA
+5701081000006113	Resuture of episiotomy dehiscence	NA
+5131811000006111	Post-episiotomy pain	NA
+5886831000006113	Episiotomy infection	NA
+6600881000006118	Disruption of episiotomy wound in the puerperium	NA
+7496611000006110	Episiotomy wound	NA
+8022781000006116	Postpartum episiotomy pain	NA
+13948831000006120	Episiotomy wound	NA
+577601000006112	Complications of pregnancy,childbirth and the puerperium NOS	NA

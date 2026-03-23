@@ -1,0 +1,50 @@
+medcodeid	Term
+1488406011	Diabetes: practice programme
+16497016	Impaired glucose tolerance
+1222530014	Impaired glucose tolerance test
+1488700016	[D]Impaired glucose tolerance
+551091000000112	Review of impaired glucose tolerance
+881691000006116	Impaired glucose tolerance
+938351000006113	Impaired glucose tolerance
+1621031000006114	Impaired glucose tolerance annual review
+1699041000006110	Impaired glucose tolerance monitoring administration
+1699051000006112	Impaired glucose tolerance monitoring 1st letter
+1699061000006114	Impaired glucose tolerance monitoring 2nd letter
+1699071000006119	Impaired glucose tolerance monitoring 3rd letter
+1709721000000116	Referral for impaired glucose tolerance management offered
+1709761000000112	Referral for management of impaired glucose tolerance
+1741931000006116	Impaired glucose tolerance monitoring administration
+1741941000006114	Impaired glucose tolerance monitoring invitation
+1741951000006111	Impaired glucose tolerance monitoring invitation first letter
+1741961000006113	Impaired glucose tolerance monitoring invitation second letter
+1741971000006118	Impaired glucose tolerance monitoring invitation third letter
+1916741000006115	Impaired glucose regulation care pathway
+1916751000006118	Impaired glucose regulation care pathway declined
+1947071000006115	Impaired glucose regulation monitoring invitation first letter
+1947081000006117	Impaired glucose regulation monitoring invitation second letter
+1947091000006119	Impaired glucose regulation monitoring invitation third letter
+1980741000006115	Impaired glucose regulation annual review
+2135131000000116	Impaired glucose tolerance resolved
+2200791000000116	Impaired glucose regulation
+2409991000000110	Impaired glucose regulation monitoring invitation
+2410151000000113	Impaired glucose regulation monitoring telephone invitation
+2410191000000117	Impaired glucose regulation monitoring verbal invitation
+2650011000006113	IGT - Impaired glucose tolerance
+2865221000006115	Impaired glucose tolerance in obese
+3020131000006118	Impaired glucose tolerance in nonobese
+3694771000006113	Impaired glucose tolerance associated with hormonal aetiology
+3938481000006117	Impaired glucose tolerance associated with insulin receptor abnormality
+4406471000006113	Impaired glucose tolerance with hyperinsulism
+5110011000006115	Impaired glucose tolerance in pregnancy
+7510591000006110	Dietary education for impaired glucose tolerance
+7841331000006118	Background retinopathy due to impaired glucose regulation
+8288771000006118	Non-diabetic hyperglycaemia
+7535301000006114	Non-diabetic hyperglycemia
+2990619013	Non-diabetic hyperglycaemia
+259364017	Glucose tol. test impaired
+2649981000006112	Prediabetic nonclinical diabetes
+7722421000006118	Prediabetes
+1856281000006116	Pre-diabetes
+1920591000006111	Pre-diabetes structured education programme declined
+2221001000000112	Pre-diabetes
+398843011	Glucose intolerance

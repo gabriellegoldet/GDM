@@ -1,0 +1,19 @@
+medcodeid	Term
+20191016	Gestational diabetes mellitus
+622051000000118	History of gestational diabetes mellitus
+801901000006119	Gestational diabetes mellitus
+1703761000000114	Gestational diabetes information leaflet given
+2128081000000111	Gestational diabetes mellitus annual review
+2686061000006119	GDM
+2686071000006114	Gestational diabetes
+2686101000006116	GDM - Gestational diabetes mellitus
+3258001000006116	Gestational diabetes mellitus, class A>2<
+3719631000006112	Gestational diabetes mellitus, class A>1<
+3719641000006119	GDM, class A>1<
+7217901000006119	Dietary education for gestational diabetes
+7480721000006111	H/O gestational diabetes mellitus
+8016611000006112	Gestational diabetes, delivered
+8016621000006116	Gestational diabetes mellitus complicating pregnancy
+8264221000006117	Management of gestational diabetes mellitus
+1220321013	Diabetes mellitus arising in pregnancy
+2686081000006112	Maternal gestational diabetes mellitus

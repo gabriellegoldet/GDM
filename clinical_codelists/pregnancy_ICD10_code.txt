@@ -1,0 +1,485 @@
+ICD	Term	delivery
+O36.5	Maternal care for poor foetal growth	NA
+A34	Obstetrical tetanus	NA
+F53	Mental and behavioural disorders associated with the puerperium, not elsewhere classified	NA
+F53.0	Mild mental and behavioural disorders associated with the puerperium, not elsewhere classified	NA
+F53.1	Severe mental and behavioural disorders associated with the puerperium, not elsewhere classified	NA
+F53.8	Other mental and behavioural disorders associated with the puerperium, not elsewhere classified	NA
+F53.9	Puerperal mental disorder, unspecified	NA
+M83.0	Puerperal osteomalacia	NA
+O00.0	Abdominal pregnancy 	NA
+O00.1	Tubal pregnancy 	NA
+O00.2	Ovarian pregnancy 	NA
+O00.8	Other ectopic pregnancy 	NA
+O00.9	Ectopic pregnancy, unspecified 	NA
+O02.1	Missed abortion 	NA
+O03.0	Spontaneous abortion: Incomplete, complicated by genital tract and pelvic infection	NA
+O03.1	Spontaneous abortion: Incomplete, complicated by delayed or excessive haemorrhage	NA
+O03.2	Spontaneous abortion: Incomplete, complicated by embolism	NA
+O03.3	Spontaneous abortion: Incomplete, with other and unspecified complications	NA
+O03.4	Spontaneous abortion: Incomplete, without complication	NA
+O03.5	Spontaneous abortion: Complete or unspecified, complicated by genital tract and pelvic infection	NA
+O03.6	Spontaneous abortion: Complete or unspecified, complicated by delayed or excessive haemorrhage	NA
+O03.7	Spontaneous abortion: Complete or unspecified, complicated by embolism	NA
+O03.8	Spontaneous abortion: Complete or unspecified, with other and unspecified complications	NA
+O03.9	Spontaneous abortion: Complete or unspecified, without complication 	NA
+O04.0	Medical abortion: Incomplete, complicated by genital tract and pelvic infection	NA
+O04.1	Medical abortion: Incomplete, complicated by delayed or excessive haemorrhage	NA
+O04.2	Medical abortion: Incomplete, complicated by embolism	NA
+O04.3	Medical abortion: Incomplete, with other and unspecified complications	NA
+O04.4	Medical abortion: Incomplete, without complication	NA
+O04.5	Medical abortion: Complete or unspecified, complicated by genital tract and pelvic infection	NA
+O04.6	Medical abortion: Complete or unspecified, complicated by delayed or excessive haemorrhage	NA
+O04.7	Medical abortion: Complete or unspecified, complicated by embolism	NA
+O04.8	Medical abortion: Complete or unspecified, with other and unspecified complications	NA
+O04.9	Medical abortion: Complete or unspecified, without complication 	NA
+O05.0	Other abortion: Incomplete, complicated by genital tract and pelvic infection	NA
+O05.1	Other abortion: Incomplete, complicated by delayed or excessive haemorrhage	NA
+O05.2	Other abortion: Incomplete, complicated by embolism	NA
+O05.3	Other abortion: Incomplete, with other and unspecified complications	NA
+O05.4	Other abortion: Incomplete, without complication	NA
+O05.5	Other abortion: Complete or unspecified, complicated by genital tract and pelvic infection	NA
+O05.6	Other abortion: Complete or unspecified, complicated by delayed or excessive haemorrhage	NA
+O05.7	Other abortion: Complete or unspecified, complicated by embolism	NA
+O05.8	Other abortion: Complete or unspecified, with other and unspecified complications	NA
+O05.9	Other abortion: Complete or unspecified, without complication 	NA
+O06.0	Unspecified abortion: Incomplete, complicated by genital tract and pelvic infection	NA
+O06.1	Unspecified abortion: Incomplete, complicated by delayed or excessive haemorrhage	NA
+O06.2	Unspecified abortion: Incomplete, complicated by embolism	NA
+O06.3	Unspecified abortion: Incomplete, with other and unspecified complications	NA
+O06.4	Unspecified abortion: Incomplete, without complication	NA
+O06.5	Unspecified abortion: Complete or unspecified, complicated by genital tract and pelvic infection	NA
+O06.6	Unspecified abortion: Complete or unspecified, complicated by delayed or excessive haemorrhage	NA
+O06.7	Unspecified abortion: Complete or unspecified, complicated by embolism	NA
+O06.8	Unspecified abortion: Complete or unspecified, with other and unspecified complications	NA
+O06.9	Unspecified bortion: Complete or unspecified, without complication 	NA
+O07.0	Failed medical abortion, complicated by genital tract and pelvic infection 	NA
+O07.1	Failed medical abortion, complicated by delayed or excessive haemorrhage 	NA
+O07.2	Failed medical abortion, complicated by embolism 	NA
+O07.3	Failed medical abortion, with other and unspecified complications 	NA
+O07.4	Failed medical abortion, without complication 	NA
+O07.5	Other and unspecified failed attempted abortion, complicated by genital tract and pelvic infection 	NA
+O07.6	Other and unspecified failed attempted abortion, complicated by delayed or excessive haemorrhage 	NA
+O07.7	Other and unspecified failed attempted abortion, complicated by embolism 	NA
+O07.8	Other and unspecified failed attempted abortion, with other and unspecified complications 	NA
+O07.9	Other and unspecified failed attempted abortion, without complication 	NA
+O08.0	Genital tract and pelvic infection following abortion and ectopic and molar pregnancy 	NA
+O08.1	Delayed or excessive haemorrhage following abortion and ectopic and molar pregnancy 	NA
+O08.2	Embolism following abortion and ectopic and molar pregnancy 	NA
+O08.3	Shock following abortion and ectopic and molar pregnancy 	NA
+O08.4	Renal failure following abortion and ectopic and molar pregnancy 	NA
+O08.5	Metabolic disorders following abortion and ectopic and molar pregnancy 	NA
+O08.6	Damage to pelvic organs and tissues following abortion and ectopic and molar pregnancy 	NA
+O08.7	Other venous complications following abortion and ectopic and molar pregnancy 	NA
+O08.8	Other complications following abortion and ectopic and molar pregnancy 	NA
+O08.9	Complication following abortion and ectopic and molar pregnancy, unspecified 	NA
+O10.0	Pre-existing essential hypertension complicating pregnancy, childbirth and the puerperium 	NA
+O10.1	Pre-existing hypertensive heart disease complicating pregnancy, childbirth and the puerperium 	NA
+O10.2	Pre-existing hypertensive renal disease complicating pregnancy, childbirth and the puerperium 	NA
+O10.3	Pre-existing hypertensive heart and renal disease complicating pregnancy, childbirth and the puerperium 	NA
+O10.4	Pre-existing secondary hypertension complicating pregnancy, childbirth and the puerperium 	NA
+O10.9	Unspecified pre-existing hypertension complicating pregnancy, childbirth and the puerperium 	NA
+O11	Pre-eclampsia superimposed on chronic hypertension 	NA
+O12	Gestational [pregnancy-induced] oedema and proteinuria without hypertension 	NA
+O12.0	Gestational oedema 	NA
+O12.1	Gestational proteinuria 	NA
+O12.2	Gestational oedema with proteinuria 	NA
+O13	Gestational [pregnancy-induced] hypertension 	NA
+O14	Pre-eclampsia 	NA
+O14.0	Mild to moderate pre-eclampsia 	NA
+O14.1	Severe pre-eclampsia 	NA
+O14.2	HELLP syndrome 	NA
+O14.9	Pre-eclampsia, unspecified 	NA
+O15	Eclampsia 	NA
+O15.0	Eclampsia in pregnancy 	NA
+O15.1	Eclampsia in labour	1
+O15.2	Eclampsia in the puerperium	1
+O15.9	Eclampsia, unspecified as to time period 	NA
+O16	Unspecified maternal hypertension 	NA
+O20	Haemorrhage in early pregnancy 	NA
+O30.0	Twin pregnancy 	NA
+O30.1	Triplet pregnancy 	NA
+O30.2	Quadruplet pregnancy 	NA
+O30.8	Other multiple gestation 	NA
+O30.9	Multiple gestation, unspecified 	NA
+O31.0	Papyraceous fetus 	NA
+O31.1	Continuing pregnancy after abortion of one fetus or more 	NA
+O31.2	Continuing pregnancy after intrauterine death of one fetus or more 	NA
+O31.8	Other complications specific to multiple gestation O32.0 Maternal care for unstable lie 	NA
+O32.1	Maternal care for breech presentation 	NA
+O32.2	Maternal care for transverse and oblique lie 	NA
+O32.3	Maternal care for face, brow and chin presentation 	NA
+O32.4	Maternal care for high head at term 	NA
+O32.5	Maternal care for multiple gestation with malpresentation of one fetus or more 	NA
+O32.6	Maternal care for compound presentation 	NA
+O32.8	Maternal care for other malpresentation of fetus 	NA
+O32.9	Maternal care for malpresentation of fetus, unspecified 	NA
+O33.0	Maternal care for disproportion due to deformity of maternal pelvic bones 	NA
+O33.1	Maternal care for disproportion due to generally contracted pelvis 	NA
+O33.2	Maternal care for disproportion due to inlet contraction of pelvis 	NA
+O33.3	Maternal care for disproportion due to outlet contraction of pelvis 	NA
+O33.4	Maternal care for disproportion of mixed maternal and fetal origin 	NA
+O33.5	Maternal care for disproportion due to unusually large fetus 	NA
+O33.6	Maternal care for disproportion due to hydrocephalic fetus 	NA
+O33.7	Maternal care for disproportion due to other fetal deformities 	NA
+O33.8	Maternal care for disproportion of other origin 	NA
+O33.9	Maternal care for disproportion, unspecified 	NA
+O34.0	Maternal care for congenital malformation of uterus 	NA
+O34.1	Maternal care for tumour of corpus uteri 	NA
+O34.2	Maternal care due to uterine scar from previous surgery 	NA
+O34.3	Maternal care for cervical incompetence 	NA
+O34.4	Maternal care for other abnormalities of cervix 	NA
+O34.5	Maternal care for other abnormalities of gravid uterus 	NA
+O34.6	Maternal care for abnormality of vagina 	NA
+O34.7	Maternal care for abnormality of vulva and perineum 	NA
+O34.8	Maternal care for other abnormalities of pelvic organs 	NA
+O34.9	Maternal care for abnormality of pelvic organ, unspecified 	NA
+O35.0	Maternal care for (suspected) central nervous system malformation in fetus 	NA
+O35.1	Maternal care for (suspected) chromosomal abnormality in fetus 	NA
+O35.2	Maternal care for (suspected) hereditary disease in fetus 	NA
+O35.3	Maternal care for (suspected) damage to fetus from viral disease in mother 	NA
+O35.4	Maternal care for (suspected) damage to fetus from alcohol 	NA
+O35.5	Maternal care for (suspected) damage to fetus by drugs 	NA
+O35.6	Maternal care for (suspected) damage to fetus by radiation 	NA
+O35.7	Maternal care for (suspected) damage to fetus by other medical procedures 	NA
+O35.8	Maternal care for other (suspected) fetal abnormality and damage 	NA
+O35.9	Maternal care for (suspected) fetal abnormality and damage, unspecified 	NA
+O36.0	Maternal care for rhesus isoimmunization 	NA
+O36.1	Maternal care for other isoimmunization 	NA
+O36.2	Maternal care for hydrops fetalis 	NA
+O36.3	Maternal care for signs of fetal hypoxia 	NA
+O36.4	Maternal care for intrauterine death 	NA
+O36.6	Maternal care for excessive fetal growth 	NA
+O36.7	Maternal care for viable fetus in abdominal pregnancy 	NA
+O36.8	Maternal care for other specified fetal problems 	NA
+O36.9	Maternal care for fetal problem, unspecified 	NA
+O40	Polyhydroamnios	NA
+O41.0	Oligohydramnios 	NA
+O41.1	Infection of amniotic sac and membranes 	NA
+O41.8	Other specified disorders of amniotic fluid and membranes 	NA
+O41.9	Disorder of amniotic fluid and membranes, unspecified 	NA
+O42.0	Premature rupture of membranes, onset of labour within 24 hours 	NA
+O42.1	Premature rupture of membranes, onset of labour after 24 hours 	NA
+O42.2	Premature rupture of membranes, labour delayed by therapy 	NA
+O42.9	Premature rupture of membranes, unspecified 	NA
+O43.0	Placental transfusion syndromes 	NA
+O43.1	Malformation of placenta 	NA
+O43.2	Morbidly adherent placenta 	NA
+O43.9	Placental disorder, unspecified 	NA
+O44.0	Placenta praevia specified as without haemorrhage 	NA
+O44.1	Placenta praevia with haemorrhage 	NA
+O45.0	Premature separation of placenta with coagulation defect 	NA
+O45.8	Other premature separation of placenta 	NA
+O45.9	Premature separation of placenta, unspecified 	NA
+O46.0	Antepartum haemorrhage with coagulation defect 	NA
+O46.8	Other antepartum haemorrhage 	NA
+O46.9	Antepartum haemorrhage, unspecified 	NA
+O47.0	False labour before 37 completed weeks of gestation 	NA
+O47.1	False labour at or after 37 completed weeks of gestation 	NA
+O47.9	False labour, unspecified 	NA
+O048	Prolonged Pregnancy	NA
+O60.0	Preterm labour without delivery 	NA
+O60.1	Preterm spontaneous labour with preterm delivery	1
+O60.2	Preterm spontaneous labour with term delivery	1
+O60.3	Preterm delivery without spontaneous labour	1
+O61	Failed induction of labour	1
+O61.0	Failed medical induction of labour	1
+O61.1	Failed instrumental induction of labour	1
+O61.8	Other failed induction of labour	1
+O61.9	Failed induction of labour, unspecified	1
+O62	Abnormalities of forces of labour	1
+O62.0	Primary inadequate contractions	1
+O62.1	Secondary uterine inertia	1
+O62.2	Other uterine inertia	1
+O62.3	Precipitate labour	1
+O62.4	Hypertonic, incoordinate, and prolonged uterine contractions	1
+O62.8	Other abnormalities of forces of labour	1
+O62.9	Abnormality of forces of labour, unspecified	1
+O63	Long labour	1
+O63.0	Prolonged first stage (of labour)	1
+O63.1	Prolonged second stage (of labour)	1
+O63.2	Delayed delivery of second twin, triplet, etc.	1
+O63.9	Long labour, unspecified	1
+O64	Obstructed labour due to malposition and malpresentation of fetus	1
+O64.0	Obstructed labour due to incomplete rotation of fetal head	1
+O64.1	Obstructed labour due to breech presentation	1
+O64.2	Obstructed labour due to face presentation	1
+O64.4	Obstructed labour due to shoulder presentation	1
+O64.5	Obstructed labour due to compound presentation	1
+O64.8	Obstructed labour due to other malposition and malpresentation	1
+O64.9	Obstructed labour due to malposition and malpresentation, unspecified	1
+O65	Obstructed labour due to maternal pelvic abnormality	1
+O65.0	Obstructed labour due to deformed pelvis	1
+O65.1	Obstructed labour due to generally contracted pelvis	1
+O65.2	Obstructed labour due to pelvic inlet contraction	1
+O65.3	Obstructed labour due to pelvic outlet and mid-cavity contraction	1
+O65.4	Obstructed labour due to fetopelvic disproportion, unspecified	1
+O65.5	Obstructed labour due to abnormality of maternal pelvic organs	1
+O65.9	Obstructed labour due to maternal pelvic abnormality, unspecified	1
+O66	Other obstructed labour	1
+O66.0	Obstructed labour due to shoulder dystocia	1
+O66.1	Obstructed labour due to locked twins	1
+O66.2	Obstructed labour due to unusually large fetus	1
+O66.3	Obstructed labour due to other abnormalities of fetus	1
+O66.4	Failed trial of labour, unspecified	1
+O66.5	Failed application of vacuum extractor and forceps, unspecified	1
+O66.8	Other specified obstructed labour	1
+O66.9	Obstructed labour, unspecified	1
+O67	Labour and delivery complicated by intrapartum haemorrhage, not elsewhere classified	1
+O67.0	Intrapartum haemorrhage with coagulation defect	1
+O67.8	Other intrapartum haemorrhage	1
+O67.9	Intrapartum haemorrhage, unspecified	1
+O68	Labour and delivery complicated by fetal stress [distress]	1
+O68.0	Labour and delivery complicated by fetal heart rate anomaly	1
+O68.1	Labour and delivery complicated by meconium in amniotic fluid	1
+O68.2	Labour and delivery complicated by fetal heart rate anomaly with meconium in amniotic fluid	1
+O68.3	Labour and delivery complicated by biochemical evidence of fetal stress	1
+O68.9	Labour and delivery complicated by fetal stress, unspecified	1
+O69	Labour and delivery complicated by umbilical cord complications	1
+O69.0	Labour and delivery complicated by prolapse of cord	1
+O69.1	Labour and delivery complicated by cord around neck, with compression	1
+O69.2	Labour and delivery complicated by other cord entanglement, with compression	1
+O69.3	Labour and delivery complicated by short cord	1
+O69.4	Labour and delivery complicated by vasa praevia	1
+O69.5	Labour and delivery complicated by vascular lesion of cord	1
+O69.8	Labour and delivery complicated by other cord complications	1
+O69.9	Labour and delivery complicated by cord complication, unspecified	1
+O70	Perineal laceration during delivery	1
+O70.0	First degree perineal laceration during delivery	1
+O70.1	Second degree perineal laceration during delivery	1
+O70.2	Third degree perineal laceration during delivery	1
+O70.3	Fourth degree perineal laceration during delivery	1
+O70.9	Perineal laceration during delivery, unspecified	1
+O71	Other obstetric trauma	1
+O71.0	Rupture of uterus before onset of labour	1
+O71.1	Rupture of uterus during labour	1
+O71.2	Postpartum inversion of uterus	1
+O71.3	Obstetric laceration of cervix	1
+O71.4	Obstetric high vaginal laceration	1
+O71.5	Other obstetric injury to pelvic organs	1
+O71.6	Obstetric damage to pelvic joints and ligaments	1
+O71.7	Obstetric haematoma of pelvis	1
+O71.9	Obstetric trauma, unspecified	1
+O72	Postpartum haemorrhage	1
+O72.0	Third-stage haemorrhage	1
+O72.1	Other immediate postpartum haemorrhage	1
+O72.2	Delayed and secondary postpartum haemorrhage	1
+O72.3	Postpartum coagulation defects	1
+O73	Retained placenta and membranes, without haemorrhage	1
+O73.0	Retained placenta without haemorrhage	1
+O73.1	Retained portions of placenta and membranes, without haemorrhage	1
+O74	Complications of anaesthesia during labour and delivery	1
+O74.0	Aspiration pneumonitis due to anaesthesia during labour and delivery	1
+O74.1	Other pulmonary complications of anaesthesia during labour and delivery	1
+O74.2	Cardiac complications of anaesthesia during labour and delivery	1
+O74.3	Central nervous system complications of anaesthesia during labour and delivery	1
+O74.4	Toxic reaction to local anaesthesia during labour and delivery	1
+O74.5	Spinal and epidural anaesthesia-induced headache during labour and delivery	1
+O74.6	Other complications of spinal and epidural anaesthesia during labour and delivery	1
+O74.7	Failed or difficult intubation during labour and delivery	1
+O74.8	Other complications of anaesthesia during labour and delivery	1
+O74.9	Complication of anaesthesia during labour and delivery, unspecified	1
+O75	Other complications of labour and delivery, not elsewhere classified	1
+O75.0	Maternal distress during labour and delivery	1
+O75.1	Shock during or following labour and delivery	1
+O75.2	Pyrexia during labour, not elsewhere classified	1
+O75.3	Other infection during labour	1
+O75.4	Other complications of obstetric surgery and procedures	1
+O75.5	Delayed delivery after artificial rupture of membranes	1
+O75.6	Delayed delivery after spontaneous or unspecified rupture of membranes	1
+O75.7	Vaginal delivery following previous caesarean section	1
+O75.8	Other specified complications of labour and delivery	1
+O75.9	Complication of labour and delivery, unspecified	1
+O80.0	Spontaneous vertex delivery	1
+O80.1	Spontaneous breech delivery	1
+O80.8	Other single spontaneous delivery	1
+O80.9	Single spontaneous delivery, unspecified	1
+O81	Single delivery by forceps and vacuum extractor	1
+O81.0	Low forceps delivery	1
+O81.1	Mid-cavity forceps delivery	1
+O81.2	Mid-cavity forceps with rotation	1
+O81.3	Other and unspecified forceps delivery	1
+O81.4	Vacuum extractor delivery	1
+O81.5	Delivery by combination of forceps and vacuum extractor	1
+O82	Single delivery by caesarean section	1
+O82.0	Delivery by elective caesarean section	1
+O82.1	Delivery by emergency caesarean section	1
+O82.2	Delivery by caesarean hysterectomy	1
+O82.8	Other single delivery by caesarean section	1
+O82.9	Delivery by caesarean section, unspecified	1
+O83	Other assisted single delivery	1
+O83.0	Breech extraction	1
+O83.1	Other assisted breech delivery	1
+O83.2	Other manipulation-assisted delivery	1
+O83.3	Delivery of viable fetus in abdominal pregnancy	1
+O83.4	Destructive operation for delivery	1
+O83.8	Other specified assisted single delivery	1
+O83.9	Assisted single delivery, unspecified	1
+O84	Multiple delivery	1
+O84.0	Multiple delivery, all spontaneous	1
+O84.1	Multiple delivery, all by forceps and vacuum extractor	1
+O84.2	Multiple delivery, all by caesarean section	1
+O84.8	Other multiple delivery	1
+O84.9	Multiple delivery, unspecified	1
+O85	Puerperal sepsis	1
+O86	Other puerperal infections	1
+O86.0	Infection of obstetric surgical wound	1
+O86.1	Other infection of genital tract following delivery 	1
+O86.2	Urinary tract infection following delivery	1
+O86.3	Other genitourinary tract infections following delivery	1
+O86.4	Pyrexia of unknown origin following delivery 	1
+O86.8	Other specified puerperal infections	1
+O87	Venous complications and haemorrhoids in the puerperium	NA
+O87.0	Superficial thrombophlebitis in the puerperium	NA
+O87.1	Deep phlebothrombosis in the puerperium	NA
+O87.2	Haemorrhoids in the puerperium	NA
+O87.3	Cerebral venous thrombosis in the puerperium 	NA
+O87.8	Other venous complications in the puerperium	NA
+O87.9	Venous complication in the puerperium, unspecified	NA
+O88	Obstetric embolism  	NA
+O88.0	Obstetric air embolism 	NA
+O88.1	Amniotic fluid embolism 	NA
+O88.2	Obstetric blood-clot embolism 	NA
+O88.3	Obstetric pyaemic and septic embolism 	NA
+O88.8	Other obstetric embolism	NA
+O89	Complications of anaesthesia during the puerperium	1
+O89.0	Pulmonary complications of anaesthesia during the puerperium	1
+O89.1	Cardiac complications of anaesthesia during the puerperium	1
+O89.2	Central nervous system complications of anaesthesia during the puerperium	1
+O89.3	Toxic reaction to local anaesthesia during the puerperium	1
+O89.4	Spinal and epidural anaesthesia-induced headache during the puerperium	1
+O89.5	Other complications of spinal and epidural anaesthesia during the puerperium	1
+O89.6	Failed or difficult intubation during the puerperium	1
+O89.8	Other complications of anaesthesia during the puerperium	1
+O89.9	Complication of anaesthesia during the puerperium, unspecified	1
+O90	Complications of the puerperium, not elsewhere classified 	NA
+O90.0	Disruption of caesarean section wound 	NA
+O90.1	Disruption of perineal obstetric wound 	NA
+O90.2	Haematoma of obstetric wound 	NA
+O90.3	Cardiomyopathy in the puerperium 	NA
+O90.4	Postpartum acute renal failure 	NA
+O90.5	Postpartum thyroiditis 	NA
+O90.8	Other complications of the puerperium, not elsewhere classified 	NA
+O90.9	Complication of the puerperium, unspecified 	NA
+O91	Infections of breast associated with childbirth 	NA
+O91.0	Infection of nipple associated with childbirth 	NA
+O91.1	Abscess of breast associated with childbirth 	NA
+O91.2	Nonpurulent mastitis associated with childbirth O92 Other disorders of breast and lactation associated with childbirth 	NA
+O92.0	Retracted nipple associated with childbirth 	NA
+O92.1	Cracked nipple associated with childbirth 	NA
+O92.2	Other and unspecified disorders of breast associated with childbirth 	NA
+O92.3	Agalactia 	NA
+O92.4	Hypogalactia 	NA
+O92.5	Suppressed lactation 	NA
+O92.6	Galactorrhoea 	NA
+O92.7	Other and unspecified disorders of lactation 	NA
+O20.0	Threatened abortion 	NA
+O20.8	Other haemorrhage in early pregnancy 	NA
+O20.9	Haemorrhage in early pregnancy, unspecified 	NA
+O21	Excessive vomiting in pregnancy 	NA
+O21.0	Mild hyperemesis gravidarum 	NA
+O21.2	Late vomiting of pregnancy 	NA
+O21.8	Other vomiting complicating pregnancy 	NA
+O21.9	Vomiting of pregnancy, unspecified 	NA
+O22	Venous complications and haemorrhoids in pregnancy 	NA
+O22.0	Varicose veins of lower extremity in pregnancy 	NA
+O22.1	Genital varices in pregnancy 	NA
+O22.2	Superficial thrombophlebitis in pregnancy 	NA
+O22.3	Deep phlebothrombosis in pregnancy 	NA
+O22.4	Haemorrhoids in pregnancy 	NA
+O22.5	Cerebral venous thrombosis in pregnancy 	NA
+O22.8	Other venous complications in pregnancy 	NA
+O22.9	Venous complication in pregnancy, unspecified 	NA
+O23	Infections of genitourinary tract in pregnancy 	NA
+O23.0	Infections of kidney in pregnancy 	NA
+O23.1	Infections of bladder in pregnancy 	NA
+O23.2	Infections of urethra in pregnancy 	NA
+O23.3	Infections of other parts of urinary tract in pregnancy 	NA
+O23.4	Unspecified infection of urinary tract in pregnancy 	NA
+O23.5	Infections of the genital tract in pregnancy 	NA
+O23.9	Other and unspecified genitourinary tract infection in pregnancy 	NA
+O24	Diabetes mellitus in pregnancy 	NA
+O24.0	Pre-existing type 1 diabetes mellitus 	NA
+O24.1	Pre-existing type 2 diabetes mellitus 	NA
+O24.2	Pre-existing malnutrition-related diabetes mellitus 	NA
+O24.3	Pre-existing diabetes mellitus, unspecified 	NA
+O24.4	Diabetes mellitus arising in pregnancy 	NA
+O24.9	Diabetes mellitus in pregnancy, unspecified 	NA
+O25	Malnutrition in pregnancy 	NA
+O26	Maternal care for other conditions predominantly related to pregnancy 	NA
+O26.0	Excessive weight gain in pregnancy 	NA
+O26.1	Low weight gain in pregnancy 	NA
+O26.2	Pregnancy care of habitual aborter 	NA
+O26.3	Retained intrauterine contraceptive device in pregnancy 	NA
+O26.4	Herpes gestationis 	NA
+O26.5	Maternal hypotension syndrome 	NA
+O26.6	Liver disorders in pregnancy, childbirth and the puerperium 	NA
+O26.7	Subluxation of symphysis (pubis) in pregnancy, childbirth and the puerperium 	NA
+O26.8	Other specified pregnancy-related conditions 	NA
+O26.9	Pregnancy-related condition, unspecified 	NA
+O28	Abnormal findings on antenatal screening of mother 	NA
+O28.0	Abnormal haematological finding on antenatal screening of mother 	NA
+O28.1	Abnormal biochemical finding on antenatal screening of mother 	NA
+O28.2	Abnormal cytological finding on antenatal screening of mother 	NA
+O28.3	Abnormal ultrasonic finding on antenatal screening of mother 	NA
+O28.4	Abnormal radiological finding on antenatal screening of mother 	NA
+O28.5	Abnormal chromosomal and genetic finding on antenatal screening of mother 	NA
+O28.8	Other abnormal findings on antenatal screening of mother 	NA
+O28.9	Abnormal finding on antenatal screening of mother, unspecified 	NA
+O29	Complications of anaesthesia during pregnancy 	NA
+O29.0	Pulmonary complications of anaesthesia during pregnancy	1
+O29.1	Cardiac complications of anaesthesia during pregnancy	1
+O29.2	Central nervous system complications of anaesthesia during pregnancy	1
+O29.3	Toxic reaction to local anaesthesia during pregnancy	1
+O29.4	Spinal and epidural anaesthesia-induced headache during pregnancy	1
+O29.5	Other complications of spinal and epidural anaesthesia during pregnancy	1
+O29.6	Failed or difficult intubation during pregnancy	1
+O29.8	Other complications of anaesthesia during pregnancy	1
+O29.9	Complication of anaesthesia during pregnancy, unspecified	1
+Z32.1	Pregnancy confirmed 	NA
+Z33	Pregnant state, incidental 	NA
+Z34	Supervision of normal pregnancy 	NA
+Z34.0	Supervision of normal first pregnancy 	NA
+Z34.8	Supervision of other normal pregnancy 	NA
+Z34.9	Supervision of normal pregnancy, unspecified 	NA
+Z35	Supervision of high-risk pregnancy 	NA
+Z35.0	Supervision of pregnancy with history of infertility 	NA
+Z35.1	Supervision of pregnancy with history of abortive outcome 	NA
+Z35.2	Supervision of pregnancy with other poor reproductive or obstetric history 	NA
+Z35.3	Supervision of pregnancy with history of insufficient antenatal care 	NA
+Z35.4	Supervision of pregnancy with grand multiparity 	NA
+Z35.6	Supervision of very young primigravida 	NA
+Z35.7	Supervision of high-risk pregnancy due to social problems 	NA
+Z35.8	Supervision of other high-risk pregnancies 	NA
+Z35.9	Supervision of high-risk pregnancy, unspecified 	NA
+Z36	Antenatal screening	NA
+Z36.0	Antenatal screening for chromosomal anomalies 	NA
+Z36.1	Antenatal screening for raised alphafetoprotein level 	NA
+Z36.2	Other antenatal screening based on amniocentesis 	NA
+Z36.3	Antenatal screening for malformations using ultrasound and other physical methods 	NA
+Z36.4	Antenatal screening for fetal growth retardation using ultrasound and other physical methods 	NA
+Z36.5	Antenatal screening for isoimmunization 	NA
+Z36.8	Other antenatal screening 	NA
+Z36.9	Antenatal screening, unspecified 	NA
+Z37.0	Single live birth	1
+Z37.1	Single stillbirth	1
+Z37.2	Twins, both liveborn	1
+Z37.3	Twins, one liveborn and one stillborn	1
+Z37.4	Twins, both stillborn	1
+Z37.5	Other multiple births, all liveborn	1
+Z37.6	Other multiple births, some liveborn	1
+Z37.7	Other multiple births, all stillborn	1
+Z37.9	Outcome of delivery, unspecified 	1
+Z38.0	Singleton, born in hospital	1
+Z38.1	Singleton, born outside hospital	1
+Z38.2	Singleton, unspecified as to place of birth	1
+Z38.3	Twin, born in hospital	1
+Z38.4	Twin, born outside hospital	1
+Z38.5	Twin, unspecified as to place of birth	1
+Z38.6	Other multiple, born in hospital	1
+Z38.7	Other multiple, born outside hospital	1
+Z38.8	Other multiple, unspecified as to place of birth	1
+Z39	Postpartum care and examination	1
+Z39.0	Care and examination immediately after delivery	1
+Z39.1	Care and examination of lactating mother	NA
+Z39.2	Routine postpartum follow-up	NA
