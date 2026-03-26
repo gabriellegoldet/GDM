@@ -1,0 +1,188 @@
+---
+title: "1_get_first_obs_glycaemic_test_drug_Hes"
+author: "Gabrielle Goldet"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+This R Mark down walks through the process of creating the initial dataframe containing:
+1. the earliest coding from the diabetes observation code list (dm_code)
+2. the earliest diagnostic glycaemic code from the glycaemic code list (glycaemic_test_code)
+3. the earliest antidiabetic prescription from the dm_drugs prescription code list (as well as the first date of a drug flagged in the code list as "priority_1" i.e. those drugs that, during the entry window 2007-2013, were used exclusively to treat DM)
+4. the earliest diabetes coding in HES APC (from the dm_icd10_code)
+
+To start off, one needs to have extracted all the observations with a medcodeid on the dm_code list.  There are various different ways of doing this, depending on the quantity of data you had.  I compacted all my data into a list (observation_list) of 17 dataframes (I couldn not compound ALL the data into 1 dataframe) with the relevant colums (patid, obsdate, medcodeid) and then used a process like the one below with to create dataframes that contained:
+1) only the dm observations for the entire cohort
+2) only the dm drugs prescribed
+3) only the glycaemic test data
+
+Bare in mind it is important to ensure all your data is in the correct class - i.e. that the medcodeids and patids are character or factor variables rather than numerical, and that your dates are date objects so it is worth prepping that at the start with functions like as.character(df$col) and dmy(df$obsdate) (with lubridate package).
+
+```{r}
+library(dplyr)
+library(lubridate)
+
+#create a function to filter down to dm-relevant data only
+dm_filter_fun <- function(df){df %>% inner_join(dm_code, by = "medcodeid")}
+
+all_dm_obs <- bind_rows(lapply(observation_list, dm_filter_fun))
+```
+
+Once you have all the dm_observations, per patid, we need to filter down to the earliest.  Note in my codelist, codes that relate to follow-up at a certain point in time (three month, 6 month, twelve month) are flagged with a 1.  I chose to backdate the time point of diabetes diagnosis according to the duration flagged.  So the first thing to do is backdate accordingly for those codes in question and in so doing create a new variable (diabetes diagnosis date - ddd), then we find the earliest ddd for earch patid 
+
+```{r}
+earliest_dm_obs <- all_dm_obs %>%   
+  mutate(
+  ddd = case_when(
+    twelve_month_rev==1~obsdate %m-% months(12),
+    six_month==1~obsdate %m-% months(6),
+    three_month==1~obsdate %m-% months(3),
+    TRUE~obsdate
+  )) %>% 
+    group_by(patid) %>% 
+    filter(ddd== min(ddd)) %>% 
+    ungroup()
+```
+
+Note a number of patients will have multiple observations on the same day.  We just need to keep one.  We want to keep the one that is most indicative of diabetes, ie one of the unequivocal codes.  And if there are multiple of those on the same day, we prioritise by a random index I assigned to each dm code.  This is so that the same codes are pulled through if they are present.  This is important in the process of linking different patids (in patient_linking.rmd) which uses the first observation as one of the signs of patids pertaining to the same individual.
+
+```{r}
+first_obs <-earliest_dm_obs
+    group_by(patid) %>%
+    slice_min(
+      order_by = case_when(
+        !is.na(twelve_month_rev) ~ 1,
+        !is.na(six_month)        ~ 2,
+        !is.na(three_month)      ~ 3,
+        !is.na(unambiguous) & is.na(context_dep)~ 4,
+        !is.na(possible_gdm) ~5,
+        TRUE  ~ 6
+      ),
+      with_ties = TRUE
+    ) %>%
+    slice_min(index, with_ties = FALSE) %>% 
+      
+  select(patid, ddd, Term) %>% 
+  rename(diagnosis = Term) %>% 
+      select(patid, ddd, diagnosis)
+```
+
+Now for the first glycaemic test, first we pull all observations related to a glycaemic test, then we filter down to those that reach a diagnostic threshold. I'd keep the data filtered down to all glycaemic tests as a list of dfs rather then binding it all into one df because that is a LOT of data, but once you have filtered that list to extract only the tests meeting diagnostic threshold you can make one single df.
+
+```{r}
+gly_fun <- function(df){df%>%inner_join(gly_code, by = "medcodeid")}
+gly_terms_list <- lapply(observation_list, gly_fun)
+
+#now proceed to filter down to those meeting diagnostic threshold
+
+#filter to those meeting diagnostic criteria
+#For HbA1C there are two different units is the UK (% whereby >6.5 is diagnostic and is generally<15 and mmol/mol where by 48 is diagnostic)
+diagnostic_fun <- function(df){df%>%filter((hba1c == 1 & (value >= 6.5 & value <= 20 | value >= 48))                                          )
+}
+diagnostic_list <-lapply(gly_terms_list, diagnostic_fun)
+
+#note upper limits of normal are quoted in my gly_code list for all tests other than HbA1C
+diagnostic_fun2 <- function(df){df%>%filter(is.na(hba1c) & !is.na(uln) & value >= uln)}
+diagnostic_list2 <-lapply(gly_terms_list, diagnostic_fun2)
+
+#now bind it all together
+diagnostic_gly_obs <- bind_rows(diagnostic_list, diagnostic_list2)
+
+#and determine the earliest diagnsotic glycaemic test
+
+first_gly <- diagnostic_gly_obs %>% 
+  filter(!is.na(obsdate))%>% 
+  mutate(priority = if_else(hba1c==1, 1, 2)) %>% #prioritise HbA1C over other glycaemic tests because HbA1C is not done in pregnancy, so an hba1c reaching diagnostic threshold suggests actual chronic DM
+  group_by(patid) %>% 
+  filter(obsdate == min(obsdate)) %>% 
+  arrange(priority, index) %>% #prioritise hba1c, then the arbitrary medcdeoid index, as above, for the patient linking process
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(gly_date = obsdate,
+         gly_term = Term) %>% 
+  select(patid, gly_date, gly_term, value)
+```
+
+Now find the earliest drug, starting from a compounded list (drugs_list) of dfs containing all the drug data from the drug issue files
+
+```{r}
+drugs_fun <- function(df){df %>% inner_join(dm_drugs, by = "prodcodeid")}
+
+all_dm_drugs <- bind_rows(lapply(drugs_list, drugs_fun))
+
+earliest_drug <- all_dm_drugs %>% 
+  group_by(patid) %>%
+    filter(issuedate == min(issuedate)) %>% 
+  ungroup()
+
+#then slice down to one row per patid by prioritising the most 'informative' drug - ie antidiabetic drug only used in DM (priority_1), then insulin (can also be used in GDM (priority_2)), and lastly metformin (no priority flag in the dm_drugs code list)
+
+first_drugs <- earliest_drugs%>%
+  mutate(prioritise_score = case_when(
+    !is.na(priority_1)~1,
+    !is.na(priority_2)~2,
+    TRUE~3
+  )) %>% 
+  group_by(patid) %>%
+  filter(prioritise_score == min(prioritise_score)) %>% 
+  filter(index == min(index)) %>% #again use the indexing so that the same medcodeid comes if possible
+  slice(1) %>% 
+  select(patid, issuedate, productname)
+```
+
+Now we need to find the first secondary care diabetes code. For this project, secondary care APC data came in a single file, which was loaded into a df called all_HES_aps
+```{r}
+#ensure dates in correct format - note HES dates are in a different format to CPRD dates.  You may have to do:
+all_HES_apc$admidate <- as.Date(all_HES_apc$admidate, format = "%Y/%m/%d")
+
+#get earliest date
+min_dates <- all_HES_apc %>% 
+  left_join(dm_ICD, by = "ICD") %>% 
+  filter(!is.na(Term)) %>% 
+  filter(!is.na(admidate)) %>% 
+  group_by(patid) %>%
+  filter(admidate == min(admidate)) %>%#for each patid find the earliest DM coding in HES
+  ungroup()
+
+#then again get down to a unique line per patid (some patids have more than one diabetes coding on that first date), again there is a prioritisation score in the dm_icd codelist based on 
+#1 PRE-EXISTING DM in pregnancy (tells us about pregnancy also)
+#2 specific DM diagnosis
+#3 unspecified DM
+min_dates_filtered <- min_dates%>%
+  mutate(prioritise_score = case_when(
+    !is.na(priority_1)~1,
+    !is.na(priority_2)~2,
+    TRUE~3
+  )) %>% 
+  group_by(patid) %>%
+  filter(prioritise_score == min(prioritise_score)) %>% 
+  filter(index == min(index)) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(patid, admidate, Term) %>% 
+  rename(HES_term = Term)
+
+```
+ Now put it all together along with the patient's registration dates, cprd death date and year or birth from the cprd patient_file
+```{r}
+first_obs_gly_drug_HES <- first_obs %>% 
+  full_join(first_gly, by = "patid") %>% 
+  full_join(first_drug, by = "patid") %>% 
+  full_join(min_dates_filtered, by = "patid") %>% 
+  left_join(patient_file %>% select(patid, regstartdate, regenddate, yob, cprd_ddate), by = "patid")
+```
+ Now note some patients with multiple patids have type 1 dm coded on a given date in one record and type I dm coded in another patid and on the same date (same thing for type II and type 2).  Examining these records, it is clear that this is actually the same clinical event in the same person.  So as to be able to use this information to link patids to the same individual, it is necessary to convert all these diagnoses to a single format (in our case I have chose the numerical rather than roman numbers)
+```{r}
+
+first_obs_gly_drug_HES <- first_obs_gly_drug_HES %>% 
+  mutate(diagnosis = ifelse(grepl("type ii", diagnosis, ignore.case = TRUE), sub("type ii", "type 2", diagnosis, ignore.case = TRUE), diagnosis)) %>%
+  mutate(diagnosis = ifelse(grepl("type i", diagnosis, ignore.case = TRUE), sub("type i", "type 1", diagnosis, ignore.case = TRUE), diagnosis)) 
+
+```
+ Now that this is done we can go to the next R markdown file to link patids related to the same individual - 2_patient_linkage in this github repository.
+ 

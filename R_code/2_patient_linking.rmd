@@ -1,0 +1,258 @@
+---
+title: "2_patid_linking"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+date: "2025-04-22"
+---
+  ## Overview
+  This R Markdown file walks through how to assign a unified `individual_id` to patients in CPRD (with or without a HES cprd_MPSID identifier) based on three overlapping identifiers which are described in subsequent sections:
+  
+- `cprd_mpsid` — strongest evidence (if an mpsid is the same but the base_group or same_reg_id are different for two particular patids, the MPSID takes preference).  Not all patients have cprd_mpsid's
+- `base_group`
+- `same_reg_id` 
+
+First things first: remove any patids associated with pracids (primary care practices) identified by CPRD as potentially duplicate.
+
+We'll use graph theory to link patids and respect this hierarchy - patids are effectively treated as nodes or corners and links between them are edges.  The following packages are required:
+```{r}
+
+library(dplyr)
+library(igraph)
+```
+
+
+We assume you start with a df (simply called df below) with individual patids on individual rows, as was created in 1_get_first_obs_gly_drug_hes_rmd.  The columns are as follows: patid, regenddate, regstartdate, yob, cprd_date, cprd_mpsid, issuedate, productname, gly_date, gly_test, value, diagnosis, ddd. However if you would like to try it out with a sample dataset, a small sample below is provided.
+
+productname = earliest relevant drug prescribed found in the drug issue file
+gly_test = earliest glycaemic test diagnostic of diabetes found in the observation file, with its value in the value column and the date in gly_date column
+diagnosis = first observation (term) in observation file in the diabetes diagnostic code list, with its relevant Diabetes Diagnosis Date in the ddd column
+
+```{r}
+df <- data.frame(
+ patient = c("e", "b", "b", "a", "b", "b", "c", "a", "d", "d"), #i.e. this is the actual individual
+patid= c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+diagnosis= c("type ii", "type i", "diabetes", NA, "diabetes", "type i", NA, "diabetes", "diabetes nos", "diabetes nos"),
+ddd= as.Date(c("2021-01-01", "2023-03-03", "2023-03-03", NA, "2023-03-03", "2023-03-03", NA, "2021-01-01", "2024-05-04", "2024-05-04")),
+gly_test= c("glycated AIC", "HbA1C", NA, "HbA1C", "HbA1C", NA, "HbA1C", NA, "glycated AIC", "HbA1C"),
+value= c(8, 8.7, NA, 8, 8.7, NA, 7.8, NA, 9.2, 9.2),
+gly_date= as.Date(c("2022-02-01", "2023-02-03", NA, "2022-02-01", "2023-02-03", NA, "2008-08-09", NA, "2010-10-10", "2010-10-10")),
+productname= c("metformin", "insulin humalog", "insulin humalog", "metformin", "insulin humalog", "insulin humalog", "gliclazide", "metformin", "linagliptin", "linagliptin"),
+issuedate= as.Date(c("2021-03-04", "2023-03-03", "2023-03-03", "2021-03-04", "2023-03-03", "2023-03-03", "2022-06-05", "2021-03-04", "2015-06-06", "2015-06-06")),
+regstartdate= as.Date(c("2020-01-01", "2024-03-02", "2019-09-01", "2010-01-01", "2019-09-01", "2005-02-01", "2021-04-05", "2010-01-01", "2016-08-09", "2001-01-07")),
+regenddate= as.Date(c(NA, NA, "2024-03-01", "2020-01-01", "2024-03-01", "2019-09-01", NA, "2020-01-01", NA, "2016-08-09")),
+yob= c(1942, 1955, 1955, 1942, 1955, 1955, 1930, 1942, 1975, 1975),
+cprd_ddate= as.Date(c("2023-10-10", NA, NA, "2023-10-10", NA, NA, NA, "2023-10-10", NA, NA)),
+cprd_mpsid= (c(137, 230, NA, 134, 230, 230, NA, NA, 340, NA))
+)
+
+df <- first_obs_gly_drug_HES %>% 
+  ungroup()
+```
+
+1. First create groups of patids with the same registration start and end dates, year of birth and cprd death dates and store eventually as variable same_reg
+- create a df (new_id) with only patients who HAVE a registration end (having NA as a regend is not specific enough), and create groups of patids based on the same regend, regstart, yob and cprd_ddate, then give them a new_id to identify the groups
+```{r}
+new_id <- df%>%
+  filter(!is.na(regenddate)) %>%
+  group_by(regstartdate, regenddate, yob, cprd_ddate) %>% 
+  filter(n()>1) %>% 
+  mutate(same_reg = cur_group_id()) %>% 
+  ungroup()
+
+```
+
+2. now graft the same_reg column back onto your original df
+
+```{r}
+df <- df %>% 
+  left_join(new_id %>% select(patid, same_reg), by = "patid")
+```
+
+3. next create groups based on whether they have evidence from prescription, diagnostic and test data pertaining to the same person on the same dates (ie same issuedate, ddd and gly_date).  For optimum sensitivity and specificity of picking up the matches we have found that you need the following for a patid to be linked to another:
+- they have to be born in the same year
+- they have to have more than one piece of evidence pointing to them having diabetes (i.e. a prescription of metformin alone and no diagnostic glycaemic test nor diabetes observation is insufficient)
+- if they have a glycaemic test, it should be of the same value in the value column
+That is achieved by the code below and eventually stored in the variable base_group
+
+```{r}
+df_filtered <- df %>%
+  filter(rowSums(!is.na(select(., issuedate, gly_date, ddd))) >= 2) %>% #ensures you have at least two pieces of evidence of diabetes
+  group_by(issuedate, gly_date, ddd, value, yob) %>% #now groups patids into those with the same dates, value of glycaemic test and year of birth
+  mutate(base_group = cur_group_id()) %>% # assigns each a number
+  ungroup()
+```
+
+4. note that in step 3 above, we create a base_group id for everyone in the data frame (some base_groups will only have 1 patid in it if they are not linked to another patid according to the criteria above). Now we need to filter down to only those where they have a *valid* match - again for specificity, it was found that the dates do not suffice, there has to be at least one of the productname or gly_test or diagnosis that has to be identical within a group to identify it as a valid group. So for each group, identify where the matches are
+
+```{r}
+
+#  diagnosis match within base group
+diag_match <- df_filtered %>%
+  group_by(base_group, diagnosis) %>%
+  filter(n() > 1) %>%
+  mutate(diagnosis_group = cur_group_id()) %>%
+  ungroup()
+
+# gly test match within base group
+gly_match <- df_filtered%>%
+  group_by(base_group, gly_term) %>%
+  filter(n() > 1) %>%
+  mutate(gly_group = cur_group_id()) %>%
+  ungroup()
+
+# productname match within base group
+prod_match <- df_filtered %>%
+  group_by(base_group, productname) %>%
+  filter(n() > 1) %>%
+  mutate(prod_group = cur_group_id()) %>%
+  ungroup()
+```
+
+now need to graft these back onto df_filtered and identify subjects that have at least one match (these are stored in the vector valid_base_group)
+```{r}
+
+# Combine all matches
+df_with_groups <- df_filtered %>%
+  left_join(select(diag_match, patid, diagnosis_group), by = "patid") %>%
+  left_join(select(gly_match, patid, gly_group), by = "patid") %>%
+  left_join(select(prod_match, patid, prod_group), by = "patid")
+
+# Keep only rows where there's a match in *any* of the diagnosis/drug/glycaemic test criteria
+valid_base_group <- df_with_groups %>%
+  filter(!is.na(diagnosis_group) | !is.na(gly_group) | !is.na(prod_group)) %>% 
+  pull(base_group) %>% 
+  unique()
+
+#now amend the base_groups to only those valid ones
+df_with_groups <- df_with_groups %>% 
+  mutate(base_group = ifelse(base_group %in% valid_base_group, base_group, NA)) #this removes base groups where there is not at least ONE match between the product name, gly_test or diagnosis, leaving an NA in this column
+
+##now need to graft those back only first_obs_gly_drug
+df <-df %>% 
+  left_join(df_with_groups %>% select(patid, base_group), by = "patid")
+```
+
+
+5. now link the patids using the cprd_mpsid, the base_group and same_reg created above 
+- first remove cprd_mpsids that have different yobs
+```{r}
+different_yob <- df %>% 
+  filter(!is.na(cprd_mpsid)) %>% 
+  group_by(cprd_mpsid) %>% 
+  filter(n_distinct(yob)>1)
+
+df <-df %>% 
+  mutate(cprd_mpsid = if_else(cprd_mpsid %in% different_yob$cprd_mpsid, NA, cprd_mpsid))
+```
+
+
+- then  create a function that takes your df and finds pairs within one of the grouping columns (i.e. same_reg for subjects with the same registration start and end, base_group for those with the same dates of observed events/drug prescriptions, and cprd_mpsid)
+```{r}
+
+# Helper function to generate all pairwise combinations for grouping
+make_pairs <- function(df, group_col) {
+  df %>%
+    filter(!is.na(.data[[group_col]])) %>%
+    group_by(.data[[group_col]]) %>%
+    summarise(pairs = list({
+      patids <- unique(patid)
+      if (length(patids) >= 2) combn(patids, 2, simplify = FALSE) else list()
+    }), .groups = "drop") %>%
+    pull(pairs) %>%
+    unlist(recursive = FALSE)
+}
+
+```
+
+- then you can create edges (connections) between patids based on their different grouping criteria using the make_pairs function
+```{r}
+
+# Generate pairwise connections for each identifier
+edges_mpsid   <- make_pairs(df, "cprd_mpsid")
+edges_base    <- make_pairs(df, "base_group")
+edges_reg     <- make_pairs(df, "same_reg")
+
+```
+
+- now turn all the combined edges into a list (all_edges) to make a data frame (edges_df) from which graph can be produced.  If you have a small dataset, plot(g) will show you the connections, but this is not visually useful for large datasets
+
+```{r}
+
+# Combine all edges
+all_edges <- c(edges_mpsid, edges_base, edges_reg)
+
+# Turn pairs into edge data frame
+edges_df <- bind_rows(lapply(all_edges, function(x) data.frame(from = x[1], to = x[2]))) # the function creates two columns (from and to) and places each node in the right column for each of the dfs edges_mpsid, edges_base and edges_reg, and these dataframes are then combined with bind_rows into one df, edges_df
+
+# Build an undirected graph
+g <- graph_from_data_frame(edges_df, directed = FALSE) #graph_from_data_frame function is available in the igraph package
+
+```
+
+- now the components function from the igraph package helps to draw together patids into groups or memberships and we can then create a dataframe (membership_df) with initial groups in the "group" column
+```{r}
+# Get connected components (each is a candidate group of same person)
+comp <- components(g) #the components function returns a list of several useful things including the membership vector which maps each node (patid) to its component number
+
+# Create a lookup: patid → component group ID
+membership_df <- data.frame(
+  patid = names(comp$membership),
+  group = comp$membership
+)
+```
+
+- now graft the cprd_mpsid onto membership_df so that we can ensure that no n different cprd_mpsids are mis-identified as the same patient, but note that a single patient CAN be missing a cprd_mpsid for one of its patids and have a cprd_mpsid for another patid: this is handled by the argument na.rm = TRUE in the part of the code which ensures each group only has one non-NA cprd_mpsid (labelled with a * below in B).  First we group by the group assigned tentatively above, then we add a column (mpsid_group) which is given an identifier starting with G (for group) followed by a number if either all cprd_mpsid's within the group are NA OR if there is only one non-NA cprd_MPSID within that group. If that condition is not met, the else statement paste0("G", group, "_", cprd_mpsid) splits the group into the different cprd_mpsids putting the group (G followed by a number then "_") before the cprd_mpsid
+
+```{r}
+#first need to ensure patid is the same class for both membership_df and df -> convert df$patid to character
+df$patid <- as.character(df$patid)
+# A Merge back to get the cprd_mpsid per patid
+membership_df <- membership_df %>%
+  left_join(df %>% select(patid, cprd_mpsid), by = "patid")
+
+# B For groups with conflicting cprd_mpsid values, split further
+resolved <- membership_df %>%
+  group_by(group) %>%
+  mutate(
+    mpsid_group = if (all(is.na(cprd_mpsid)) || n_distinct(cprd_mpsid, na.rm = TRUE) <= 1) { #*#
+      paste0("G", unique(group))  # no conflict, use group ID
+    } else {
+      paste0("G", group, "_", cprd_mpsid)  # split by mpsid
+    }
+  ) %>%
+  ungroup()
+```
+
+- now you have labels with different groups starting with a G, but to clean it up, the following code simply turns the group names above into a numbered individual_id, and this column can be added back onto our original df
+
+```{r}
+
+# Assign a numeric ID for final output
+resolved <- resolved %>%
+  group_by(mpsid_group) %>% 
+  filter(n()>1) %>% ##ensures there are no singleton individual_ids
+  ungroup() %>% 
+  mutate(individual_id = as.integer(factor(mpsid_group)))
+
+# Merge back into original df
+df <- df %>%
+  left_join(resolved %>% select(patid, individual_id), by = "patid")
+
+first_obs_gly_drug_HES <- df #return the df to your original df name
+
+#create a df just with the patids and individual_ids where relevant
+all_pats <- first_obs_gly_drug_HES %>% 
+  distinct(patid, individual_id)
+
+#then save
+setwd("YOUR DIR")
+saveRDS(first_obs_gly_drug_HES, "first_obs_gly_drug_HES.rds")
+saveRDS(all_pats, "all_pats.rds")
+
+```
+
+finally you have individual_ids which correctly identify groups of patids most likely relating to the same patient.
+
+Now go to 3_drug_pattern.rmd

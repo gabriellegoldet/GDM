@@ -1,0 +1,4255 @@
+---
+title: "5_adjusting_dates"
+author: "Gabrielle Goldet"
+date: "`r Sys.Date()`"
+output: html_document
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+This is the markdown file in which we take the df with the first observation from the dm_code list, the lgycaemic_test_code list, the dm_drugs list and the HES DM code list and filter down to data, for each patid for those with single patids or individual_id for those with multiple patids, which does reliable signify diabetes.
+
+###load data and libraries
+```{r}
+library(dplyr)
+library(lubridate)
+library(tidyr)
+library(stringr)
+options(scipen = 999)
+```
+
+# Generic functions
+
+```{r}
+#filtering according to whether an individual has or doesn't have more than 1 patid
+single <- function(df){df %>% filter(is.na(individual_id))}
+multiple <- function(df){df %>% filter(!is.na(individual_id))}
+
+#propagating relevant data across all the patids of a given individual
+fill_columns <- function(df, ...) {
+  df %>% 
+    left_join(all_pats, by = "individual_id") %>%
+    group_by(individual_id) %>%
+    fill(..., .direction = "downup") %>%
+    ungroup()
+}
+
+#finding the earliest date across events for all an individual's patids, taking into account some or none of them may have had it (avoids error messages because of NAs)
+safe_min <- function(x) if (all(is.na(x))) NA_Date_ else min(x, na.rm=TRUE)
+
+#filter down to earliest obsdate per patid or individual_id
+obsdate_single_fun <- function(df){df %>% group_by(patid) %>% slice_min(obsdate) %>% slice(1) %>% ungroup()}
+obsdate_multiple_fun <- function(df){df %>% group_by(individual_id) %>% slice_min(obsdate) %>% slice(1) %>% ungroup()}
+
+```
+
+now load code lists and data. Note the code lists are more for reference. Generally it is assumed that the observations for those codes have been compounded into the observation files below by something like an inner_join to the observation list
+```{r}
+#medcodes
+setwd("YOUR DIRECTORY")
+dm_code <-read.delim("dm_code.txt", stringsAsFactors = TRUE)
+dm_drugs <- read.delim("dm_drugs.txt", stringsAsFactors = TRUE)
+dm_ICD <- read.delim("dm_ICD10_code.txt", stringsAsFactors = TRUE)
+gly_code <- read.delim("glycaemic_test_code.txt", stringsAsFactors = TRUE)
+gdm_code <- read.delim("gdm_code.txt", stringsAsFactors = TRUE)
+all_pregnancy_code <- read.delim("all_pregnancy_code.txt", stringsAsFactors = TRUE)
+ndh_code <- read.delim("ndh_code.txt", stringsAsFactors = TRUE)
+PCOS_code <- read.delim("pcos_code.txt", stringsAsFactors = TRUE)
+
+metformin_code <- dm_drugs %>% 
+  filter(is.na(priority_1)&is.na(priority_2)) 
+
+insulin_code <- dm_drugs %>% 
+  filter(!is.na(priority_2))
+
+priority_1 <- dm_drugs %>% 
+  filter(!is.na(priority_1))
+
+#now load all your observation files - eg with read.delim if you have them as .txt or readRDS if saved as RDS files: you will need
+first_obs_gly_drug_HES  #df contianing all first dates
+all_pats  #all patids with adjoining individual_ids for patients that have more than one patid
+all_dm_drugs               #all dm drug records for entire cohort
+all_pcos_obs            #all pcos records for entire cohort
+diagnostic_gly_obs       #all glycaemic tests meeting diagnostic criteria for diabetes for entire cohort
+all_pregnancy_obs_update # all pregnancy observations, with delivery flags
+all_dm_obs #all dm observations
+ndh_obs #all ndh observations
+delivery_obs #all delivery observations
+normo #all observations of glycaemic tests NOT meeting the threshold for DM
+
+#made from 5_pregnancy.rmd
+valid_gdm_obs_multiple #valid gdm observations for those with multiple patids
+valid_gdm_obs_single  #valid gdm observations for those with single patids
+all_deliveries_single #all deliveries for those with single patids
+all_deliveries_multiple #all deliveries for those with multiple patids
+total_gdm_single_deliveries_slimmed #all GDM deliveries for those with single patids
+total_gdm_multiple_deliveries_slimmed #all GDM deliveries for those with multiple patids
+
+#ensure that all dfs have the indvidual_id colums
+diagnostic_gly_obs <- diagnostic_gly_obs %>% 
+  left_join(all_pats, by = "patid")
+
+all_dm_obs <-all_dm_obs %>%
+left_join(all_pats, by = "patid")
+
+all_pcos_obs <- all_pcos_obs %>% 
+  left_join(all_pats, by = "patid")
+
+all_dm_drugs <- all_dm_drugs %>% 
+  left_join(all_pats, by = "patid")
+
+all_pregnancy_obs_update <- all_pregnancy_obs_update%>% 
+  left_join(all_pats, by = "patid")
+
+ndh_obs <- ndh_obs %>% 
+  left_join(all_pats, by = "patid")
+
+normo <- normo %>%  
+  left_join(all_pats, by = "patid")
+
+#propagate delivery dates to all relevant Patids for those with multiple patids
+total_gdm_multiple_deliveries_slimmed <- total_gdm_multiple_deliveries_slimmed %>% 
+  fill_columns() ## expect many-to-many warning
+  
+all_deliveries_multiple <- all_deliveries_multiple %>%
+    fill_columns()#expect many to many
+
+#this just narrows all_pats down to patids for individuals with multiple patids
+all_pats <- multiple(first_obs_gly_drug_HES) %>% 
+  distinct(patid, individual_id)
+
+#number of distinct individuals with multiple patids
+n_distinct(all_pats$individual_id)
+```
+
+
+#now for update 1: 
+first identify subjects whose ddd is clearly erroneous (ie prior to or in year of birth)
+
+```{r}
+dodgy_ddd <- first_obs_gly_drug_HES %>% 
+  filter(year(ddd)<=yob) %>% 
+  select(patid, yob)
+
+```
+
+then get all their DM obs
+
+```{r}
+dodgy_ddd_all_obs <- all_dm_obs %>% 
+  inner_join(dodgy_ddd, by = "patid")
+```
+
+now filter out any rows that are not helpful
+
+```{r}
+dodgy_ddd_next_ddd <- dodgy_ddd_all_obs %>% 
+   mutate(
+    obsdate = case_when(
+      twelve_month_rev==1~obsdate %m-% years(1),
+      six_month==1~obsdate %m-% days(182),
+      three_month==1~obsdate %m-% days(91),
+      TRUE~obsdate
+    )) %>% 
+    filter(year(obsdate)>yob) %>% ##ie erroneous date
+  group_by(patid) %>%   
+  filter(obsdate==min(obsdate)) %>% 
+  ungroup() 
+
+n_distinct(dodgy_ddd_next_ddd$patid) #4308
+```
+
+now prioritise as previously to get the most useful row of those on the next valid observation date
+
+```{r}
+prioritise_fun <- function(df){
+  df %>% 
+    group_by(patid) %>% 
+    slice(
+      if(any(!is.na(twelve_month_rev))){
+        which(!is.na(twelve_month_rev))[1]
+      }else if(any(!is.na(six_month))){
+        which(!is.na(six_month))[1]
+      }else if(any(!is.na(three_month))) {
+        which(!is.na(three_month))[1]
+      }else if(any(!is.na(unambiguous))) {
+        which(!is.na(unambiguous))[1]
+      }else{
+        1
+      }
+    )
+}
+```
+
+now filter down to single row per patient - should be 4849 patids
+
+```{r}
+dodgy_ddd_next_ddd <- prioritise_fun(dodgy_ddd_next_ddd) %>% 
+  select(-value, -six_month, -three_month, -twelve_month_rev, -medcodeid, -possible_gdm, - unambiguous)
+```
+
+look at subjects who were diagnosed within 2 years of birth because
+infant diabetes is so rare - 26 such patients
+
+```{r}
+filtered <- dodgy_ddd_next_ddd %>% 
+  filter(year(obsdate)<=yob +2) 
+```
+
+look at all the obs for these few patids (in our case it was 38), and pick appropriate date
+according to criteria broadly logic is if type 2 diabetes → next date
+likely erroneous (type 2 is not infant diabetes) so use date after
+that - if type 1 diabetes, more likely to be believable (unless datae
+01 - 01 format) - if unclear whether type 1 or type 2, if significant
+gap between the date and then next date after that, more likely
+erroneous so need to adjust - wary of dates in 01-01 format create a
+text file alongside called adjust_ddd with the outcome of the decision,
+any new ddd and the patid
+
+log these in a text file (in our case called adjust_ddd.txt) that we will load later, and create a new variable ddd-readjusted with the appropriate diabetes diagnosis date
+
+```{r}
+filtered_obs <- dodgy_ddd_all_obs %>% 
+  filter(patid %in% filtered$patid)
+```
+
+now just look at impossible dates related to xprert referral pre 2000 (XPERT program did not exist before then)
+
+```{r}
+
+faulty_xpert <- first_obs_gly_drug_HES%>% 
+  filter(ddd< as.Date("2000-01-01")) %>% 
+  filter(grepl("xpert", diagnosis, ignore.case = TRUE))
+
+dodgy_xpert_obs <- all_dm_obs %>% inner_join(faulty_xpert, by = "patid")
+```
+
+
+look through dodgy_xpert_obs and add to the updates from the review of filtered obs -> update adjusted_ddd
+
+#load adjusted dates from text file prepared whilst review these dates
+
+```{r}  
+
+setwd("YOUR DIRECTORY")
+adjusted_ddd <- read.delim("adjust_ddd.txt", stringsAsFactors = TRUE)
+adjusted_ddd$patid <- as.character(adjusted_ddd$patid)
+```
+
+select patients that need an update
+
+```{r}
+selected_adjusted_ddd <- adjusted_ddd %>% 
+  filter(is.na(keep)) %>% 
+  select(-keep)
+selected_adjusted_ddd$ddd_readjusted <- as.Date(selected_adjusted_ddd$ddd_readjusted)
+selected_adjusted_ddd$patid <- as.character(selected_adjusted_ddd$patid)
+```
+
+now join onto dodgy_ddd_next_date to replace previous dates
+
+```{r}
+dodgy_ddd_next_ddd <- dodgy_ddd_next_ddd %>% 
+  left_join(selected_adjusted_ddd %>%  select(patid, ddd_readjusted, diagnosis_readjusted), by = "patid") %>% 
+  mutate(obsdate = coalesce(ddd_readjusted, obsdate),
+         Term = coalesce(diagnosis_readjusted, Term)) %>% 
+  select(-diagnosis_readjusted, -ddd_readjusted, -yob)
+
+```
+
+note there may be some patids that don't have another useful obsdate, flag
+these so that we know whose ddd needs to be removed
+
+```{r}
+patids_no_useful_date <- dodgy_ddd %>% 
+  filter(!patid %in% dodgy_ddd_next_ddd$patid) %>% 
+  mutate(no_useful_ddd = 1) %>% 
+  select(-yob)
+```
+
+Now adjust the dates in first_update1_filter1 and call it update2, and also remove the ddd for the patids identified as not having a useful later date
+
+```{r}
+first_update1<- first_obs_gly_drug_HES %>% 
+  left_join(dodgy_ddd_next_ddd %>% select(patid, obsdate, Term), by = "patid") %>% 
+  mutate(ddd = if_else(!is.na(obsdate), obsdate, ddd),
+         diagnosis = if_else(!is.na(Term), Term, diagnosis)) %>% 
+  left_join(patids_no_useful_date, by = "patid") %>% #then adjust for those 8 patients
+  mutate(ddd = if_else(!is.na(no_useful_ddd),NA, ddd),
+         diagnosis = if_else(!is.na(no_useful_ddd), NA, diagnosis)) %>% 
+  select(-obsdate, -Term, -no_useful_ddd) %>% 
+  distinct() ##unclear why but a duplicate row is introduced here so distinct removes it
+
+```
+#now work on update 2 - updating the glycaemic tests with erronous dates
+
+Find patids with dody gly_date (ie on or before their year of birth)
+and get all their glycaemic data
+
+```{r}
+dodgy_gly <- first_update1 %>% 
+  filter(year(gly_date)<=yob) %>% 
+  select(patid, individual_id, yob)
+
+
+dodgy_gly_obs <-diagnostic_gly_obs %>% 
+    inner_join(dodgy_gly %>% select(patid, yob), by = "patid")
+
+n_distinct(dodgy_gly_obs$patid) 
+```
+
+now find the next date per patid and relabel columns so as to avoid
+confusion when left_joining to first_update2
+
+```{r}
+dodgy_gly_next_earliest <- dodgy_gly_obs%>% 
+  filter(year(obsdate)>yob) %>% 
+  group_by(patid) %>% 
+  filter(obsdate == min(obsdate)) %>% 
+  arrange(index) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(gly_term_adjusted = Term) %>% 
+  rename(gly_date_adjusted = obsdate) %>% 
+  rename(value_adjusted = value) 
+```
+Here it is also now necessary to find the next earliest gly_date after the earliest for all subjects.  All patients with diabetes SHOULD have a second confirmatory glycaemic test within a few weeks.  So if there is a negative test within the month WITHOUT treatment (or indeed other evidence of diabetes), then you will ignore the first test
+
+```{r}
+second_earliest_dodgy_single <- single(dodgy_gly_next_earliest) %>% 
+  select(patid, gly_date_adjusted) %>% 
+  left_join(diagnostic_gly_obs, by = "patid") %>% 
+  filter(obsdate>gly_date_adjusted) %>% 
+    mutate(priority = if_else(hba1c==1, 1, 2)) %>%
+    group_by(patid) %>% 
+  filter(obsdate == min(obsdate)) %>% 
+  arrange(priority, index) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(next_gly_date = obsdate,
+         next_gly_term = Term) %>% 
+mutate(next_gly_date = if_else((hba1c == 1 & (value < 6.5 | value > 20 & value < 48))|
+                                 (is.na(hba1c) & !is.na(uln) & value < uln), next_gly_date, NA))
+
+second_earliest_dodgy_multiple <- multiple(dodgy_gly_next_earliest) %>% 
+  select(individual_id, gly_date_adjusted) %>% #expect many to many
+  fill_columns() %>% 
+  distinct() %>% 
+  left_join(diagnostic_gly_obs %>% select(patid, obsdate, Term, value, hba1c, index, uln), by = "patid") %>% 
+  filter(obsdate>gly_date_adjusted) %>% 
+    mutate(priority = if_else(hba1c==1, 1, 2)) %>%
+    group_by(individual_id) %>% 
+  filter(obsdate == min(obsdate)) %>% 
+  arrange(priority, index) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(next_gly_date = obsdate,
+         next_gly_term = Term) %>% 
+mutate(next_gly_date = if_else((hba1c == 1 & (value < 6.5 | value > 20 & value < 48))|
+                                 (is.na(hba1c) & !is.na(uln) & value < uln), next_gly_date, NA))%>% 
+  select(-patid) %>% 
+  fill_columns()
+```
+
+now for those that aren't dodgy
+```{r}
+second_earliest_single <- single(normo) %>% 
+  filter(!patid %in% dodgy_gly$patid) %>% 
+  left_join(first_update1 %>% select(patid, gly_date), by = "patid") %>% 
+    mutate(priority = if_else(hba1c==1, 1, 2)) %>%
+    group_by(patid) %>% 
+  filter(obsdate == min(obsdate)) %>% 
+  arrange(priority, index) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(next_gly_date = obsdate,
+         next_gly_term = Term) %>% 
+mutate(next_gly_date = if_else((hba1c == 1 & (value < 6.5 | value > 20 & value < 48))|
+                                 (is.na(hba1c) & !is.na(uln) & value < uln), next_gly_date, NA)) %>% #now only keep those potentially that NEGATE diabetes
+  mutate(next_gly_date = if_else(is.na(hba1c) & !is.na(uln) & value < uln, next_gly_date, NA))
+
+second_earliest_multiple <- multiple(normo) %>% 
+  filter(!individual_id %in% dodgy_gly$individual_id) %>% 
+  left_join(first_update1 %>% select(patid, gly_date), by = "patid") %>% 
+  filter(obsdate>gly_date) %>% 
+    mutate(priority = if_else(hba1c==1, 1, 2)) %>%
+    group_by(individual_id) %>% 
+  filter(obsdate == min(obsdate)) %>% 
+  arrange(priority, index) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(next_gly_date = obsdate,
+         next_gly_term = Term) %>% 
+mutate(next_gly_date = if_else((hba1c == 1 & (value < 6.5 | value > 20 & value < 48))|
+                                 (is.na(hba1c) & !is.na(uln) & value < uln), next_gly_date, NA)) %>% #now only keep those that NEGATE diabetes
+  select(-patid) %>% 
+  fill_columns()
+```
+put them all together for the join
+```{r}
+second_earliest <- bind_rows(second_earliest_dodgy_single %>% select(patid, next_gly_date, next_gly_term), second_earliest_dodgy_multiple%>% select(patid, next_gly_date, next_gly_term), second_earliest_single%>% select(patid, next_gly_date, next_gly_term), second_earliest_multiple%>% select(patid, next_gly_date, next_gly_term))
+```
+
+lost patient - ie did not have a reliable next earliest gly date
+
+```{r}
+lost_patid <- dodgy_gly %>% 
+  filter(!patid %in% dodgy_gly_next_earliest$patid)
+```
+
+only one diagnostic test for that patient and looks dodgy so need to
+remove
+
+#now for update 2, join on the ammended dates and amend the original
+ones where necessary and remove the date for the lost patid
+
+```{r}
+first_update2 <- first_update1  %>% 
+  left_join(dodgy_gly_next_earliest %>% select(patid, gly_date_adjusted, gly_term_adjusted, value_adjusted), by = "patid") %>% 
+  mutate(gly_date = if_else(!is.na(gly_date_adjusted), gly_date_adjusted, gly_date),
+         gly_term = if_else(!is.na(gly_term_adjusted), gly_term_adjusted, gly_term),
+         value = if_else(!is.na(value_adjusted), value_adjusted, value)) %>% 
+  mutate(gly_term = if_else(patid %in% lost_patid$patid, NA, gly_term),#for the lost patient, remove their value, gly date and gly test
+         gly_date = if_else(patid %in% lost_patid$patid, NA, gly_date),
+         value = if_else(patid %in% lost_patid$patid, NA, value)) %>% 
+  left_join(second_earliest%>% select(patid, next_gly_date, next_gly_term), by = "patid") #potentially useful to have date when it looks like there is NOT DM
+```
+#Now look at likely erroneous first issuedates for update3,
+pick those whose issuedate was in or before their year of birth
+```{r}
+dodgy_issuedate <- first_update2 %>% 
+  filter(year(issuedate)<=yob) %>%
+  select(patid, yob)
+```
+
+now get all the drugs of those subjects
+
+```{r}
+dodgy_issuedate_drugs<- all_dm_drugs %>% 
+  inner_join(dodgy_issuedate %>% select(patid), by = "patid")
+```
+
+filter off date that is dodgy and find the next unique one to use for
+adjustment
+
+```{r}
+dodgy_issuedate_next_date <- dodgy_issuedate_drugs %>% 
+  filter(year(issuedate)>yob) %>% 
+  group_by(patid) %>% 
+  filter(issuedate==min(issuedate)) %>% 
+    ungroup() %>% 
+distinct() %>% 
+  mutate(prioritise_score = case_when(
+    !is.na(priority_1)~1,
+    !is.na(priority_2)~2,
+    TRUE~3
+  )) %>% 
+  group_by(patid) %>%
+  filter(prioritise_score == min(prioritise_score)) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(updated_issuedate=issuedate) %>% 
+  rename(updated_productname=productname) %>% 
+  select(patid, updated_issuedate, updated_productname)
+```
+
+Note some patids may not have a valid issuedate - they need to be identifies so that their issuedate is removed in first_update3
+```{r}
+lost_patids <- dodgy_issuedate %>% 
+  filter(!patid %in% dodgy_issuedate_next_date$patid)
+```
+
+##UPDATE 3
+
+```{r}
+first_update3 <- first_update2 %>% 
+  left_join(dodgy_issuedate_next_date %>% select(patid, updated_issuedate, updated_productname), by = "patid") %>% 
+  mutate(issuedate = coalesce(updated_issuedate, issuedate),
+         productname = coalesce(updated_productname, productname)) %>% 
+    mutate(issuedate = if_else(patid %in% lost_patids$patid, as.Date(NA), issuedate),
+         productname = if_else(patid %in% lost_patids$patid, NA, productname))
+
+n_distinct(filtered$individual_id)
+```
+
+next check if there are any silly HES dates - in our case there were none to update as the only
+patient will be excluded anyway because the diabetes diagnosis date based on other evidence is before the entry window
+
+```{r}
+dodgy_hes_apc <-first_update3 %>% 
+  filter(year(admidate)<=yob) #only 1 such person, type 1 dm and will be exlcuded as other dates before 2007 anyway so futile to try to update HES
+```
+
+
+#now filter to pats that have metformin alone as evidence of diabetes
+These will be treated as per the algorithm for those with medication prescriptions as the only evidence of DM
+
+```{r}
+
+metformin_alone_single <- single(first_update3) %>% 
+  inner_join(metformin_code %>% select(-priority_1, -priority_2, -prodcodeid), by = "productname") %>% 
+  filter(is.na(gly_date)) %>% 
+  filter(is.na(ddd)) %>% 
+  filter(is.na(admidate)) %>% 
+  select(patid)
+
+metformin_alone_multiple <- multiple(first_update3) %>% 
+  inner_join(metformin_code  %>%  select(-priority_1, -priority_2, -prodcodeid) , by = "productname") %>% 
+  group_by(individual_id) %>% 
+  filter(all(is.na(gly_date))) %>% 
+  filter(all(is.na(ddd))) %>% 
+  filter(all(is.na(admidate))) %>%
+  ungroup() %>% 
+  distinct(individual_id)
+
+```
+
+now pull their drugs up to and including the end of the entry window.  To be included in the cohort a subject has to have more than just metformin as evidence of diabetes during the entry window
+
+```{r}
+metformin_alone_all_drugs_single <- all_dm_drugs %>% 
+  select(-individual_id) %>% #unnecessary column in those with single patids
+  inner_join(metformin_alone_single, by = "patid") %>% 
+  filter(year(issuedate)<2014 & year(issuedate)>yob)#need to just look at the entry windo
+
+metformin_alone_all_drugs_multiple <- all_dm_drugs %>% 
+  inner_join(metformin_alone_multiple, by = "individual_id") %>% 
+    filter(year(issuedate)<2014 & year(issuedate)>yob)
+```
+
+ look at subjects that have nothing other than metformin - THESE ARE FOR EXCLUSION
+
+```{r}
+really_just_metformin_single <- metformin_alone_all_drugs_single %>%
+  group_by(patid) %>%
+  filter(all(is.na(priority_1))& all(is.na(priority_2))) %>% #filters out any patient that has even a single priority 1 or 2 drug
+  ungroup() %>% 
+  distinct(patid)
+
+n_distinct(really_just_metformin_single$patid)
+
+really_just_metformin_multiple <- multiple(metformin_alone_all_drugs_multiple) %>%
+  group_by(individual_id) %>%
+  filter(all(is.na(priority_1)) & all(is.na(priority_2))) %>%
+  ungroup() %>% 
+  distinct(individual_id, issuedate) %>% 
+  group_by(individual_id) %>% 
+  slice_min(issuedate) %>% 
+  ungroup() %>% 
+  fill_columns(issuedate) %>% 
+  distinct(patid, individual_id)
+
+really_just_metformin <- bind_rows(really_just_metformin_multiple, really_just_metformin_single)
+n_distinct(really_just_metformin_multiple$patid)
+```
+now create df of those that actually later have a priority drug.  Split into priority 1 and priority 2 as will deal with these differently as per metformin algorithm - ie a) if there is insulin and metformin AND PCOS AND GDM -> exclude  (more evidence of a diagnosis other than DM)
+b) if there is insulin and metformin AND either PCOS or GDM -> wipe the metformin data and keep the insulin date (not we will later cross-reference with pregnancy)
+c) if there is metformin and a priority_1 drug, this patient definitely has diabetes.  If they also have NDH or PCOS, wipe the metformin data and keep the priority_1 drug date as date of DM diagnosis.  If they have neither, keep the earliest prescription of any drug (and here it must be metformin because that is how we have selected the patients to examine above) as the date of diagnosis of diabetes as we have strong evidence of diabetes (the priority_1 drug) and no evidence of something else at this stage to explain the metformin - but again note we will later examine the overlap between the metformin scripts and pregnancy to ensure those scripts were not potentially explained by GDM.
+
+Below we look at case A. I look at those with single patid IDs in more detail to ensure the validity of the approach (looking at years of different events) but for those with a multiple patid a shorter code is used for simplicity. There is also a little 'test' subset that subsets those being excluded who have a 'continuous' prescriptions; despite the continuous label it is clear that they still look like they should be excluded.  Also it is clear that in the excluded cohort there are fewer patids with conitunous scripts than in the total cohort
+```{r}
+insulin_met_single <-single(first_update3) %>% 
+  filter(productname %in% insulin_code$productname|productname %in% metformin_code$productname) %>% 
+  filter(is.na(gly_date) & is.na(admidate)& is.na(ddd) & (year(issuedate)<2014)) %>% #any issuedate after 2014 essentially irrelevant as will not influence ddd
+  filter(!patid %in% really_just_metformin$patid) %>% 
+  rename(original_issuedate = issuedate,
+         original_prod = productname) %>% 
+  select(patid, original_issuedate, original_prod, yob, individual_id, pattern) %>%
+  filter(pattern!= "one-off") %>% #will be excluded anyway
+left_join(all_dm_drugs %>% select(-yob, -individual_id), by = "patid") %>% 
+  filter(year(issuedate)>yob) %>% #removes rubbish
+  arrange(patid, issuedate) %>% 
+  mutate(drug_year = year(issuedate)) %>% 
+group_by(patid) %>% 
+  filter(all(is.na(priority_1))) %>% 
+  mutate(drug_years = list(unique(drug_year))) %>% 
+slice(1) %>% 
+  ungroup() %>% 
+  left_join(all_pcos_obs %>% select(patid, obsdate), by = "patid") %>% 
+  arrange(patid, obsdate) %>% 
+  mutate(pcos_year = year(obsdate)) %>% 
+group_by(patid) %>% 
+  mutate(pcos_years = list(unique(pcos_year))) %>% 
+slice(1) %>% 
+  ungroup() %>% 
+  select(-obsdate) %>% 
+  left_join(valid_gdm_obs_single %>%select(patid, obsdate), by = "patid") %>% 
+  arrange(patid, obsdate) %>% 
+  mutate(gdm_year = year(obsdate)) %>% 
+group_by(patid) %>% 
+  mutate(gdm_years = list(unique(gdm_year))) %>% 
+slice(1) %>% 
+ungroup() %>% 
+  select(-priority_1, -priority_2, -index, -drug_year, -individual_id, -prodcodeid, -issuedate, -productname)
+
+PCOS_GDM_exclude_single <- insulin_met_single %>% 
+  filter(!is.na(pcos_years)&!is.na(gdm_years))
+
+#same in multiple
+PCOS_GDM_exclude_multiple <-multiple(first_update3) %>% 
+  group_by(individual_id) %>% 
+  filter(all(productname %in% insulin_code$productname)|all(productname %in% metformin_code$productname)) %>% 
+  filter(all(is.na(gly_date)) & all(is.na(admidate)) & all(is.na(ddd))) %>%
+  filter(!individual_id %in% really_just_metformin_multiple$individual_id) %>% 
+  rename(original_issuedate = issuedate,
+         original_prod = productname) %>% 
+  select(patid, original_issuedate, original_prod, yob, individual_id, pattern) %>%
+left_join(all_dm_drugs %>% select(-yob, -individual_id), by = "patid") %>% 
+  filter(year(issuedate)>yob) %>% 
+  group_by(individual_id) %>% 
+  filter(all(is.na(priority_1))) %>% 
+  ungroup() %>% 
+  filter(individual_id %in% valid_gdm_obs_multiple$individual_id & individual_id %in% all_pcos_obs$individual_id)
+
+n_distinct(PCOS_GDM_exclude_multiple$individual_id)
+```
+Now looking at those who have not been excluded (ie have more than just metformin and don't have insulin + PCOS +GDM with no priority_1 drug).  If they have NDH or PCOS, we need to update to their priority drug.  If they have neither PCOS nor NDH we leave as is
+```{r}
+#this first bit of code to make metformin_then_priority_drug_single_priority is just used to examin the years of NDH with respect to the drug years
+metformin_then_priority_drug_single_priority <- metformin_alone_all_drugs_single %>% 
+  filter(!patid %in% really_just_metformin_single$patid & !patid %in% PCOS_GDM_exclude_single$patid) %>% 
+  filter(patid %in% all_pcos_obs$patid|patid %in% ndh_obs$patid) %>% 
+  group_by(patid) %>% 
+  summarise(drug_years = list(unique(year(issuedate))),
+            .groups = "drop") %>% 
+    left_join(ndh_obs, by = "patid") %>% 
+  left_join(insulin_met_single %>% select(patid, pcos_years), by = "patid")
+  
+#now create the df that will be used to update
+drug_update_4_single <- metformin_alone_all_drugs_single %>% 
+  filter(!patid %in% really_just_metformin_single$patid & !patid %in% PCOS_GDM_exclude_single$patid) %>% 
+  filter(patid %in% all_pcos_obs$patid|patid %in% ndh_obs$patid) %>% 
+  filter(!is.na(priority_1)| !is.na(priority_2)) %>% 
+  group_by(patid) %>% 
+  slice_min(issuedate) %>%
+      slice(1) %>% 
+  ungroup() %>% 
+  rename(u4_issuedate = issuedate,
+         u4_productname = productname)
+
+#note there are a very few patients in metformin alone who are neither in really just metformin, nor in PCOS GDM exclude, nor have PCOS or NDH
+
+drug_update_4_multiple <- metformin_alone_all_drugs_multiple %>% 
+  filter(!individual_id %in% really_just_metformin_multiple$patid & !individual_id %in% PCOS_GDM_exclude_multiple$individual_id) %>% 
+    filter(individual_id %in% all_pcos_obs$individual_id|individual_id %in% ndh_obs$individual_id) %>% 
+  filter(!is.na(priority_1)| !is.na(priority_2)) %>% 
+    group_by(individual_id) %>% 
+  slice_min(issuedate) %>%
+      slice(1) %>% 
+  ungroup() %>% 
+    rename(u4_issuedate = issuedate,
+         u4_productname = productname) %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+drug_update_4 <- bind_rows(drug_update_4_multiple, drug_update_4_single)
+```
+
+
+##now need to update with this info
+and create hba1c + context indep DM observation date variables prior to next update
+
+```{r}
+#first first HbA1C
+hba1c_date_single <- single(diagnostic_gly_obs) %>% 
+  filter(!is.na(hba1c)) %>%
+  left_join(first_obs_gly_drug_HES %>% select(patid, yob), by ="patid") %>% 
+  filter(year(obsdate)>yob) %>% ##gets rid of rubbish dates
+  group_by(patid) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() 
+  
+
+hba1c_date_multiple <- multiple(diagnostic_gly_obs) %>% 
+  filter(!is.na(hba1c)) %>% 
+  left_join(first_obs_gly_drug_HES %>% select(patid, yob), by ="patid") %>% 
+  filter(year(obsdate)>yob) %>% ##gets rid of rubbish dates
+  group_by(individual_id) %>% 
+    slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+hba1c_date <- bind_rows(hba1c_date_single, hba1c_date_multiple) %>% 
+  select(patid, obsdate) %>% 
+  rename(hba1c_date = obsdate)
+
+#find first date of context-independant code
+context_indep_date_single <- single(all_dm_obs) %>% 
+  filter(is.na(context_dep)&is.na(possible_gdm)) %>% #removes any rows for observations that are context-dependant or could relate to GDM
+    group_by(patid) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(context_indep_date = obsdate) %>% 
+  left_join(first_update3 %>% select(patid, priority_date, admidate), by = "patid") %>% 
+  left_join(hba1c_date_single %>% select(patid, obsdate), by = "patid") %>% 
+  mutate(min_unequivocal_date = pmin(obsdate, context_indep_date, priority_date, admidate, na.rm = TRUE))
+
+context_indep_date_multiple <- multiple(all_dm_obs) %>% 
+  filter(is.na(context_dep)&is.na(possible_gdm)) %>% 
+    group_by(individual_id) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+    rename(context_indep_date = obsdate) %>% 
+    left_join(first_update3 %>% select(individual_id, patid, priority_date, admidate), by = "individual_id") %>% 
+  left_join(hba1c_date_multiple %>% select(patid, obsdate), by = "patid") %>% 
+  mutate(min_unequivocal_date = pmin(obsdate, context_indep_date, priority_date, admidate, na.rm = TRUE)) %>% 
+  group_by(individual_id) %>% 
+  summarise(obsdate = first(obsdate),
+            min_unequivocal_date = min(min_unequivocal_date)) %>% 
+  fill_columns()
+
+context_indep_date <- bind_rows(context_indep_date_multiple, context_indep_date_single) %>% 
+  select(patid, min_unequivocal_date, context_indep_date) 
+
+#now create update 4
+first_update4 <- first_update3%>% 
+  left_join(drug_update_4 %>% select(patid, u4_issuedate, u4_productname), by = "patid") %>% 
+  mutate(issuedate = coalesce(u4_issuedate, issuedate),
+         productname = coalesce(u4_productname, productname),
+         PCOS_GDM_exclude = if_else(individual_id %in% PCOS_GDM_exclude_multiple$individual_id|patid %in% PCOS_GDM_exclude_single$patid, 1, NA),
+         metformin_exclude = if_else(patid %in% really_just_metformin$patid, 1, NA)
+  ) %>% 
+left_join(hba1c_date, by = "patid") %>% 
+  left_join(context_indep_date, by = "patid") 
+
+table(first_update4$metformin_exclude) 
+```
+
+#now for update5 need to ensure that, if metformin prescription is driving the diabetes diagnosis date (ie issuedate = new_ddd),
+metformin scribed for dm rather than PCOS. Also remove pcos_gdm exclude first as
+we have already treated those in update 1 first identify those whose
+first drug is metformin and who don't have any other evidence of
+diabetes within a year at least i.e. could the metformin which precedes
+other markers of diabetes in fact have been scribed NOT for dm (and
+therefore for PCOS)?
+	
+
+```{r}
+  metformin_first_multiple <- multiple(first_update4) %>%
+  group_by(individual_id) %>%
+  mutate(
+    min_ddd = safe_min(ddd),
+    min_issuedate = safe_min(issuedate),
+    min_productname = if (all(is.na(issuedate))) NA_character_
+                      else first(productname[issuedate == min(issuedate, na.rm = TRUE)]),
+    
+    min_gly = safe_min(hba1c_date),
+    min_context_indep_date = safe_min(context_indep_date),
+    min_admidate = safe_min(admidate),
+    min_priority_date = safe_min(priority_date)) %>%
+  ungroup() %>% 
+  mutate(new_ddd = pmin(min_gly, min_issuedate, min_ddd, min_admidate, na.rm=TRUE),
+         ddd_sans_met =pmin(min_gly, min_priority_date, min_ddd, min_admidate, na.rm=TRUE) ) %>% 
+  filter(min_productname %in% metformin_code$productname) %>%
+ filter(min_issuedate==new_ddd) %>%  #identify those whose ddd is driven by a drug prescription
+    filter(min_issuedate %m+% years(1)< ddd_sans_met)
+   #2751
+  
+metformin_first_multiple <- metformin_first_multiple%>% 
+  select(patid, individual_id, min_issuedate, min_gly, min_admidate, min_ddd, min_priority_date, ddd_sans_met, min_context_indep_date) 
+
+metformin_first_single <- single(first_update4) %>%
+  mutate(new_ddd = pmin(hba1c_date, issuedate, ddd, admidate, na.rm=TRUE),
+         ddd_sans_met =pmin(hba1c_date, priority_date, ddd, admidate, na.rm=TRUE)) %>%
+  filter(productname %in% metformin_code$productname) %>%
+  filter(issuedate==new_ddd) %>% 
+  filter(issuedate %m+% years(1)< ddd_sans_met) %>% 
+  select(patid, ddd, issuedate, gly_date, admidate, priority_date, ddd_sans_met)
+#12631
+
+metformin_first <- bind_rows(metformin_first_multiple, metformin_first_single)
+```
+
+Now find those that have pcos in PCOS code list
+Now identify anyone who is in the metformin_first df who also has PCOS,
+within 4 month - ie PCOS very likely the reason for the metformin script
+so for these ladies, will need to find a subsequent script
+
+```{r}
+metformin_pcos <- all_pcos_obs %>% 
+  inner_join(metformin_first %>% select(patid, issuedate, min_issuedate, ddd_sans_met), by = "patid") %>% 
+  mutate(issuedate = coalesce(issuedate, min_issuedate))
+n_distinct(metformin_pcos$patid) #9768
+
+relevant_ndh_single <- single(metformin_first) %>% 
+  filter(!patid %in% metformin_pcos$patid) %>% 
+  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate<=issuedate), 1, NA)) %>% 
+  select(-individual_id, -min_ddd, -min_issuedate, -min_gly, -min_admidate, -min_priority_date, -min_context_indep_date) %>% 
+  filter(!is.na(prior_1_year))
+
+relevant_ndh_multiple <- multiple(metformin_first) %>% 
+  filter(!individual_id %in% metformin_pcos$individual_id) %>% 
+  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  mutate(prior_1_year = if_else((obsdate>= min_issuedate%m-% years(1))&(obsdate<= min_issuedate), 1, NA)) %>% 
+  filter(!is.na(prior_1_year))
+```
+For these women, metformin probably prescribed for PCOS, need to find 
+next drug that was prescribed within a year of a diabetes diagnosis date
+that does NOT take into account that metformin script (new variable
+created above: ddd_sans_met), ie that relies on other markers of DM
+
+```{r}
+need_to_update_issuedate_single <- metformin_first_single %>% 
+  filter(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid) %>% 
+  rename(issuedate_old = issuedate) %>% 
+  left_join(all_dm_drugs, by ="patid") %>% 
+  filter(!is.na(priority_1)|!is.na(priority_2)) %>% 
+  group_by(patid) %>% 
+  slice_min(issuedate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(issuedate_u5 = issuedate,
+         prodname_u5 = productname)
+
+need_to_update_issuedate_multiple <- metformin_first_multiple %>% 
+  filter(individual_id %in% metformin_pcos$individual_id|individual_id %in% relevant_ndh_multiple$individual_id) %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, productname, priority_1, priority_2), by ="patid") %>% 
+  filter(!is.na(priority_1)|!is.na(priority_2)) %>% 
+  group_by(individual_id) %>% 
+  slice_min(issuedate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(issuedate_u5 = issuedate,
+         prodname_u5 = productname) %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+need_to_update_issuedate <- bind_rows(need_to_update_issuedate_multiple, need_to_update_issuedate_single)
+
+```
+
+#UPDATE 5
+
+```{r}
+first_update5 <- first_update4%>% 
+  left_join(need_to_update_issuedate %>% select(patid, issuedate_u5, prodname_u5), by = "patid") %>% 
+  mutate(issuedate = if_else(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid|individual_id %in% relevant_ndh_multiple$patid, as.Date(NA), issuedate),
+         productname = if_else(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid|individual_id %in% relevant_ndh_multiple$patid, "removed u5", productname)) %>%   
+  mutate(issuedate = coalesce(issuedate_u5, issuedate),
+         productname = coalesce(prodname_u5, productname))
+```
+
+#update 6 - ambiguous first observation codes
+identify relevant patients - i.e. with a code potentially suggesting diabetes in pregnancy
+```{r}
+#makle a list of priority_1 drugs that are unambiguously used for DM
+priority_1<- dm_drugs %>% 
+  filter(!is.na(priority_1))
+
+#identify subjects whose first diagnosis leaves ambiguity around whether it is GDM or DM
+ambiguous_single <- single(first_update5) %>% 
+  filter(grepl("pregnan", diagnosis, ignore.case = TRUE)) %>% 
+  filter(!grepl("pre-existing", diagnosis, ignore.case = TRUE)) %>% #note we should not include subjects with unambiguous 'pre-existing' diabetes in this ambiguous group
+  filter(!grepl("pre-pregnancy counselling", diagnosis, ignore.case = TRUE)) #nor those who have DM and are receiving pre-pregnancy counseling, so those with "pre-existing" and "pre-pregnancy" are filtered out of the ambiguous group to really just leave the ambiguous first diagnoses
+
+ambiguous_multiple <- multiple(first_update5) %>% 
+  group_by(individual_id) %>% 
+  filter(ddd==safe_min(ddd)) %>% #only look at those individuals whose earliest ddd is ambiguous, because we need to decide if that was an episode of GDM.  If it was a later episode then we assume it was DM all along
+  filter(any(grepl("pregnan", diagnosis, ignore.case = TRUE))) %>% 
+  filter(!any(grepl("pre-existing", diagnosis, ignore.case = TRUE))) %>% #note we should not include subjects with unambiguous 'pre-existing' diabetes in this ambiguous group....
+  filter(!any(grepl("pre-pregnancy counselling", diagnosis, ignore.case = TRUE))) %>%  #nor those who have DM and are receiving pre-pregnancy counseling, so those with "pre-existing" and "pre-pregnancy" are filtered out of the ambiguous group to really just leave the ambiguous
+ungroup() 
+n_distinct(ambiguous_multiple$individual_id)
+
+ambiguous_multiple_pats <- all_pats %>%    ##gives you number of patids involved
+  filter(individual_id %in% ambiguous_multiple$individual_id)
+```
+
+filter out anyone with a useful HES data - i.e. an unambiguous HES term
+or drug BEFORE or close to the CPRD term (you can then ignore the
+ambiguous cprd diagnosis because it is predated by or close to something
+unambiguous, but note some of the HES terms themselves are ambiguous and
+are therefore labelled for review) an for those whose first HES code
+could still be GDM (i.e. review flag 1), find next useful hes term if
+there is one
+
+```{r}
+unambiguous_single <- ambiguous_single %>% 
+  filter(admidate<=ddd %m+%years(1)|((productname %in% priority_1$productname) & issuedate<=ddd %m+% years(1)|hba1c_date<=ddd %m+% years(1))) %>% #any unequivocal evidence in year post partum searched
+  select(patid, diagnosis, ddd, HES_term, admidate, individual_id, issuedate, productname, hba1c_date, value) 
+
+unambiguous_multiple <- first_update5 %>% 
+  filter(individual_id %in% ambiguous_multiple$individual_id) %>%
+  group_by(individual_id) %>% 
+    summarise(
+    earliest_ddd = safe_min(ddd),
+    earliest_admidate = safe_min(admidate),
+    earliest_hba1c_date = safe_min(hba1c_date),
+    # calculate earliest issuedate only among priority_1 drugs
+    earliest_issuedate_priority = safe_min(issuedate[productname %in% priority_1$productname]),
+    .groups = "drop"
+  ) %>%
+  filter(
+    !is.na(earliest_admidate)&earliest_admidate <= earliest_ddd %m+% years(1) |
+      !is.na(earliest_issuedate_priority)&earliest_issuedate_priority <= earliest_ddd %m+% years(1)|
+      !is.na(earliest_hba1c_date)&earliest_hba1c_date <= earliest_ddd %m+% years(1)) %>% 
+  ungroup()
+#31
+
+#remove these unambiguous patients from ambiguous
+ambiguous_single <- ambiguous_single %>% 
+  filter(!patid %in% unambiguous_single$patid)
+  
+
+ambiguous_multiple <- ambiguous_multiple %>% 
+  filter(!individual_id %in% unambiguous_multiple$individual_id) 
+
+true_ambiguous_multiple <- all_pats%>% 
+  left_join(ambiguous_multiple%>% select(patid, ddd), by = "patid") %>% 
+  filter(!individual_id %in% unambiguous_multiple$individual_id) %>% 
+  filter(!is.na(individual_id)) %>% 
+  group_by(individual_id) %>% 
+  fill(ddd, .direction = "downup") %>% 
+  ungroup() %>% 
+  filter(!is.na(ddd))
+
+#get a list of all the relevant patids
+ambiguous_patients <- bind_rows(true_ambiguous_multiple, ambiguous_single) %>% 
+  select(patid, individual_id, ddd)
+```
+now find delivery dates for them as these will be needed compare any
+events within the year following delivery (ie is this DM or GDM?)
+
+```{r}
+ambiguous_single$delivery_date <- NULL
+
+rel_delivery_date_single <- ambiguous_single %>% 
+  left_join(delivery_obs %>% select(patid, obsdate), by = "patid") %>%
+  filter(!is.na(obsdate)) %>% 
+  rename(delivery_date=obsdate) %>%   
+  filter(delivery_date %m-% months(8)<=ddd) %>% 
+  filter(delivery_date %m+% months(3)>=ddd) %>%
+  group_by(patid) %>% 
+  filter(delivery_date==min(delivery_date)) %>% 
+  slice(1) %>% 
+  ungroup() 
+
+
+rel_delivery_date_multiple <- true_ambiguous_multiple %>% 
+  left_join(delivery_obs %>% select(patid, obsdate), by = "patid") %>% 
+  rename(delivery_date = obsdate) %>% 
+  filter(!is.na(delivery_date)) %>%
+  filter(delivery_date %m-% months(8)<=ddd) %>% 
+  filter(delivery_date %m+% months(3)>=ddd) %>%  ##only select relevant episode as patients may have more than one delivery logged, allow a few months after delivery to allow for late coding
+  group_by(individual_id) %>% 
+  filter(delivery_date==min(delivery_date)) %>% #earliest relevant delivery date
+  slice(1) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+  left_join(all_pats, by = "individual_id") %>%  ##now propagate to all related patids
+  group_by(individual_id) %>% 
+  fill(delivery_date, ddd, .direction = "downup") %>% 
+  ungroup()
+
+#we have some patients for whom we don't have a HES maternity date, seek it in CPRD
+rel_delivery_date_to_find <- ambiguous_patients %>% 
+  filter(!patid %in% rel_delivery_date_single$patid) %>% 
+  filter(!patid %in% rel_delivery_date_multiple$patid)
+
+```
+
+So now we are left with some patids for whom we don't have a clear delivery date. In our case it was too large a number to sift through manually.  So look for a next diabetes observation within a year of the ambiguous observation and if there is one, you don't need a delivery date anyway because the ambiguous code is contiguous with an episode of chronic DM.
+
+```{r}
+ #identify individual for whome we need to find dm obsd
+  rel_del_to_find_single <- single(rel_delivery_date_to_find)
+ rel_del_to_find_multiple <- multiple(rel_delivery_date_to_find)
+
+dm_obs_single <- all_dm_obs %>% 
+  inner_join(rel_del_to_find_single %>% select(patid, ddd), by = "patid") %>% 
+  filter(is.na(possible_gdm)) %>% #will lose some patients here
+ filter(obsdate>ddd) %>% ##ensure no silly dates reappear, will also lose some patients here
+  group_by(patid) %>% 
+  mutate(priority = case_when(is.na(context_dep)&obsdate<=ddd%m+%years(1)~1, #for each patid, prioritise first any relevant codes within the year post ddd, then the minimum date
+                              obsdate==min(obsdate)~2)) %>% 
+  arrange(priority) %>% 
+  slice(1) %>% #then keep, per patid, first the codes that clearly demonstrate dm (and are not context dependent) and then the minimum date
+  mutate(cat = case_when(is.na(context_dep)&obsdate<=ddd%m+%years(1)~1, #this is DM
+                           obsdate>ddd%m+%years(1)~2, ##this is GDM (and original DDD becomes GDD)
+                           TRUE~3)) %>% # this remains ambiguous unless other useful info present
+   ungroup()
+ table(dm_obs_single$cat)
+ 
+
+dm_obs_multiple <-  all_dm_obs %>% 
+  inner_join(rel_del_to_find_multiple %>% select(patid, ddd), by = "patid") %>% #can use the patid as the key here as they are all present in rel_delivery to find  
+  filter(is.na(possible_gdm)) %>% 
+ filter(obsdate>ddd) %>% ##ensure no silly dates reappear
+  group_by(individual_id) %>% 
+  mutate(priority = case_when(is.na(context_dep)&obsdate<=ddd%m+%years(1)~1, #for each patid, prioritise first any relevant codes within the year post ddd, then the minimum date
+                              obsdate==safe_min(obsdate)~2)) %>% 
+  arrange(priority) %>% 
+  slice(1) %>% #then keep, per patid, first the codes that clearly demonstrate dm (and are not context dependent) and then the minimum date
+    mutate(cat = case_when(is.na(context_dep)&obsdate<=ddd%m+%years(1)~1, #this is DM
+                           obsdate>ddd+years(1)~2, ##this is GDM (and original DDD becomes GDD - gestational diabetes date)
+                           TRUE~3)) %>% # this remains ambiguous unless other useful info present
+ arrange(cat) %>% 
+ slice(1) %>% 
+   ungroup() %>% 
+   select(-patid) %>% 
+  fill_columns(obsdate, Term)
+
+    table(dm_obs_multiple$cat)
+    
+```
+
+now look at all the obs of those that remain few ambiguous (Cat 3) to see if
+we can find a delivery date, or just look at the pregnancy obs.  As an alternative, simply looking at the pregnancy observations (all_pregnancy_obs_update) can give you a good idea of when the delivery was even if that pregnancy did not have a specific delivery observation.  Log these in a .txt - ambiguous_del_date.txt
+
+```{r}
+
+cat3 <- rbind(dm_obs_multiple, dm_obs_single) %>%
+  select(patid, individual_id, ddd, cat) %>% 
+  filter(cat==3)
+
+#get all their observations
+subjects_obs_fun <-function(df){df %>% inner_join(cat3, by = "patid")}   
+subjects_obs <- bind_rows(lapply(observation_list, subjects_obs_fun))
+
+#I found loading the whole CPRD-Aurm .txt library problematic so I have in fact just selected the codes for which we needed a term  using the method below
+setwd("DIR IN WHICH YOU HAVE CPRD AURUM LIB")
+
+# Extract unique codes from your existing data frame
+medcode_list <- unique(subjects_obs$medcodeid)
+medcode_list <- as.character(medcode_list)
+
+# Write medcode_list to a temporary file
+writeLines(medcode_list, "temp_patterns.txt")
+
+# Specify output file for the filtered data
+temp_output <- "filtered_output.txt"
+
+# Construct and execute the grep command with redirection
+cmd <- sprintf("grep -f temp_patterns.txt CPRDAurumMedical.txt > %s", temp_output)
+system(cmd, intern = FALSE, ignore.stderr = TRUE)
+
+# Read the filtered output into R
+library(data.table)
+filtered_data <- fread(temp_output, sep = "\t", quote = "")
+
+# Clean up temporary files
+file.remove("temp_patterns.txt", temp_output)
+
+#filtered data is just a df of the medcodes in observation 1 with the terms
+
+filtered_data <- filtered_data %>%
+  select(V1, V5)
+names(filtered_data)[1] <- "medcodeid"
+names(filtered_data)[2] <- "term"
+filtered_data$medcodeid <- as.character(filtered_data$medcodeid)
+subjects_obs <- subjects_obs%>%
+  left_join(filtered_data, by = "medcodeid")
+subjects_obs$obsdate <- dmy(subjects_obs$obsdate)
+
+#filter down to dates around and after relevant episode and add the next_ddd
+subject_obs_filtered <- subjects_obs %>% 
+  filter(obsdate>ddd-days(60) & obsdate < ddd +months(18)) %>% 
+  left_join(dm_code %>% select(medcodeid, unambiguous, context_dep), by = "medcodeid")
+
+#now load
+setwd("RELEVANT DIRECTORY")
+ambiguous_del_date <- read.delim("ambiguous_del_date.txt", stringsAsFactors = TRUE)
+ambiguous_del_date$patid <- as.character(ambiguous_del_date$patid)
+ambiguous_del_date$delivery_date <- as.Date(ambiguous_del_date$delivery_date)
+
+#nb only 16 cat 3 but 1 in ambiguous del date from previous iterations, patids to exclude
+```
+
+now need to make a df with all the delivery dates - we have 
+explicit date,some implicit dates, and then we have to use the original
+DDD of the ambiguous diagnosis ('diabetes in pregnancy') as a proxy for all other subjects (including those in ambiguous_del_dates) apart from those we know to have a subsequent unambiguous DM code within a year and therefore that original ambiguous code should be used as the DDD, so don't need to search for those 48 patids
+
+```{r}
+unambiguous_DM <- bind_rows(dm_obs_multiple, dm_obs_single) %>% 
+  filter(cat==1)
+
+all_del_dates <- bind_rows(rel_delivery_date_single, rel_delivery_date_multiple, ambiguous_del_date) %>% 
+  select(patid, delivery_date)
+
+remaining_ambiguous1 <- ambiguous_patients %>% 
+  filter(!patid %in% unambiguous_DM$patid) %>% 
+  left_join(all_del_dates, by = "patid") %>% 
+  mutate(delivery_date = if_else(is.na(delivery_date), ddd, delivery_date)) %>% 
+  group_by(patid) %>% #(note there are a few patients with multiple delivery dates an only a couple with multiple patids, looking at the data, all their patids have all the del dates so you can just gorup by patid)
+  slice_min(delivery_date) %>% 
+  slice(1) %>% 
+  ungroup()
+
+n_distinct(remaining_ambiguous1$patid)
+```
+
+now look for any diabetes code , within the
+year post delivery
+
+```{r}
+remaining_ambiguous_single <- single(remaining_ambiguous1)
+remaining_ambiguous_multiple <- multiple(remaining_ambiguous1) %>% 
+  group_by(patid) %>% slice_min(delivery_date) %>% ungroup() %>% 
+  distinct()
+
+next_dm_obs_single <- all_dm_obs %>% 
+ inner_join(remaining_ambiguous_single %>%   select(patid, delivery_date), by = "patid") %>% 
+  filter(is.na(possible_gdm) &is.na(context_dep)) %>% #remove ambiguous codes
+  mutate(cat = case_when(obsdate<=delivery_date %m+% years(1)~1, # these have pregestational DM
+                         TRUE~2)) %>% #these have had GDM and have later evidence of DM
+  group_by(patid) %>% 
+  arrange(cat, obsdate) %>% 
+  slice(1) %>% 
+  ungroup()
+
+table(next_dm_obs_single$cat)
+
+
+next_dm_obs_multiple <-  all_dm_obs %>% 
+ inner_join(remaining_ambiguous_multiple %>%   select(patid, delivery_date), by = "patid") %>% 
+  filter(is.na(possible_gdm) &is.na(context_dep)) %>% #remove ambiguous codes
+  mutate(cat = case_when(obsdate<=delivery_date %m+% years(1)~1,
+                         TRUE~2)) %>% 
+  group_by(individual_id) %>% 
+  arrange(cat, obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+  left_join(all_pats, by = "individual_id") %>% 
+  group_by(individual_id) %>% 
+  fill(obsdate, Term, cat, .direction = "downup") %>% 
+  ungroup()
+
+table(next_dm_obs_multiple$cat)
+```
+
+Now we have identified clear evidence of DM for a further n patids ,
+we can remove them from those to search for evidence (and a number have a
+later DM code at least one year after delivery so potentially GDM)
+
+```{r}
+all_next_obs_cat1 <- rbind(next_dm_obs_multiple %>% select(patid, individual_id, cat), next_dm_obs_single %>% select(patid, individual_id, cat)) %>% #these women have pre-gestational DM
+  filter(cat==1)
+
+remaining_ambiguous2 <- remaining_ambiguous1 %>% 
+  filter(!patid %in% all_next_obs_cat1$patid)
+```
+next look for a useful glycaemic test post_delivery - labelled cat 1 here, keep these
+
+```{r}
+useful_gly_single <- single(remaining_ambiguous2) %>% 
+  left_join(diagnostic_gly_obs%>% select(patid, obsdate, Term), by = "patid") %>% 
+  filter(obsdate>delivery_date|obsdate<=delivery_date%m-%months(9)) %>% #only look at tests outside of the pregnancy in question
+  mutate(cat= case_when(obsdate<=delivery_date%m+%years(1)~1,
+                        is.na(obsdate)~2,
+                        TRUE~2))%>% ###for these patids, don't touch their gly date or their gly_term in the next update, as it might be useful for the dddd
+  filter(cat==1) %>% 
+  group_by(patid) %>% 
+  filter(n()>1) %>% #ensure there is a repeat test to confirm diagnosis
+  ungroup()
+
+
+useful_gly_multiple <- multiple(remaining_ambiguous2) %>% 
+  distinct(individual_id, ddd, delivery_date) %>% 
+  left_join(diagnostic_gly_obs %>% select(individual_id, obsdate, Term), by = "individual_id") %>% 
+      mutate(cat= case_when(obsdate<=delivery_date%m+%years(1) & obsdate>delivery_date~1,
+                        is.na(obsdate)~2,
+                        TRUE~2)) %>% 
+  group_by(individual_id) %>% 
+ slice_min(cat) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  fill_columns(ddd, delivery_date, cat, Term, obsdate) %>% 
+  filter(cat==1) %>% 
+  group_by(individual_id) %>% 
+  filter(n_distinct(obsdate)>1)
+
+remaining_ambiguous3 <- remaining_ambiguous2 %>% 
+  filter(!patid %in% useful_gly_multiple$patid) %>% 
+  filter(!patid %in% useful_gly_single$patid)
+
+ 
+n_distinct(remaining_ambiguous3$patid)
+```
+
+so we have a few patids  with a useful glycaemic test within a year post delivery - these are therefore patient with chronic DM for whom we don't need to update their ambiguous code/date. Searching for a glycaemic test after that year post-delivery, so that glycaemic tests that are relevant to the diagnosis of diabetes rather than gdm can be used in our update, there is only 1 patid but actually on revieweing the pregnancy data for that patid, that glycaemic test was probably during pregnancy so should not be used.
+
+Next find useful drugs within the year since post-partum - 
+
+```{r}
+#remove drug episodes in pregnancy
+useful_drugs_single <- single(remaining_ambiguous3) %>%
+  rename(original_del_date = delivery_date) %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") %>%
+  left_join(all_deliveries_single %>% select(patid, delivery_date), by = "patid") %>% #expect many to many
+  filter(!patid %in% all_pcos_obs$patid| !grepl("metformin", productname, ignore.case = TRUE)) %>%  #remove metformin for those with pcos
+  group_by(patid, issuedate) %>% #now for each issuedate ensure that 
+  filter(
+    is.na(delivery_date) |
+    !any(
+      issuedate >= delivery_date %m-% months(9) & #durg episode likely in pregnancy
+      issuedate <= delivery_date %m+% months(3), #with a bit of leeway afterwards
+      na.rm = TRUE
+    )
+  ) %>%
+  ungroup()
+
+useful_drugs_multiple <- multiple(remaining_ambiguous3) %>%
+    left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") 
+
+#now look for a drug episode specifically related to our ddd of interest
+useful_drugs_filtered_single <- useful_drugs_single%>% ##for these patids, diabetes may predate or is evident within the year post-partum, therefore don't change their meds
+  filter((issuedate<=original_del_date%m-%months(9))|(issuedate>original_del_date %m+% months(3) & issuedate<=original_del_date %m+% years(1))) ##3 months post-partum scripts can be a lag
+
+n_distinct(useful_drugs_filtered_single$patid)
+
+useful_drugs_filtered_multiple <- useful_drugs_multiple %>% 
+  group_by(individual_id) %>% 
+  filter(any(!is.na(issuedate))) %>% 
+  ungroup() %>% 
+   filter((issuedate<=delivery_date%m-%months(9))|(issuedate>delivery_date %m+% months(3)& issuedate<=delivery_date %m+% years(1))) %>% 
+  distinct(individual_id, issuedate, productname)
+#note one individual has two different issuedates here. both are prior to the window anyway and the prescription years predate 2007 so it doesn't matter which you pick, either way the patient will be excluded
+
+test <- all_dm_drugs %>% filter(patid %in% useful_drugs_filtered_single$patid)
+
+useful_drugs_filtered_multiple <- useful_drugs_filtered_multiple %>% 
+  group_by(individual_id) %>% 
+  slice_min(issuedate) %>% 
+  slice(1) %>% 
+  ungroup() %>%  
+  fill_columns(issuedate, productname) %>%
+  ungroup()
+```
+actually looking at these records, there is very little useful drug information in the year after delivery that really points to a diagnosis of dm - it all looks like prescriptions that were carried on a bit longer than pregnancy, but then they come to an end, suggesting this doesn't really prove diabetes
+
+now check if there are any rel admidates
+```{r}
+rel_admidate <- remaining_ambiguous3 %>% 
+  left_join(first_update5 %>% select(patid, admidate), by = "patid") %>% 
+  filter(admidate<delivery_date%m+% years(1))
+
+#THERE ARE NONE
+```
+
+for the those patids with ambiguous first codes either you have another UNEQUIVOCAL dm
+diagnosis within a year post-partum associated with that ambiguous initial date, or a medication or glycaemic test before
+pregnancy or within a year of delivery → then you keep that ddd (
+subjects) OR you have evidence later than a year → the previous ddd
+becomes gdd and then use the next date as the ddd OR you don’t other
+evidence → these are the lost_patients most of whom will be excluded as no evidence of diabetes and this is probably just
+GDM (see below, those with an admidate do remain though)
+
+1.  get all the dm diagnosis for these subjects, and keep their ddd
+    because then you can compare each obsdate to the ddd to see whether
+    it is within a year (then keep initial ddd), later than a year (then
+    that inital ddd becomes the date of a gestational diabetes episode
+    and the patient goes into the gdd cohort) or there is none at all
+    (discard as no good evidence of pre-gestational diabetes). 
+
+```{r}
+ambiguous_dm_obs <- all_dm_obs %>% 
+   inner_join(remaining_ambiguous3%>% select(patid, delivery_date), by = "patid")
+
+```
+
+now filter down to first unequivocal row, and prioritise to use the row
+with the most useful info if there are two possible rows on that day
+
+```{r}
+ambiguous_dm_obs_first_unambiguous_single <- single(ambiguous_dm_obs) %>% 
+  filter(is.na(possible_gdm)&is.na(context_dep)) %>% #ensure unequivocal codes
+  mutate(                ####back date obs as appropriated
+      adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+filter(adjusted_ddd>delivery_date) %>% ##ensure no silly dates reappear
+  group_by(patid) %>% 
+  filter(adjusted_ddd==min(adjusted_ddd)) %>% 
+  ungroup()
+
+prioritise_single_fun <- function(df){
+  df %>% 
+    group_by(patid) %>% 
+    slice(
+      if(any(!is.na(twelve_month_rev))){
+        which(!is.na(twelve_month_rev))[1]
+      }else if(any(!is.na(six_month))){
+        which(!is.na(six_month))[1]
+      }else if(any(!is.na(three_month))) {
+        which(!is.na(three_month))[1]
+      }else{
+        1
+      }
+    )
+}
+ambiguous_dm_obs_first_unambiguous_single <-prioritise_single_fun(ambiguous_dm_obs_first_unambiguous_single)
+n_distinct(ambiguous_dm_obs_first_unambiguous_single$patid)
+
+  
+ambiguous_dm_obs_first_unambiguous_multiple <- multiple(ambiguous_dm_obs) %>%
+  filter(is.na(possible_gdm) &is.na(context_dep)) %>% #ensure unequivocal codes
+  mutate(                ####back date obs as appropriated
+      adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+filter(adjusted_ddd>delivery_date) %>% ##ensure no silly dates reappear
+  group_by(individual_id) %>% 
+  filter(adjusted_ddd==safe_min(adjusted_ddd)) %>% 
+  ungroup()
+
+prioritise_multiple_fun <- function(df){
+  df %>% 
+    group_by(individual_id) %>% 
+    slice(
+      if(any(!is.na(twelve_month_rev))){
+        which(!is.na(twelve_month_rev))[1]
+      }else if(any(!is.na(six_month))){
+        which(!is.na(six_month))[1]
+      }else if(any(!is.na(three_month))) {
+        which(!is.na(three_month))[1]
+      }else{
+        1
+      }
+    )
+}
+
+ambiguous_dm_obs_first_unambiguous_multiple <-prioritise_multiple_fun(ambiguous_dm_obs_first_unambiguous_multiple) %>% 
+  select(-patid) %>% 
+  fill_columns(adjusted_ddd, Term)
+
+#now build the total df of subjects whose initial ambiguous diagnosis may have related to a gdm episode AND they have later evidence of diabetes
+GDM_pats <- bind_rows(ambiguous_dm_obs_first_unambiguous_multiple %>% select(patid, individual_id, adjusted_ddd, Term, delivery_date), ambiguous_dm_obs_first_unambiguous_single %>% select(patid, individual_id, adjusted_ddd, Term, delivery_date))
+```
+
+so the n GDM pats really are potential GDM patients - they have neither a
+medication nor a diagnostic test nor a DM diagnosis within a year of
+delivery nor prior to pregnancy any glycaemic data or drug data they
+have in the update to a 9 months prior to delivery should be wiped and
+replaced with the next data thereafter, so get their next drug after
+delivery and their next test after delivery
+
+```{r}
+next_drug_after_del_single <- GDM_pats %>%
+  filter(is.na(individual_id)) %>% 
+  left_join(all_dm_drugs, by = "patid") %>% 
+  filter(issuedate>delivery_date) %>%
+  group_by(patid) %>% 
+  filter(issuedate == min(issuedate)) %>% 
+  slice(1) %>% 
+  ungroup() 
+
+
+next_drug_after_del_multiple <- GDM_pats %>%
+  filter(!is.na(individual_id)) %>% 
+  distinct(individual_id, delivery_date) %>% 
+  left_join(all_pats, by = "individual_id") %>% 
+  group_by(individual_id) %>% 
+  fill(delivery_date, .direction = "downup") %>% 
+  ungroup %>% 
+  left_join(all_dm_drugs %>% select(patid, priority_1, priority_2, issuedate, productname), by = "patid") %>% ### cannot understand why could not left_join by individual id but it did not work so have left_joined by patid
+  filter(issuedate > delivery_date) %>%
+  group_by(individual_id) %>% 
+  filter(issuedate == min(issuedate)) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+  left_join(all_pats, by = "individual_id") %>% 
+  group_by(individual_id) %>% 
+  fill(issuedate, productname, .direction = "downup") %>% 
+  ungroup()
+
+next_drug_after_del <- bind_rows(next_drug_after_del_multiple %>% select(patid, issuedate, productname), next_drug_after_del_single %>% select(patid, issuedate, productname))
+
+##do the same for glycaemia
+next_gly_after_del_single <- single(GDM_pats)%>% 
+  left_join(diagnostic_gly_obs %>% select(patid, obsdate, value, Term), by = "patid") %>% 
+  rename(gly_term_u2=Term.y) %>% #rename the gly_term to disambiguate from the diabetes term
+  filter(obsdate>delivery_date) %>% 
+  group_by(patid) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup()
+
+next_gly_after_del_multiple <- multiple(GDM_pats) %>% 
+  left_join(diagnostic_gly_obs %>% select(patid, obsdate, value, Term), by = "patid") %>% 
+   rename(gly_term_u2=Term.y) %>%
+    filter(obsdate>delivery_date) %>% #rename the gly_term to disambiguate from the diabetes term
+  group_by(individual_id) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+  fill_columns(obsdate, value, gly_term_u2)
+
+next_gly_after_del <- bind_rows(next_gly_after_del_multiple %>% select(patid, obsdate, gly_term_u2, value), next_gly_after_del_single%>% select(patid, obsdate, gly_term_u2, value))
+
+GDM_pats <-GDM_pats %>% 
+  left_join(next_drug_after_del %>% select(patid, issuedate, productname), by = "patid") %>% 
+  left_join(next_gly_after_del %>% select(patid, obsdate, value, gly_term_u2), by = "patid") 
+
+#rename to facilitate left_join
+GDM_pats <- GDM_pats %>% 
+  rename(gdm_adjusted_ddd = adjusted_ddd,
+         gdm_adjusted_diag = Term,
+         gdm_adjusted_issuedate = issuedate,
+         gdm_adjusted_prod = productname,
+         gdm_adjusted_gly_date = obsdate,
+         gdm_adjusted_gly_term = gly_term_u2,
+         gdm_adjusted_value = value) %>% 
+  select(-individual_id)   
+
+```
+
+Now need to find lost patids - i.e. they were not filtered out of the
+initial ambiguous cohort on account of having other evidence of diabetes
+within the year and they were not found to have a later observation of
+diabetes. For subjects in this category, unless they have a later
+diagnostic test or a later drug, they are to be excluded as they only
+have evidence of GDM. Below is the code to label them for exclusion if
+they just have GDM or as patients for our GDM cohort. For those in the
+GDM cohort we need to remove the diagnostic observation of the
+ambiguous code because it should not be used to calculate the DDD (as it
+relates to an episode of GDM) - these guys don't have a helpful later
+diagnosis and need to be excluded as GDM only UNLESS they have other
+evidence of diabetes from a drug post-partum or an admidate
+
+```{r}
+lost_patients <- remaining_ambiguous3%>% 
+  filter(!patid %in% GDM_pats$patid) %>% 
+  left_join(first_update5 %>% select(patid, diagnosis, gly_date, gly_term, hba1c_date, value, issuedate, productname, pattern, admidate, HES_term, pattern, years, context_indep_date), by = "patid") 
+
+keep_ddd <- lost_patients %>%
+  filter(
+    # gly_date prior to 9 months before or 1 year after delivery
+    (gly_date < delivery_date %m-% months(9)) |
+    (gly_date > delivery_date & gly_date < delivery_date %m+% years(1)) |
+   
+    # issuedate prior 9 months before or 1 year after delivery
+    (issuedate < delivery_date %m-% months(9)) |
+    (issuedate > delivery_date & issuedate < delivery_date %m+% years(1)) |
+   
+    # admidate prior to 1 year after delivery
+   admidate <= delivery_date %m+% years(1)|(productname %in% priority_1$productname & issuedate <= delivery_date %m-% years(1))
+  ) %>% 
+  select(-individual_id)
+##few patids, none who have solid evidence of DM so we need to remove the ddd for ALL the lost patids
+
+to_examin <- all_dm_obs %>% 
+  filter(patid %in% lost_patients$patid)
+
+
+```
+
+Now these lost patients have no useful diagnosis after the initial
+ambiguous diagnosis and none of the data in the dataframe suggests
+there was either incontrovertible evidence of diabetes (through a hes
+diagnosis or an unambiguous DM drug) within a year or that there was evidence of
+metformin/insulin/hyperglycaemia OUTSIDE of pregnancy (either before or
+within a year after delivery) suggesting the ambiguous diagnosis was
+actually chronic DM. So we are left with a few case 
+1) there is no other evidence at all of diabetes - GDM exclude 
+2) there is glycaemic evidence of diabetes - a) during the pregnancy - need to update to the later
+date. If none available than remove that glycamic code during pregnancy
+b) more than a year after pregnancy - that is suggestive of chronic
+diabetes UNLESS it is in the context of a pregnancy, at which point you
+look for the next hyperglycaemia or if there is none, remove that
+glycaemic code, and so on 
+3) there is a prescription a) it is a priority
+1 drug - keep patient in GDM cohort by virtue of the ambiguous
+diagnosis b) it metformin/insulin and i) it is a one off - GDM exclude
+UNLESS they have other evidence of diabetes (eg admidate) - if you look
+at the one-offs, they are generally around the time of the ambiguous
+diagnosis and may have been scripts given for GDM ii) it is
+episodic/there is a gap - examine the years of prescription against the
+pregnancy dates - most of these will be excluded, some need an update
+when there is a prescription outside of pregnancy iii) it is
+continuous - keep date and patient is in GDM cohort by virtue of the
+ambiguous diagnosis 
+4) there is an admidate - keep that date and patient
+is in GDM cohort by virtue of the ambiguous diagnosis
+
+```{r}
+#now get the relevant dates for the GDM episodes
+overlap_lost_single <- single(lost_patients) %>% 
+  filter(!is.na(issuedate)) %>% 
+  distinct(patid) %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") %>%
+  mutate(equivocal_years = year(issuedate)) %>% 
+  group_by(patid) %>%
+  summarise(
+    equivocal_years = list(unique(equivocal_years))
+  ) %>%
+  ungroup() %>% 
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate, Term), by = "patid") %>% 
+  filter(!is.na(obsdate)) %>% 
+  mutate(
+    pregnancy_year = year(obsdate),
+    pregnancy_month = month(obsdate)) %>% 
+  rowwise() %>% 
+  mutate(
+    match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+  ungroup()
+
+#and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+overlap_lost_single2 <- overlap_lost_single %>% 
+  group_by(patid) %>%
+  summarise(equivocal_years = list(sort(unique(unlist(equivocal_years)))),
+            pregnancy_years = list(sort(unique(unlist(match_year)))),
+            .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(p, g)  {
+      presc <- as.integer(unlist(p))
+      gdm <- as.integer(unlist(g))
+      length(presc) > 0 &&
+        all(presc %in% gdm)
+    }, equivocal_years, pregnancy_years
+    )) %>%
+  ungroup()
+table(overlap_lost_single2$all_years_matched)
+
+
+#get the earliest year for which there is not a match with pregnancy
+overlap_lost_single_update <- overlap_lost_single2 %>%
+  filter(!all_years_matched) %>% 
+  distinct(patid, pregnancy_years) %>% 
+  unnest(pregnancy_years) %>% 
+  group_by(patid) %>% 
+  mutate(pregnancy_number = row_number()) %>% 
+   pivot_wider(
+    names_from = pregnancy_number,
+    values_from = pregnancy_years,
+    names_prefix = "pregnancy_year_"
+  ) %>% 
+  ungroup() %>% 
+  left_join(overlap_lost_single2 %>% select(patid, equivocal_years), by = "patid") %>% 
+  unnest(equivocal_years) %>%
+  mutate(equivocal_years = as.numeric(equivocal_years)) %>% 
+  filter(!if_any(starts_with("pregnancy_year_"), ~coalesce(.x == equivocal_years, FALSE))) %>% 
+  group_by(patid) %>% 
+  slice_min(equivocal_years) %>% 
+  filter(equivocal_years>2006 &equivocal_years<2014) %>% ##only check years that matter
+  left_join(all_dm_drug_patterns %>% select(patid, pattern), by = "patid") %>% 
+  left_join(all_pcos_obs, by = "patid")
+#3 patids
+
+drugs_to_examin <-  all_dm_drugs %>% filter(patid %in% overlap_lost_single_update$patid)
+
+#now do the same for those with multiple IDs 
+overlap_lost_multiple <- multiple(lost_patients) %>%
+  filter(!is.na(issuedate)) %>% 
+  distinct(individual_id) %>% 
+  left_join(all_dm_drugs %>% select(individual_id, issuedate, productname), by = "individual_id") %>%
+  mutate(equivocal_years = year(issuedate)) %>% 
+  group_by(individual_id) %>%
+  summarise(
+    equivocal_years = list(unique(equivocal_years))
+  ) %>%
+  ungroup() %>% 
+  left_join(all_pregnancy_obs_update %>% select(individual_id, obsdate, Term), by = "individual_id") %>% 
+  filter(!is.na(obsdate)) %>% 
+  mutate(
+    pregnancy_year = year(obsdate),
+    pregnancy_month = month(obsdate)) %>% 
+  rowwise() %>% 
+  mutate(
+    match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+  ungroup()
+
+#and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+overlap_lost_multiple2 <- overlap_lost_multiple %>% 
+  group_by(individual_id) %>%
+  summarise(equivocal_years = list(sort(unique(unlist(equivocal_years)))),
+            pregnancy_years = list(sort(unique(unlist(match_year)))),
+            .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(p, g)  {
+      presc <- as.integer(unlist(p))
+    preg <- as.integer(unlist(g))
+      length(presc) > 0 &&
+        all(presc %in% preg)
+    }, equivocal_years, pregnancy_years
+    )) %>%
+  ungroup()
+
+table(overlap_lost_multiple2$all_years_matched)
+
+
+#get the earliest year for which there is not a match with pregnancy
+overlap_lost_multiple_update <- overlap_lost_multiple2 %>%
+  filter(!all_years_matched) %>% 
+  distinct(individual_id, pregnancy_years) %>% 
+  unnest(pregnancy_years) %>% 
+  group_by(individual_id) %>% 
+  mutate(pregnancy_number = row_number()) %>% 
+   pivot_wider(
+    names_from = pregnancy_number,
+    values_from = pregnancy_years,
+    names_prefix = "pregnancy_year_"
+  ) %>% 
+  ungroup() %>% 
+  left_join(overlap_lost_multiple2 %>% select(individual_id, equivocal_years), by = "individual_id") %>% 
+  unnest(equivocal_years) %>%
+  mutate(equivocal_years = as.numeric(equivocal_years)) %>% 
+  filter(!if_any(starts_with("pregnancy_year_"), ~coalesce(.x == equivocal_years, FALSE))) %>% 
+  group_by(individual_id) %>% 
+  slice_min(equivocal_years) %>% 
+  filter(equivocal_years>2006 &equivocal_years<2014) %>% 
+  ungroup()
+#2 individual ids
+drugs_to_examin <-  all_dm_drugs %>% filter(individual_id %in% overlap_lost_multiple_update$individual_id)
+```
+
+examining this data from overlap_lost_, we can remove the all the medicatiosn in our case as they are either concomittent with a PCOS episode or they are out of the window anyway (or the records clearly state GDM, or it's just a single drug prescription out of the window/just metformin, which we exclude as too ambiguous) 
+now do the same for multiple
+
+Examination of the records here (looking at pregnancy data and also PCOS
+records) shows there is no useful drug prescription and within diagnosis
+window, clearly outside of pregnancy/PCOS prescription, therefore we
+need to remove the drug for all of them apart from 11505569121901
+
+so in total we can remove all drugs from lost_patients 
+
+now look at glycaemia data
+
+```{r}
+overlap_gly_lost_single <- single(lost_patients) %>% 
+  filter(!is.na(gly_date)) %>%  ##filter down to subjects that have glycaemic data
+  select(-value) %>%               ##remove unnecessary vestigial value colum
+  left_join(diagnostic_gly_obs, by = "patid") %>%  ##graft on glycaemic data
+  mutate(gly_year = year(obsdate)) %>%   ##get the year of each observation
+  group_by(patid) %>%
+  summarise(
+    gly_years = list(unique(gly_year))
+  ) %>%
+  ungroup() %>% 
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate, Term), by = "patid") %>% 
+  filter(!is.na(obsdate)) %>% 
+  mutate(
+    pregnancy_year = year(obsdate),
+    pregnancy_month = month(obsdate)) %>% 
+  rowwise() %>% 
+  mutate(
+    match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+  ungroup()
+
+#and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+overlap_gly_lost_single2 <- overlap_gly_lost_single %>% 
+  group_by(patid) %>%
+  summarise(gly_years = list(sort(unique(unlist(gly_years)))),
+            pregnancy_years = list(sort(unique(unlist(match_year)))),
+            .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(p, g)  {
+      gly <- as.integer(unlist(p))
+      gdm <- as.integer(unlist(g))
+      length(gly) > 0 &&
+        all(gly %in% gdm)
+    }, gly_years, pregnancy_years
+    )) %>%
+  ungroup()
+table(overlap_gly_lost_single2$all_years_matched)
+
+
+#get the earliest year for which there is not a match with pregnancy
+overlap_gly_lost_single_update <- overlap_gly_lost_single2 %>%
+  filter(!all_years_matched) %>% 
+  distinct(patid, pregnancy_years) %>% 
+  unnest(pregnancy_years) %>% 
+  group_by(patid) %>% 
+  mutate(pregnancy_number = row_number()) %>% 
+   pivot_wider(
+    names_from = pregnancy_number,
+    values_from = pregnancy_years,
+    names_prefix = "pregnancy_year_"
+  ) %>% 
+  ungroup() %>% 
+  left_join(overlap_gly_lost_single2 %>% select(patid, gly_years), by = "patid") %>% 
+  unnest(gly_years) %>%
+  mutate(gly_years = as.numeric(gly_years)) %>% 
+  filter(!if_any(starts_with("pregnancy_year_"), ~coalesce(.x == gly_years, FALSE))) %>% 
+  group_by(patid) %>% 
+  slice_min(gly_years) %>% 
+  filter(gly_years>2006 & gly_years<2014) %>% 
+  left_join(diagnostic_gly_obs, by = "patid") %>% 
+  filter(gly_years==year(obsdate)) %>% 
+  group_by(patid) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(gly_date_u6 = obsdate,
+         gly_term_u6 = Term,
+         value_u6 = value)
+
+
+## now do for those with multiple patids
+overlap_gly_lost_multiple <- multiple(lost_patients) %>% 
+  filter(!is.na(gly_date)) %>%  ##filter down to subjects that have glycaemic data
+  distinct(individual_id) %>%         ##remove unnecessary vestigial value colum
+  left_join(diagnostic_gly_obs, by = "individual_id") %>%  ##graft on glycaemic data
+  mutate(gly_year = year(obsdate)) %>%   ##get the year of each observation
+  group_by(individual_id) %>%
+  summarise(
+    gly_years = list(unique(gly_year))
+  ) %>%
+  ungroup() %>% 
+  left_join(all_pregnancy_obs_update %>% select(individual_id, obsdate, Term), by = "individual_id") %>% 
+  filter(!is.na(obsdate)) %>% 
+  mutate(
+    pregnancy_year = year(obsdate),
+    pregnancy_month = month(obsdate)) %>% 
+  rowwise() %>% 
+  mutate(
+    match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+  ungroup()
+
+#and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+overlap_gly_lost_multiple2 <- overlap_gly_lost_multiple %>% 
+  group_by(individual_id) %>%
+  summarise(gly_years = list(sort(unique(unlist(gly_years)))),
+            pregnancy_years = list(sort(unique(unlist(match_year)))),
+            .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(p, g)  {
+      gly <- as.integer(unlist(p))
+      gdm <- as.integer(unlist(g))
+      length(gly) > 0 &&
+        all(gly %in% gdm)
+    }, gly_years, pregnancy_years
+    )) %>%
+  ungroup()
+table(overlap_gly_lost_multiple2$all_years_matched)
+
+
+#get the earliest year for which there is not a match with pregnancy
+overlap_gly_lost_multiple_update <- overlap_gly_lost_multiple2 %>%
+  filter(!all_years_matched) %>% 
+  distinct(individual_id, pregnancy_years) %>% 
+  unnest(pregnancy_years) %>% 
+  group_by(individual_id) %>% 
+  mutate(pregnancy_number = row_number()) %>% 
+   pivot_wider(
+    names_from = pregnancy_number,
+    values_from = pregnancy_years,
+    names_prefix = "pregnancy_year_"
+  ) %>% 
+  ungroup() %>% 
+  left_join(overlap_gly_lost_multiple2 %>% select(individual_id, gly_years), by = "individual_id") %>%
+  unnest(gly_years) %>%
+  mutate(gly_years = as.numeric(gly_years)) %>% 
+  filter(!if_any(starts_with("pregnancy_year_"), ~coalesce(.x == gly_years, FALSE))) %>% 
+  group_by(individual_id) %>% 
+  slice_min(gly_years) %>% 
+  filter(gly_years>2006 & gly_years<2014) %>% ##ACTUALLY - no patids fulfill this criteria
+  left_join(diagnostic_gly_obs, by = "individual_id") %>% 
+  filter(gly_years==year(obsdate)) %>% 
+  group_by(individual_id) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(gly_date_u6 = obsdate,
+         gly_term_u6 = Term,
+         value_u6 = value) %>% 
+  select(-patid) %>% 
+  fill_columns(gly_date_u6, gly_term_u6, value_u6)
+
+overlap_lost_gly_update <- bind_rows(overlap_gly_lost_multiple_update, overlap_gly_lost_single_update)
+ 
+```
+
+Examination of these records shows that there are clear glycaemic dates outside of pregnancy in 4 single patids HOWEVER actually it is just a single glucose outside of pregnancy so does not consititute diabetes
+
+Now we have subjects from dm_obs dfs and 506 from next df obs - these don't need to
+be touched - then GDM pats, for whom we have to update the ddd - all the rest are GDM exclude 
+
+And now for update 6 -
+need to left_join lost_ambiguous and adjusted_ambiguous to first_update5
+
+```{r}
+first_update6 <- first_update5 %>% 
+  mutate(ambiguous_code = if_else(patid %in% ambiguous_single$patid | patid %in% ambiguous_multiple_pats$patid, 1, NA)) %>%   ##useful to have a record for later
+  left_join(GDM_pats, by = "patid") %>% 
+  mutate(gdd = case_when(patid %in% GDM_pats$patid ~ ddd,
+                         TRUE~as.Date(NA)),
+         gdm_status= case_when(patid %in% GDM_pats$patid ~ "GDM",
+                         TRUE~NA),
+        ddd = case_when(patid %in% GDM_pats$patid ~ gdm_adjusted_ddd,
+                        patid %in% lost_patients$patid ~ as.Date(NA), 
+                         TRUE~ddd),
+         diagnosis= case_when(patid %in% GDM_pats$patid ~ gdm_adjusted_diag,
+                         TRUE~diagnosis),  #chose not to remove the ambiguous term from the lost_patients for the record
+         gly_date = case_when(patid %in% GDM_pats$patid ~ gdm_adjusted_gly_date,
+                         patid %in% lost_patients$patid ~ as.Date(NA),
+                         TRUE~gly_date),
+         gly_term = case_when(patid %in% GDM_pats$patid ~ gdm_adjusted_gly_term,
+                         patid %in% lost_patients$patid ~ NA,
+                         TRUE~gly_term),
+         value = case_when(patid %in% GDM_pats$patid ~ gdm_adjusted_value,
+                         patid %in% lost_patients$patid ~ NA,
+                         TRUE~value),
+         issuedate = case_when(patid %in% GDM_pats$patid ~ gdm_adjusted_issuedate,
+                         patid %in% lost_patients$patid ~ as.Date(NA),
+                         pattern=="one-off" & is.na(gly_date) & is.na(admidate) & is.na(ddd) ~as.Date(NA),
+                         TRUE~issuedate),
+         productname = case_when(patid %in% GDM_pats$patid ~ gdm_adjusted_prod,
+                         patid %in% lost_patients$patid ~ NA,
+                         pattern=="one-off" & is.na(gly_date) & is.na(admidate) & is.na(ddd) ~ NA,
+                         TRUE~productname)) %>% 
+  left_join(context_dep_code, by = "diagnosis") %>% 
+    mutate(equivocal_date = case_when(is.na(priority_date) & is.na(context_dep)~ pmin(issuedate, gly_date, na.rm=TRUE), ##use the issuedate and the gly date if the issuedate is not for a priority_1 drug
+                                    is.na(priority_date) & !is.na(context_dep)~ pmin(ddd, issuedate, gly_date, na.rm=TRUE),#also used the ddd if it is a context dependant code
+                                    !is.na(priority_date) &(priority_date==issuedate) & is.na(context_dep)~ pmin(ddd,gly_date, na.rm=TRUE),
+                                    TRUE~gly_date)) # otherwise just use the gly date
+```
+
+#for update 7 we need to rule out context-dependent codes being related to GDM episodes
+identify subjects with a context-dependent code prior to unequivocal evidence of DM by at least a year and who don't have any glycaemic or drug data within the year post-partum (which would otherwise indicate ongoing diabetes) 
+```{r}
+#first find those subjects whose context dependant code is before incontrevertible evidence of dm
+context_dep_single <-single(first_update6) %>% 
+  filter(!is.na(context_dep)) %>% 
+  filter((ddd<min_unequivocal_date%m-%years(1))| is.na(min_unequivocal_date)) %>% 
+  filter(year(ddd)<2014 & (year(min_unequivocal_date)>2006| is.na(min_unequivocal_date))) %>% #no point in looking at codes that will not influence a useful diagnosis
+   select(patid, ddd, diagnosis, gly_date, issuedate, productname, admidate, HES_term, min_unequivocal_date, context_indep_date) 
+  n_distinct(context_dep_single$patid)
+
+```
+
+first step of algorithm is to identify subjects with a context dependant code and no unequivocal diagnosis code nor glycamic test data nor admidate nor issuedate, then next step for the remaining look at whether the code was in pregnancy.  If they have any such codes, do not use a context dependant code to diagnose pregnancy 
+```{r}
+to_exclude_single <- context_dep_single %>% 
+  filter(is.na(min_unequivocal_date) & is.na(gly_date) &is.na(issuedate))
+
+overlap_context_single <- context_dep_single %>% 
+  filter(!patid %in% to_exclude_single$patid) %>% 
+  left_join(all_dm_obs %>% select(patid, obsdate, Term), by = "patid") %>%
+  filter(obsdate<=context_indep_date %m-%years(1) |is.na(context_indep_date)) %>% ##just look at context-dependant observations prior to strong evidence of DM or where there is no such evidence of DM
+  mutate(equivocal_years = year(obsdate)) %>% 
+  filter(equivocal_years<2014) %>% #no point in updating later data
+  group_by(patid) %>%
+  summarise(
+    equivocal_years = list(unique(equivocal_years))
+  ) %>%
+  ungroup() %>% 
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate, Term), by = "patid") %>% 
+  filter(obsdate<as.Date("2015-01-01")) %>% #overlap with relevant pregnancy years
+  mutate(
+    pregnancy_year = year(obsdate),
+    pregnancy_month = month(obsdate)) %>% 
+  rowwise() %>% 
+  mutate(
+  match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+  ungroup()
+
+n_distinct(overlap_context_single$patid)
+
+filtered_out_single <- context_dep_single %>% 
+  filter(!patid %in% to_exclude_single$patid) %>% 
+  filter(!patid %in% overlap_context_single$patid) %>% #note here we are looking for those not in overlap_context dep as they for example have context dep code is >=2014 so not worth amending
+  select(-min_unequivocal_date)
+
+
+#and see if they all match up during the period of interest create variable all_years_matched which is a boolean describing whether all the years of context dep codes are explained by pregnancy epsiodes
+overlap_context_single2 <- overlap_context_single %>% 
+  group_by(patid) %>%
+  summarise(equivocal_years = list(sort(unique(unlist(equivocal_years)))),
+            pregnancy_years = list(sort(unique(unlist(match_year)))),
+            .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(c, g)  {
+      context <- as.integer(unlist(c))
+      gdm <- as.integer(unlist(g))
+      length(context) > 0 &&
+        all(context %in% gdm)
+    }, equivocal_years, pregnancy_years
+    )) %>%
+  ungroup()
+
+#subjects whom we should wipe all context dependant codes as all their years are matched
+all_years_matched_single <- overlap_context_single2 %>% 
+  filter(all_years_matched)
+#...and find the next unambiguous observation for the update
+all_years_matched_single_next <- all_dm_obs %>% 
+  filter(patid %in% all_years_matched_single$patid) %>% 
+  filter(is.na(context_dep)&is.na(possible_gdm)) %>% #just filter down to relevant context-independent codes
+    mutate(                ####back date obs as appropriated
+      adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+  group_by(patid) %>% 
+  filter(adjusted_ddd==min(adjusted_ddd)) %>% 
+    group_by(patid) %>% 
+    slice(
+      if(any(!is.na(twelve_month_rev))){
+        which(!is.na(twelve_month_rev))[1]
+      }else if(any(!is.na(six_month))){
+        which(!is.na(six_month))[1]
+      }else if(any(!is.na(three_month))) {
+        which(!is.na(three_month))[1]
+      }else{
+        1
+      }
+    )%>% 
+    rename(ddd_u7 = adjusted_ddd,
+         diagnosis_u7 = Term)
+
+#for those whose context dep codes all match pregnancy years - remove their ddd and diagnosis
+remove_diag <-all_years_matched_single %>% 
+  filter(all_years_matched) 
+
+#for those with unmatched years, if the context dep code is before or up to a GDM episode (next step in the algorithm), remove all context dep codes
+all_years_unmatched_single <- overlap_context_single2 %>% 
+  filter(!all_years_matched) %>%
+  left_join(first_update6 %>% select(patid,ddd, min_unequivocal_date), by = "patid") %>% 
+  left_join(total_gdm_single_deliveries_slimmed, by = "patid") %>% #  
+  mutate(true_gdm = if_else(gdm_del_date < min_unequivocal_date %m-% years(1)|(!is.na(gdm_del_date) &  is.na(min_unequivocal_date)), 1, NA)) %>% 
+  group_by(patid) %>% 
+    mutate(remove = if_else(any(ddd<gdm_del_date %m+% months(3) & !is.na(true_gdm)), 1, NA)) %>% ##allow a bit of leeway
+  ungroup() 
+
+#for those whose diagnosis we need to remove, we need to find the next diag that is not context dependant
+all_years_unmatched_single_next <- all_years_unmatched_single %>% 
+  filter(!is.na(remove)) %>%
+  distinct(patid) %>% 
+  left_join(all_dm_obs, by = "patid") %>% 
+  filter(is.na(context_dep)&is.na(possible_gdm)) %>% 
+    mutate(                ####back date obs as appropriated
+      adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+  group_by(patid) %>% 
+  filter(adjusted_ddd==min(adjusted_ddd)) %>% 
+    slice(
+      if(any(!is.na(twelve_month_rev))){
+        which(!is.na(twelve_month_rev))[1]
+      }else if(any(!is.na(six_month))){
+        which(!is.na(six_month))[1]
+      }else if(any(!is.na(three_month))) {
+        which(!is.na(three_month))[1]
+      }else{
+        1
+      }
+    )%>% 
+    rename(ddd_u7 = adjusted_ddd,
+         diagnosis_u7 = Term)
+  
+#now identify those to take to next step of algorithm, i.e all their years don't match, and they are not prior to GDM
+  for_next_step_single <- all_years_unmatched_single %>% 
+  filter(is.na(remove)) %>% 
+    bind_rows(.,filtered_out_single)#only keep those whose diagnosis you are not going to remove ??NOT NEEDED
+
+table(all_years_unmatched_single$remove)
+
+```
+
+now look to see if there are large gaps in coding suggesting separate episodes
+```{r}
+large_gap_single <- all_dm_obs %>% 
+  filter(patid %in% for_next_step_single$patid) %>%
+  mutate(                ####back date obs as appropriated
+    adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+  left_join(first_update6 %>% select(patid, min_unequivocal_date, yob, gly_date, issuedate), by = "patid") %>% 
+  filter(adjusted_ddd<min_unequivocal_date %m-% years(1) |is.na(min_unequivocal_date)) %>% #equivocal dates in the year prior to unequivocal data probably constitute the start of diabetes so we need to ignore them when looking for a gap to unequivocal evidence
+  group_by(patid) %>% 
+  slice_max(adjusted_ddd) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  mutate(dodgy = if_else(year(adjusted_ddd)<yob+50 & (adjusted_ddd < min_unequivocal_date%m-% years(2)), 1, NA)) ##identify those with a large gap
+  
+large_gap_single_no <-large_gap_single %>% 
+  filter(is.na(dodgy)) %>%  
+  distinct(patid, obsdate, yob) 
+
+large_gap_single_yes<-large_gap_single%>% 
+  filter(!is.na(dodgy)) %>% 
+  distinct(patid, yob)
+n_distinct(large_gap_single_yes$patid)
+
+#for those with a large gap, update
+large_gap_single_update <- large_gap_single_yes %>% 
+  left_join(all_dm_obs, by = "patid") %>% 
+    mutate(                ####back date obs as appropriated
+    adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+  filter(is.na(context_dep)&is.na(possible_gdm)) %>%
+  filter(year(adjusted_ddd)>yob) %>% 
+  group_by(patid) %>% 
+  slice_min(adjusted_ddd) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+    rename(ddd_u7 = adjusted_ddd,
+         diagnosis_u7 = Term)
+```
+Next step of algorithm is to check if there is a positive diagnosis of pre-diabetes PRIOR to the unequivocal diagnosis of diabetes - if so, remove context-dep code
+```{r}
+prediabetes_positive <- ndh_obs %>% 
+  filter(is.na(value)) %>% 
+  select(patid, individual_id, obsdate, Term)
+
+prediabetes_single <- large_gap_single_no %>% 
+  rename(context_dep_date = obsdate) %>% 
+  left_join(first_update6 %>% select(patid, min_unequivocal_date), by = "patid") %>% 
+  left_join(prediabetes_positive, by = "patid") %>% 
+  filter(obsdate<min_unequivocal_date) %>% 
+  group_by(patid) %>% 
+  slice_max(obsdate) %>% 
+  slice(1) %>% 
+  ungroup()
+
+prediabetes_single_next <- prediabetes_single %>% 
+  select(patid, context_dep_date, yob) %>% 
+  left_join(all_dm_obs, by = "patid") %>% 
+    mutate(                ####back date obs as appropriated
+    adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+  filter(is.na(context_dep)&is.na(possible_gdm)) %>%
+  filter(obsdate>context_dep_date) %>% 
+  filter(year(adjusted_ddd)>yob) %>% 
+  group_by(patid) %>% 
+  slice_min(adjusted_ddd) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+    rename(ddd_u7 = adjusted_ddd,
+         diagnosis_u7 = Term)
+  
+no_prediabetes_remove_single <- large_gap_single_no %>% 
+  filter(!patid %in% prediabetes_single_next$patid)
+
+```
+
+prepare for update
+```{r}
+needs_update_single <- rbind(all_years_matched_single_next %>% select(patid, ddd_u7, diagnosis_u7), all_years_unmatched_single_next %>% select(patid, ddd_u7, diagnosis_u7), large_gap_single_update %>% select(patid, ddd_u7, diagnosis_u7), prediabetes_single_next %>% select(patid, ddd_u7, diagnosis_u7))
+
+##note some individuals are present in large_gap_single_yes but are not found to have a later context INdependant code, we have to identify and remove their diagnosis
+large_gap_single_remove_diag <- large_gap_single_yes %>% 
+  filter(!patid %in% large_gap_single_update$patid)
+```
+
+so we had n patids from large gap single yes and some more from context dep pregnancies  with a ddd that needs further enquiry.  However we  fewer in needs update with a next unambiguous code so we have lost the diagnosis in some patids, for whom we therefore have to remove the diagnosis.
+
+```{r}
+##now do the same for those with multiple patids
+  #first find those patids whose context-dependent code is before incontrevertible evidence of dm amongst all the patids for that individual
+context_dep_multiple <-multiple(first_update6) %>% 
+   group_by(individual_id) %>% 
+  summarise(ddd=safe_min(ddd),
+            diagnosis = if (all(is.na(ddd))){NA_character_
+            }else{diagnosis[which.min(ddd)]},
+            context_indep_date= safe_min(context_indep_date),
+            priority_date = safe_min(priority_date),
+            admidate = safe_min(admidate),
+            hba1c_date = safe_min(hba1c_date),
+            min_unequivocal_date = safe_min(min_unequivocal_date),
+            gly_date = safe_min(gly_date),
+            issuedate = safe_min(issuedate)) %>% #selects patids within the individual with the earliest ddd
+  ungroup() %>% 
+  mutate(context_dep = if_else(diagnosis %in% context_dep_code$diagnosis, 1, NA)) %>% 
+  filter(!is.na(context_dep)) %>% 
+  filter(ddd<min_unequivocal_date%m-%years(1)|is.na(min_unequivocal_date))%>% 
+  filter(year(ddd)<2014 & (year(min_unequivocal_date)>2006|is.na(min_unequivocal_date))) %>% #no point in looking at codes that will not influence a useful diagnosis
+   select(individual_id, ddd, gly_date, issuedate, admidate, context_indep_date, min_unequivocal_date) %>% 
+  fill_columns()
+```
+
+```{r}
+to_exclude_multiple <- context_dep_multiple %>% 
+  group_by(individual_id) %>% 
+  filter(all(is.na(min_unequivocal_date)) & all(is.na(gly_date)) & all(is.na(issuedate))) %>% 
+  ungroup()
+
+overlap_context_multiple <- context_dep_multiple %>% 
+  filter(!individual_id %in% to_exclude_multiple$individual_id) %>% 
+  left_join(all_dm_obs %>% select(patid, obsdate, Term), by = "patid") %>%
+  filter(obsdate<=context_indep_date %m-%years(1) |is.na(context_indep_date)) %>% ##just look at context-dependant observations prior to strong evidence of DM
+  mutate(equivocal_years = year(obsdate)) %>% 
+  filter(equivocal_years<2014) %>% #no point in updating later data
+  group_by(individual_id) %>%
+  summarise(
+    equivocal_years = list(unique(equivocal_years))
+  ) %>%
+  ungroup() %>% 
+  fill_columns() %>% 
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate, Term), by = "patid") %>% 
+  filter(obsdate<as.Date("2015-01-01")) %>% 
+  mutate(
+    pregnancy_year = year(obsdate),
+    pregnancy_month = month(obsdate)) %>% 
+  rowwise() %>% 
+  mutate(
+  match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+  ungroup()
+
+
+filtered_out_multiple <- context_dep_multiple %>% 
+  filter(!individual_id %in% to_exclude_multiple$individual_id) %>% 
+  filter(!individual_id %in% overlap_context_multiple$individual_id) %>% 
+  select(-min_unequivocal_date)
+
+#and see if they all match up during the period of interest (ie issuedate to min_equivocal_date) - create variable all_years_matched which is a boolean describing whether all the years of drugs are explained by pregnancy epsiodes
+overlap_context_multiple2 <- overlap_context_multiple %>% 
+  group_by(individual_id) %>%
+  summarise(equivocal_years = list(sort(unique(unlist(equivocal_years)))),
+            pregnancy_years = list(sort(unique(unlist(match_year)))),
+            .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(c, g)  {
+      context <- as.integer(unlist(c))
+      gdm <- as.integer(unlist(g))
+      length(context) > 0 &&
+        all(context %in% gdm)
+    }, equivocal_years, pregnancy_years
+    )) %>%
+  ungroup() %>% 
+  fill_columns()
+
+
+all_years_matched_multiple <- overlap_context_multiple2 %>% 
+  filter(all_years_matched)
+
+all_years_matched_multiple_next <- all_dm_obs %>% 
+  filter(patid %in% all_years_matched_multiple$patid) %>% 
+  filter(is.na(context_dep)&is.na(possible_gdm)) %>% 
+    mutate(                ####back date obs as appropriated
+      adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+  group_by(individual_id) %>% 
+  filter(adjusted_ddd==min(adjusted_ddd)) %>% 
+    slice(
+      if(any(!is.na(twelve_month_rev))){
+        which(!is.na(twelve_month_rev))[1]
+      }else if(any(!is.na(six_month))){
+        which(!is.na(six_month))[1]
+      }else if(any(!is.na(three_month))) {
+        which(!is.na(three_month))[1]
+      }else{
+        1
+      }
+    )%>% 
+    rename(ddd_u7 = adjusted_ddd,
+         diagnosis_u7 = Term) %>% 
+  select(-patid) %>% 
+  fill_columns()
+#maybe not nec
+remove_diag_multiple <-all_years_matched_multiple %>% 
+  filter(all_years_matched) %>% 
+  filter(!individual_id %in% all_years_matched_multiple_next$individual_id) 
+
+#for those with unmatched years, if the context dep code is before or up to a GDM episode, remove all context dep codes
+
+all_years_unmatched_multiple <- overlap_context_multiple2 %>% 
+  filter(!all_years_matched) %>%
+  left_join(first_update6 %>% select(patid,ddd), by = "patid") %>% 
+  left_join(total_gdm_multiple_deliveries_slimmed %>% select(patid, gdm_del_date), by = "patid") %>% 
+  group_by(individual_id) %>% 
+  mutate(remove = if_else(any(ddd<gdm_del_date %m+% months(3)), 1, NA)) %>% ##allow a bit of leeway
+  ungroup() 
+
+all_years_unmatched_multiple_next <- all_years_unmatched_multiple %>% 
+  filter(!is.na(remove)) %>%
+  distinct(individual_id) %>%
+  fill_columns() %>% 
+  left_join(all_dm_obs %>% select(-individual_id), by = "patid") %>% 
+  filter(is.na(context_dep)&is.na(possible_gdm)) %>% 
+    mutate(                ####back date obs as appropriated
+      adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+  group_by(individual_id) %>% 
+  filter(adjusted_ddd==min(adjusted_ddd)) %>% 
+    slice(
+      if(any(!is.na(twelve_month_rev))){
+        which(!is.na(twelve_month_rev))[1]
+      }else if(any(!is.na(six_month))){
+        which(!is.na(six_month))[1]
+      }else if(any(!is.na(three_month))) {
+        which(!is.na(three_month))[1]
+      }else{
+        1
+      }
+    )%>%
+    rename(ddd_u7 = adjusted_ddd,
+         diagnosis_u7 = Term) %>% 
+  select(-patid) %>% 
+  fill_columns()
+  
+  for_next_step_multiple <- all_years_unmatched_multiple %>% 
+  filter(is.na(remove)) %>% 
+    bind_rows(.,filtered_out_multiple)#only keep those whose diagnosis you are not going to remove ??NOT NEEDED
+
+table(all_years_unmatched_single$remove)
+
+#now look to see if there are any large gaps in time
+    large_gap_multiple <- all_dm_obs %>% 
+  filter(individual_id %in% for_next_step_multiple$individual_id) %>% 
+  mutate(                ####back date obs as appropriated
+    adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+  left_join(first_update6 %>% select(patid, min_unequivocal_date, yob, gly_date, issuedate), by = "patid") %>% 
+  filter(adjusted_ddd<min_unequivocal_date %m-% years(1) |is.na(min_unequivocal_date)) %>% #equivocal dates in the year prior to unequivocal data probably constitute the start of diabetes so we need to ignore them when looking for a gap to unequivocal evidence
+  group_by(individual_id) %>% 
+  slice_max(adjusted_ddd) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  mutate(dodgy = if_else(year(adjusted_ddd)<yob+50 & (adjusted_ddd < min_unequivocal_date%m-% years(2)), 1, NA)) ##identify those with a large gap
+
+    large_gap_multiple_no <-large_gap_multiple %>% 
+  filter(is.na(dodgy)) %>%  
+  distinct(individual_id, obsdate, yob) %>% 
+      fill_columns()
+
+large_gap_multiple_yes<-large_gap_multiple%>% 
+  filter(!is.na(dodgy)) %>% 
+  distinct(individual_id, yob) %>%
+  fill_columns()
+#1063
+
+n_distinct(large_gap_multiple_yes$individual_id) #499
+
+large_gap_multiple_update <- large_gap_multiple_yes %>% 
+  left_join(all_dm_obs %>% select(-individual_id), by = "patid") %>% 
+    mutate(                ####back date obs as appropriated
+    adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+  filter(is.na(context_dep)&is.na(possible_gdm)) %>%
+  filter(year(adjusted_ddd)>yob) %>% 
+  group_by(individual_id) %>% 
+  slice_min(adjusted_ddd) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+    rename(ddd_u7 = adjusted_ddd,
+         diagnosis_u7 = Term) %>%
+  select(-patid) %>% 
+  fill_columns()
+  #
+
+n_distinct(large_gap_multiple_update$individual_id) 
+```
+
+now look for positive prediabetes diagnoses
+```{r}
+prediabetes_multiple <- large_gap_multiple_no %>% 
+  rename(context_dep_date = obsdate) %>% 
+  left_join(first_update6 %>% select(patid, min_unequivocal_date), by = "patid") %>% 
+  left_join(prediabetes_positive %>% select(patid, obsdate, Term), by = "patid") %>% 
+  filter(obsdate<min_unequivocal_date) %>% 
+  group_by(individual_id) %>% 
+  slice_max(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+prediabetes_multiple_next <- prediabetes_multiple %>% 
+  select(patid, context_dep_date, yob) %>% 
+  left_join(all_dm_obs, by = "patid") %>% 
+    mutate(                ####back date obs as appropriated
+    adjusted_ddd = case_when(
+      twelve_month_rev==1~obsdate %m-% months(12),
+      six_month==1~obsdate %m-% months(6),
+      three_month==1~obsdate %m-% months(3),
+      TRUE~obsdate
+    )) %>% 
+  filter(is.na(context_dep)&is.na(possible_gdm)) %>%
+  filter(obsdate>context_dep_date) %>% 
+  filter(year(adjusted_ddd)>yob) %>% 
+  group_by(individual_id) %>% 
+  slice_min(adjusted_ddd) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+    rename(ddd_u7 = adjusted_ddd,
+         diagnosis_u7 = Term) %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+no_prediabetes_remove_multiple <- large_gap_multiple_no %>% 
+  filter(!individual_id %in% prediabetes_multiple_next$individual_id)
+```
+
+
+Further preparation for the update
+```{r}
+#note some individuals are present in large_gap_multiple-yes but are not found to have a later context-Independent code, we have to identify and remove their diagnosis
+large_gap_multiple_remove_diag <- large_gap_multiple_yes %>% 
+  filter(!individual_id %in% large_gap_multiple_update$individual_id)
+#note the above is not necessary because these patids are effectively removed in remove patid anyway then update in need_update
+
+needs_update_multiple <- bind_rows(all_years_matched_multiple_next %>% select(patid, ddd_u7, diagnosis_u7), all_years_unmatched_multiple_next %>% select(patid, ddd_u7, diagnosis_u7),large_gap_multiple_update %>% select(patid, ddd_u7, diagnosis_u7), prediabetes_multiple_next %>% select(patid, ddd_u7, diagnosis_u7))
+to_update <- bind_rows(needs_update_single, needs_update_multiple)
+    
+#find those whose diagnoses we should remove - everyone but those left at the end of the algorithm
+remove_diags <- bind_rows(context_dep_multiple %>% distinct(patid), context_dep_single %>% distinct(patid)) %>% 
+  filter(!patid %in% no_prediabetes_remove_single$patid) %>% 
+  filter(!patid %in% no_prediabetes_remove_multiple$patid)
+```
+
+
+#now for update 7
+- remove ddd and diagnosis with a context-dependant code either if there is a large gap or if it is in pregnancy and replace with a context indep code, if there is one.  Otherwise leave the context indep code
+- note needs update are those with context indep codes and a pregnancy and to update contains those with a large gap as well as those with a pregnancy who HAVE a context indep code - so we need to remove the ddd and diagnoses for anyone featuring in either of these dfs and then replace them with context indep codes were possible
+- we also label these subjects as possible GDM - not all of them have overt GDM coding but a lot do and the rest clearly have overlap with pregnancy or a large gap between context dep and context indep coding suggesting an episodic disease pattern like GDM. This label should be used in a SENSITIVITY analysis later in which they are all treated as being part of the GDM cohort (note many will also have clear evidence of GDM already but the sensitivity analysis will add these possible_GDMs into the GDM cohort too).
+```{r}
+##
+first_update7 <- first_update6%>% 
+  mutate(ddd = if_else(patid %in% remove_diags$patid, as.Date(NA), ddd),
+         diagnosis = if_else(patid %in% remove_diags$patid, NA, diagnosis)) %>% 
+  left_join(to_update, by = "patid") %>% 
+  mutate(ddd = if_else(!is.na(ddd_u7), ddd_u7, ddd),
+         diagnosis = if_else(!is.na(diagnosis_u7), diagnosis_u7, diagnosis),
+         possible_gdm = if_else(patid %in% remove_diags$patid, 1, NA)) #log those with evidence of pregnancy at least as GDM subjects
+
+```
+
+Having removed some of the context dependent codes, some patients will now only have medications as evidence of DM.  This being the case we need to go back through the process in update4 above to ensure it's not all just PCOS, or GDM or NDH.
+
+```{r}
+metformin_alone_single <- single(first_update7) %>% 
+  inner_join(metformin_code, by = "productname") %>% 
+  filter(is.na(gly_date)) %>% 
+  filter(is.na(ddd)) %>% 
+  filter(is.na(admidate)) %>% 
+  select(-priority_1, -priority_2, -prodcodeid) %>% 
+  select(patid)
+
+metformin_alone_multiple <- multiple(first_update7) %>% 
+  inner_join(metformin_code, by = "productname") %>% 
+  group_by(individual_id) %>% 
+  filter(all(is.na(gly_date))) %>% 
+  filter(all(is.na(ddd))) %>% 
+  filter(all(is.na(admidate))) %>%
+  ungroup() %>% 
+  select(-priority_1, -priority_2, -prodcodeid) %>% 
+  distinct(individual_id)
+```
+
+
+now pull their drugs
+
+```{r}
+metformin_alone_all_drugs_single <- all_dm_drugs %>% 
+  inner_join(metformin_alone_single, by = "patid") %>% 
+  filter(year(issuedate)<2014)
+
+metformin_alone_all_drugs_multiple <- all_dm_drugs %>% 
+  inner_join(metformin_alone_multiple, by = "individual_id") %>% 
+    filter(year(issuedate)<2014)
+```
+
+ look at subjects that have nothing other than metformin - THESE ARE FOR EXCLUSION
+
+```{r}
+really_just_metformin_single <- metformin_alone_all_drugs_single %>%
+  group_by(patid) %>%
+  filter(all(is.na(priority_1))& all(is.na(priority_2))) %>% #filters out any patient that has even a single priority 1 or 2 drug
+  ungroup() %>% 
+  distinct(patid)
+
+n_distinct(really_just_metformin_single$patid)
+
+really_just_metformin_multiple <- multiple(metformin_alone_all_drugs_multiple) %>%
+  group_by(individual_id) %>%
+  filter(all(is.na(priority_1)) & all(is.na(priority_2))) %>%
+  ungroup() %>% 
+  distinct(individual_id, issuedate) %>% 
+  group_by(individual_id) %>% 
+  slice_min(issuedate) %>% 
+  ungroup() %>% 
+  fill_columns(issuedate) %>% 
+  distinct(patid, individual_id)
+
+really_just_metformin <- bind_rows(really_just_metformin_multiple, really_just_metformin_single)
+
+```
+
+```{r}
+insulin_years_single <- single(all_dm_drugs) %>% 
+  filter(!is.na(priority_2)) %>% 
+  arrange(patid, issuedate) %>% 
+  group_by(patid) %>% 
+  summarise(insulin_years = list(unique(year(issuedate)))) %>% 
+    ungroup() 
+
+insulin_met_single <-single(first_update7) %>% 
+  filter(productname %in% insulin_code$productname|productname %in% metformin_code$productname) %>% 
+  filter(!patid %in% really_just_metformin$patid) %>% #already excluded these
+  filter(is.na(gly_date) & is.na(admidate)& is.na(ddd) & (year(issuedate)<2014)) %>% #any issuedate after 2014 essentially irrelevant as will not influence ddd
+  rename(original_issuedate = issuedate,
+         original_prod = productname) %>% 
+  select(patid, original_issuedate, original_prod, yob, individual_id, pattern) %>%
+  filter(pattern!= "one-off") %>% #will be excluded anyway
+left_join(all_dm_drugs %>% select(-yob, -individual_id), by = "patid") %>% 
+  arrange(patid, issuedate) %>% 
+  mutate(drug_year = year(issuedate)) %>% 
+group_by(patid) %>% 
+  filter(all(is.na(priority_1))) %>% 
+  mutate(drug_years = list(unique(drug_year))) %>% 
+slice(1) %>% 
+  ungroup() %>% 
+  left_join(all_pcos_obs %>% select(patid, obsdate), by = "patid") %>% 
+  arrange(patid, obsdate) %>% 
+  mutate(pcos_year = year(obsdate)) %>% 
+group_by(patid) %>% 
+  mutate(pcos_years = list(unique(pcos_year))) %>% 
+slice(1) %>% 
+  ungroup() %>% 
+  select(-obsdate) %>% 
+  left_join(gdm_obs %>%select(patid, obsdate), by = "patid") %>% 
+  arrange(patid, obsdate) %>% 
+  mutate(gdm_year = year(obsdate)) %>% 
+group_by(patid) %>% 
+  mutate(gdm_years = list(unique(gdm_year))) %>% 
+slice(1) %>% 
+ungroup() %>% 
+  select(-priority_1, -priority_2, -index, -drug_year, -individual_id, -prodcodeid, -issuedate, -productname) %>% #cull for visual clarity
+  left_join(insulin_years_single, by = "patid")
+
+PCOS_GDM_exclude_single <- insulin_met_single %>% 
+  filter(!is.na(pcos_years)&!is.na(gdm_years))
+
+#same in multiple
+PCOS_GDM_exclude_multiple <-multiple(first_update7) %>% 
+  group_by(individual_id) %>% 
+  filter(all(productname %in% insulin_code$productname)|all(productname %in% metformin_code$productname)) %>% 
+  filter(all(is.na(gly_date)) & all(is.na(admidate)) & all(is.na(ddd))) %>%
+  filter(!individual_id %in% really_just_metformin_multiple$individual_id) %>% 
+  filter(pattern!="one-off") %>% 
+  rename(original_issuedate = issuedate,
+         original_prod = productname) %>% 
+  select(patid, original_issuedate, original_prod, yob, individual_id, pattern) %>%
+left_join(all_dm_drugs %>% select(-yob, -individual_id), by = "patid") %>% 
+  group_by(individual_id) %>% 
+  filter(all(is.na(priority_1))) %>% 
+  ungroup() %>% 
+  filter(individual_id %in% gdm_obs$individual_id & individual_id %in% all_pcos_obs$individual_id) %>% 
+  distinct(individual_id) %>% 
+  fill_columns()
+
+
+PCOS_GDM_exclude_total <-bind_rows(PCOS_GDM_exclude_multiple, PCOS_GDM_exclude_single)
+
+```
+
+now need to recheck that those coded with metformin before did not have it prescribed for PCOS so effectively 
+```{r}
+ metformin_first_multiple <- multiple(first_update7) %>%
+  group_by(individual_id) %>%
+  mutate(
+    min_ddd = safe_min(ddd),
+    min_issuedate = safe_min(issuedate),
+    min_productname = if (all(is.na(issuedate))) NA_character_
+                      else first(productname[issuedate == min(issuedate, na.rm = TRUE)]),
+    
+    min_gly = safe_min(hba1c_date),
+    min_context_indep_date = safe_min(context_indep_date),
+    min_admidate = safe_min(admidate),
+    min_priority_date = safe_min(priority_date)) %>%
+  ungroup() %>% 
+  mutate(new_ddd = pmin(min_gly, min_issuedate, min_ddd, min_admidate, na.rm=TRUE),
+         ddd_sans_met =pmin(min_gly, min_priority_date, min_ddd, min_admidate, na.rm=TRUE) ) %>% 
+  filter(min_productname %in% metformin_code$productname) %>%
+ filter(min_issuedate==new_ddd) %>%  #identify those whose ddd is driven by a drug prescription
+    filter(min_issuedate %m+% years(1)< ddd_sans_met)
+  
+metformin_first_multiple <- metformin_first_multiple%>% 
+  select(patid, individual_id, min_issuedate, min_gly, min_admidate, min_ddd, min_priority_date, ddd_sans_met, min_context_indep_date) 
+
+metformin_first_single <- single(first_update7) %>%
+  mutate(new_ddd = pmin(hba1c_date, issuedate, ddd, admidate, na.rm=TRUE),
+         ddd_sans_met =pmin(hba1c_date, priority_date, ddd, admidate, na.rm=TRUE)) %>%
+  filter(productname %in% metformin_code$productname) %>%
+  filter(issuedate==new_ddd) %>% 
+  filter(issuedate %m+% years(1)< ddd_sans_met) %>% 
+  select(patid, ddd, issuedate, gly_date, admidate, priority_date, ddd_sans_met)
+
+metformin_first <- bind_rows(metformin_first_multiple, metformin_first_single)
+```
+
+now find those that have pcos in PCOS code list
+Now identify anyone who is in the metformin_first df who also has PCOS,
+within 4 month - ie PCOS very likely the reason for the metformin script
+so for these ladies, will need to find a subsequent script
+
+```{r}
+metformin_pcos <- all_pcos_obs %>% 
+  inner_join(metformin_first %>% select(patid, issuedate, min_issuedate, ddd_sans_met), by = "patid") %>% 
+  mutate(issuedate = coalesce(issuedate, min_issuedate))
+n_distinct(metformin_pcos$patid) #9768
+
+relevant_ndh_single <- single(metformin_first) %>% 
+  filter(!patid %in% metformin_pcos$patid) %>% 
+  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate<=issuedate), 1, NA)) %>% 
+  select(-individual_id, -min_ddd, -min_issuedate, -min_gly, -min_admidate, -min_priority_date, -min_context_indep_date) %>% 
+  filter(!is.na(prior_1_year))
+
+relevant_ndh_multiple <- multiple(metformin_first) %>% 
+  filter(!individual_id %in% metformin_pcos$individual_id) %>% 
+  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  mutate(prior_1_year = if_else((obsdate>= min_issuedate%m-% years(1))&(obsdate<= min_issuedate), 1, NA)) %>% 
+  filter(!is.na(prior_1_year))
+test <- test %>% 
+  mutate(ndh = if_else(patid %in% ndh_obs$patid, 1, NA))
+```
+for these women, metformin probably prescribed for PCOS, need to find 
+next drug that was prescribed within a year of a diabetes diagnosis date
+that does NOT take into account that metformin script (new variable
+created above: ddd_sans_met), ie that relies on other markers of DM
+
+```{r}
+need_to_update_issuedate_single <- metformin_first_single %>% 
+  filter(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid) %>% 
+  rename(issuedate_old = issuedate) %>% 
+  left_join(all_dm_drugs, by ="patid") %>% 
+  filter(!is.na(priority_1)|!is.na(priority_2)) %>% 
+  group_by(patid) %>% 
+  slice_min(issuedate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(issuedate_u7b = issuedate,
+         prodname_u7b = productname)
+
+need_to_update_issuedate_multiple <- metformin_first_multiple %>% 
+  filter(individual_id %in% metformin_pcos$individual_id|individual_id %in% relevant_ndh_multiple$individual_id) %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, productname, priority_1, priority_2), by ="patid") %>% 
+  filter(!is.na(priority_1)|!is.na(priority_2)) %>% 
+  group_by(individual_id) %>% 
+  slice_min(issuedate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(issuedate_u7b = issuedate,
+         prodname_u7b = productname) %>% 
+  select(-patid) %>% 
+  fill_columns()
+need_to_update_issuedate <- bind_rows(need_to_update_issuedate_multiple, need_to_update_issuedate_single)
+
+```
+
+#UPDATE 7b
+
+```{r}
+first_update7b <- first_update7 %>% 
+  left_join(need_to_update_issuedate %>% select(patid, issuedate_u7b, prodname_u7b), by = "patid") %>% 
+  mutate(issuedate = if_else(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid|individual_id %in% relevant_ndh_multiple$patid, as.Date(NA), issuedate),
+         productname = if_else(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid|individual_id %in% relevant_ndh_multiple$patid, "removed u5", productname)) %>%   
+  mutate(issuedate = coalesce(issuedate_u7b, issuedate),
+         productname = coalesce(prodname_u7b, productname))%>% 
+  mutate(metformin_exclude = if_else(patid %in% really_just_metformin$patid, 1, NA)) %>% 
+  mutate(PCOS_GDM_exclude = if_else(patid %in% PCOS_GDM_exclude_total$patid, 1, NA))
+
+```
+
+
+##for update 8
+ensure that those without a value in the diagnosis column, the HES_term column and without a priority 1 drug at any point do not just have GDM and that the script of metformin or insulin was not used for GDM (if so, need to adjust date), and run through update 4 to rule out PCOS again (necessary because some patients have lost their diagnoses in update 6, as it was only an ambiguous one)
+
+first filter down to appropriate subjects
+
+```{r}
+#bring years variable back
+no_diagnosis_nor_hes_nor_priority1_single <- single(first_update7b) %>% 
+  mutate(issuedate = if_else(pattern=="one-off" & is.na(gly_date) & is.na(admidate) & is.na(ddd), as.Date(NA), issuedate)) %>% 
+  filter(is.na(min_unequivocal_date)) %>%
+  filter(is.na(ddd)) %>% ##ddd's should now be unquivocal too
+  filter(is.na(gdm_status)) %>%  #no point searching patients that have already been labelled for exclusion by an ambiguous first diagnosis, and note any one in the GDM column has already been filtered out because they have a ddd
+  filter(is.na(PCOS_GDM_exclude)&is.na(metformin_exclude)) %>% #no point searching through those already excluded by PCOS
+  filter(!is.na(gly_date)|!is.na(issuedate)) %>% 
+  filter(yob>1941) %>% 
+  filter(pmin(gly_date, issuedate, na.rm = TRUE)>regstartdate %m+% years(1))
+  
+no_diagnosis_nor_hes_nor_priority1_multiple <- multiple(first_update7b) %>% 
+   mutate(issuedate = if_else(pattern=="one-off" & is.na(gly_date) & is.na(admidate) & is.na(ddd), as.Date(NA), issuedate)) %>% 
+  group_by(individual_id) %>% 
+   filter(all(is.na(min_unequivocal_date))) %>%
+  filter(all(is.na(ddd))) %>% 
+  ungroup() %>% 
+  filter(is.na(gdm_status)) %>%  #no point searching patients that have already been labelled for exclusion by an ambiguous first diagnosis, and note any one in the GDM column has already been filtered out because they have a ddd
+  filter(is.na(PCOS_GDM_exclude)&is.na(metformin_exclude)) %>%  #no point searching through those already excluded by PCOS
+  group_by(individual_id) %>% 
+  filter(any(year(gly_date)<2014)|
+           any(year(issuedate) < 2014)) %>%
+  ungroup() %>% 
+  filter(yob>1941)#no point updating anyone older
+
+no_diagnosis_nor_hes_nor_priority1 <- rbind(no_diagnosis_nor_hes_nor_priority1_multiple, no_diagnosis_nor_hes_nor_priority1_single)
+
+
+```
+
+now can check for overlapping time periods with pregnancy
+
+```{r}
+#now get the relevant dates for the potential pregnancy episodes and drug years
+overlap_single <- no_diagnosis_nor_hes_nor_priority1_single %>% 
+  filter(!is.na(issuedate)) %>% 
+  distinct(patid, issuedate) %>% 
+  rename(old_issue = issuedate) %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") %>%
+  filter(issuedate>= old_issue) %>% ## necessary because of upstream updates
+  mutate(equivocal_years = year(issuedate)) %>% 
+  filter(equivocal_years<2014) %>% #no point in updating later data
+  group_by(patid) %>%
+  summarise(
+    equivocal_years = list(unique(equivocal_years))
+  ) %>%
+  ungroup() %>% 
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate, Term), by = "patid") %>% 
+  filter(obsdate<as.Date("2015-01-01")) %>% 
+  mutate(
+    pregnancy_year = year(obsdate),
+    pregnancy_month = month(obsdate)) %>% 
+  rowwise() %>% 
+  mutate(
+    match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+  ungroup()
+
+#and see if they all match up during the period of interest (ie issuedate to min_equivocal_date) - create variable all_years_matched which is a boolean describing whether all the years of drugs are explained by pregnancy epsiodes
+overlap_single2 <- overlap_single %>% 
+  group_by(patid) %>%
+  summarise(equivocal_years = list(sort(unique(unlist(equivocal_years)))),
+            pregnancy_years = list(sort(unique(unlist(match_year)))),
+            .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(p, g)  {
+      presc <- as.integer(unlist(p))
+      gdm <- as.integer(unlist(g))
+      length(presc) > 0 &&
+        all(presc %in% gdm)
+    }, equivocal_years, pregnancy_years
+    )) %>%
+  ungroup()
+
+table(overlap_single2$all_years_matched)
+
+#get the earliest year for which there is not a match with pregnancy for those whose drug prescription don't all match
+overlap_single_update <- overlap_single2 %>%
+  filter(!all_years_matched) %>% # subset those whose scripts don't all overlap with pregnancy
+  distinct(patid, pregnancy_years) %>% 
+    left_join(first_update7b %>% select(patid, gly_date, gly_term, hba1c_date), by = "patid") %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, prodcodeid, productname), by = "patid") %>% 
+  filter(year(issuedate)<2014) %>% 
+  mutate(metformin = if_else(prodcodeid %in% metformin_code$prodcodeid, 1, NA_real_)) %>% 
+  group_by(patid) %>% 
+  mutate(metformin = if_else(all(metformin==1), 1, NA_real_),
+         remove = if_else(metformin==1 & (is.na(gly_date)|year(gly_date)>2013), 1, NA)) %>% #insufficient evidence of diabetes
+  ungroup() %>% 
+  unnest(pregnancy_years) %>% 
+  arrange(patid, pregnancy_years) %>% 
+  group_by(patid) %>% 
+  mutate(pregnancy_number = row_number(),
+         latest_pregnancy = if_else(pregnancy_number==max(pregnancy_number), pregnancy_years, NA_integer_)) %>%##find the latest pregnancy - useful to be able to compare drugs to latest pregnancy
+  fill(latest_pregnancy, .direction = "downup") %>% 
+  ungroup()
+
+remove_metformin_single <- overlap_single_update %>% 
+  filter(!is.na(remove)) %>% 
+  distinct()
+
+overlap_single_update2 <- overlap_single_update %>% 
+  filter(is.na(remove)) %>% 
+  distinct(patid, pregnancy_number, pregnancy_years, metformin, latest_pregnancy) %>%
+  unnest(pregnancy_years) %>%  
+  group_by(patid, latest_pregnancy) %>% 
+   pivot_wider(
+    names_from = pregnancy_number,
+    values_from = pregnancy_years,
+    names_prefix = "pregnancy_year_"
+  ) %>% 
+  ungroup() %>% 
+  left_join(overlap_single2 %>% select(patid, equivocal_years, pregnancy_years), by = "patid") %>% 
+  unnest(equivocal_years) %>%
+  mutate(equivocal_years = as.numeric(equivocal_years)) %>% 
+  filter(!if_any(starts_with("pregnancy_year_"), ~coalesce(.x == equivocal_years, FALSE))) %>% 
+  group_by(patid) %>% 
+  slice_min(equivocal_years) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  filter(equivocal_years>2006 &equivocal_years<2014) %>% 
+  select(patid, equivocal_years, pregnancy_years, metformin, latest_pregnancy) %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, productname, priority_1, priority_2, index), by = "patid") %>% 
+  mutate(issueyear = year(issuedate)) %>% 
+  filter(equivocal_years==issueyear) %>% #now start to look for the earliest unmatched year
+  group_by(patid) %>% 
+  filter(issuedate==min(issuedate)) %>% 
+  ungroup() %>% 
+  mutate(priority=case_when(!is.na(priority_1)~1,
+                            !is.na(priority_2)~2,
+                            TRUE~3)) %>% 
+  group_by(patid) %>% 
+  arrange(priority) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(unmatched_drug_update = issuedate) %>% 
+  select(-priority_2, -index) %>% 
+  left_join(gdm_obs %>% select(patid, obsdate), by = "patid") %>% 
+  group_by(patid) %>% 
+  slice_max(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  mutate(issue_before_gdm = if_else(is.na(priority_1) & (unmatched_drug_update <=obsdate %m+% months(6)), 1L, NA_integer_), #if the medication is prior to GDM (and is either isulin or metformin), likely all GDM
+         keep = if_else(equivocal_years>=latest_pregnancy +2, 1, NA_integer_)) #equivocal year is long after pregnancies so is probably fine to keep
+
+issue_before_gdm_single<-overlap_single_update2 %>% 
+  filter(!is.na(issue_before_gdm))
+#so now you only need to examin those that you are not sure you are going to keep
+
+to_examin <- overlap_single_update2 %>% 
+  filter(is.na(keep)&is.na(issue_before_gdm))
+
+to_examin_drugs <- all_dm_drugs %>% filter(patid %in% overlap_single_update2$patid)
+
+##now do the same for those with multiple patids 
+#now get the relevant dates for the GDM episodes
+
+overlap_multiple <- no_diagnosis_nor_hes_nor_priority1_multiple %>% 
+  filter(!is.na(issuedate)) %>% 
+  distinct(individual_id, issuedate) %>% 
+  group_by(individual_id) %>% 
+  slice_min(issuedate) %>% 
+  ungroup() %>% 
+  rename(old_issue = issuedate) %>% 
+  left_join(all_dm_drugs %>% select(individual_id, issuedate, productname), by = "individual_id") %>%
+  filter(issuedate>=old_issue) %>% 
+  mutate(equivocal_years = year(issuedate)) %>% 
+  group_by(individual_id) %>%
+  summarise(
+    equivocal_years = list(unique(equivocal_years))
+  ) %>%
+  ungroup() %>% 
+  left_join(all_pregnancy_obs_update %>% select(individual_id, obsdate, Term), by = "individual_id") %>% 
+  filter(!is.na(obsdate)) %>% 
+  mutate(
+    pregnancy_year = year(obsdate),
+    pregnancy_month = month(obsdate)) %>% 
+  rowwise() %>% 
+  mutate(
+    match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+  ungroup()
+
+
+#and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+overlap_multiple2 <- overlap_multiple %>% 
+  group_by(individual_id) %>%
+  summarise(equivocal_years = list(sort(unique(unlist(equivocal_years)))),
+            pregnancy_years = list(sort(unique(unlist(match_year)))),
+            .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(p, g)  {
+      presc <- as.integer(unlist(p))
+      gdm <- as.integer(unlist(g))
+      length(presc) > 0 &&
+        all(presc %in% gdm)
+    }, equivocal_years, pregnancy_years
+    )) %>%
+  ungroup()
+table(overlap_multiple2$all_years_matched)
+
+
+overlap_multiple_update <- overlap_multiple2 %>%
+  filter(!all_years_matched) %>% 
+  distinct(individual_id, pregnancy_years) %>% 
+  fill_columns() %>% 
+  left_join(first_update7b %>% select(patid, gly_date, gly_term, hba1c_date), by = "patid") %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, prodcodeid, productname), by = "patid") %>% 
+  filter(year(issuedate)<2014) %>% 
+  mutate(metformin = if_else(prodcodeid %in% metformin_code$prodcodeid, 1, NA_real_)) %>% 
+  group_by(individual_id) %>% 
+  mutate(metformin = if_else(all(metformin==1), 1, NA_real_),
+         remove = if_else(metformin==1 & (is.na(gly_date)|year(gly_date)>2013), 1, NA)) %>% # those with only metformin in the entry window should be removed
+  ungroup() 
+
+remove_metformin_multiple <- overlap_multiple_update %>% 
+  filter(!is.na(remove)) %>% 
+  distinct(individual_id) %>% 
+  fill_columns()
+  
+#get the earliest year for which there is not a match with pregnancy
+overlap_multiple_update2 <- overlap_multiple_update %>%
+  filter(is.na(remove)) %>% 
+  distinct(individual_id, pregnancy_years) %>% 
+  unnest(pregnancy_years) %>% 
+  group_by(individual_id) %>% 
+  mutate(pregnancy_number = row_number()) %>% 
+   pivot_wider(
+    names_from = pregnancy_number,
+    values_from = pregnancy_years,
+    names_prefix = "pregnancy_year_"
+  ) %>% 
+  ungroup() %>% 
+  left_join(overlap_multiple2 %>% select(individual_id, equivocal_years), by = "individual_id") %>% 
+  unnest(equivocal_years) %>%
+  mutate(equivocal_years = as.numeric(equivocal_years)) %>% 
+  filter(!if_any(starts_with("pregnancy_year_"), ~coalesce(.x == equivocal_years, FALSE))) %>% 
+  group_by(individual_id) %>% 
+  slice_min(equivocal_years) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  filter(equivocal_years>2006 &equivocal_years<2014) %>% 
+  select(individual_id, equivocal_years) %>% 
+  left_join(all_dm_drugs %>% select(individual_id, issuedate, productname, priority_1, priority_2, index), by = "individual_id") %>% 
+  mutate(issueyear = year(issuedate)) %>% 
+  filter(equivocal_years==issueyear) %>% 
+  group_by(individual_id) %>% 
+  filter(issuedate==min(issuedate)) %>% 
+  ungroup() %>% 
+  mutate(priority=case_when(!is.na(priority_1)~1,
+                            !is.na(priority_2)~2,
+                            TRUE~3)) %>% 
+  group_by(individual_id) %>% 
+  arrange(priority) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(unmatched_drug_update = issuedate) %>% 
+  fill_columns() %>% 
+    left_join(all_pregnancy_obs_update %>% select(patid, obsdate), by = "patid") %>% 
+  mutate(pregnancy_year = year(obsdate)) %>% 
+  group_by(individual_id) %>% 
+  arrange(individual_id, pregnancy_year) %>% 
+  summarise(equivocal_years = first(equivocal_years),
+            unmatched_drug_update = first(unmatched_drug_update),
+            pregnancy_years =  list(as.integer(unique(pregnancy_year))),
+            priority_1 = as.integer(any(priority==1, na.rm = TRUE)) ) %>% 
+  ungroup() %>% 
+    left_join(gdm_obs %>% select(individual_id, obsdate), by = "individual_id") %>% 
+  group_by(individual_id) %>% 
+  slice_max(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  mutate(issue_before_gdm = if_else(priority_1!=1 & (unmatched_drug_update <=obsdate %m+% months(6)), 1L, NA_integer_)) #if the medication is prior to GDM (and is either isulin or metformin), likely all GDM
+
+issue_before_gdm_multiple<-overlap_multiple_update2 %>% 
+  filter(!is.na(issue_before_gdm)) %>% 
+  fill_columns()
+
+to_examin_drugs <- all_dm_drugs %>% 
+  filter(individual_id %in% overlap_multiple_update2$individual_id)
+
+
+#then add anyone back in whom we would have removed as all_years_matched (just a few single patid)
+single_drug_years_matched <- overlap_single2 %>% 
+  filter(all_years_matched) %>% 
+  left_join(diagnostic_gly_obs, by = "patid") %>% 
+  filter(!is.na(obsdate)) %>% 
+  filter(year(obsdate)<2014) %>% 
+  left_join(all_deliveries_single %>% select(patid, delivery_date), by = "patid") %>% #expect many to many
+  unnest(equivocal_years) %>% 
+  mutate(equivocal_years = as.integer(equivocal_years),
+         delivery_year = year(delivery_date)) %>% 
+  filter(delivery_year>=equivocal_years-1 &  delivery_year <= equivocal_years + 1) %>% 
+  select(-hba1c, -index, -uln, -medcodeid,-all_years_matched)
+
+multiple_drug_years_matched <- overlap_multiple2 %>% 
+  filter(all_years_matched) %>% 
+  left_join(diagnostic_gly_obs %>% select(individual_id, obsdate, value, Term), by = "individual_id") %>% #expect many to many
+  filter(!is.na(obsdate)) %>% 
+  filter(year(obsdate)<2014) %>% 
+  left_join(all_deliveries_multiple %>% select(individual_id, delivery_date), by = "individual_id") %>% 
+  unnest(equivocal_years) %>% 
+  mutate(equivocal_years = as.integer(equivocal_years),
+         delivery_year = year(delivery_date)) %>% 
+  filter(delivery_year>=equivocal_years-1 &  delivery_year <= equivocal_years + 1) 
+
+```
+
+here I just looked across single_drug_years_matched and checked whether there was any glycaemic evidence that would have made me keep the original drug issuedate in first_update7b
+
+```{r}
+overlap_multiple_update2 <- overlap_multiple_update2 %>%
+  fill_columns()
+
+#build dfs of patids to remove
+drug_remove_single <- overlap_single2 %>% 
+  filter(all_years_matched) %>% 
+  bind_rows(., issue_before_gdm_single %>% select(patid)) %>% 
+  bind_rows(., remove_metformin_single %>% select(patid))
+
+drug_remove_multiple <- overlap_multiple2 %>% 
+  filter(all_years_matched) %>% 
+  fill_columns() %>% 
+  bind_rows(., remove_metformin_multiple) %>% 
+ bind_rows(., issue_before_gdm_multiple %>% select(patid, individual_id)) 
+
+drug_remove <- bind_rows(drug_remove_multiple, drug_remove_single)
+
+overlap_update2 <- bind_rows(overlap_single_update2, overlap_multiple_update2) %>% 
+  filter(!patid %in% drug_remove$patid)
+
+```
+
+now look at glycaemia data
+
+```{r}
+overlap_gly_single <- no_diagnosis_nor_hes_nor_priority1_single %>% 
+  filter(!is.na(gly_date)) %>%  ##filter down to subjects that have glycaemic data
+  select(-value) %>%               ##remove unnecessary value column
+  left_join(diagnostic_gly_obs, by = "patid") %>%  
+  filter(obsdate>=gly_date) %>% ##graft on glycaemic data
+  mutate(gly_year = year(obsdate)) %>%   ##get the year of each observation
+  group_by(patid) %>% 
+  summarise(years = list(unique(gly_year)), .groups = "drop") %>% ##create a list of all the years of diagnostic tests and flatten the df
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate, Term), by = "patid") %>%  ### add on pregnancy dates
+  filter(!is.na(obsdate)) %>%
+  mutate(pregnancy_year = year(obsdate),
+    pregnancy_month = month(obsdate)) %>% 
+  rowwise() %>% 
+  mutate(
+    match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+  ungroup()
+
+#and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+overlap_gly_single2 <- overlap_gly_single %>% 
+  group_by(patid) %>%
+  summarise(years = list(sort(unique(unlist(years)))),
+            pregnancy_years = list(sort(unique(unlist(match_year)))),
+            .groups = "drop") %>% 
+  mutate(
+    all_gly_years_matched = mapply(function(g, p)  {
+      gly <- as.integer(unlist(g))
+      preg <- as.integer(unlist(p))
+      length(gly) > 0 &&
+        all(gly %in% preg)
+    }, years, pregnancy_years
+    )) %>%
+  ungroup()
+
+
+#get the earliest year for which there is not a match with pregnancy
+overlap_gly_single_update <- overlap_gly_single2 %>%
+  filter(!all_gly_years_matched) %>% 
+  distinct(patid, pregnancy_years) %>% 
+  unnest(pregnancy_years) %>% 
+  group_by(patid) %>% 
+  mutate(pregnancy_number = row_number()) %>% 
+   pivot_wider(
+    names_from = pregnancy_number,
+    values_from = pregnancy_years,
+    names_prefix = "pregnancy_year_"
+  ) %>% 
+  ungroup() %>% 
+  left_join(overlap_gly_single2 %>% select(patid, years), by = "patid") %>% ##bring the gly years back
+  unnest(years) %>%
+  mutate(years = as.numeric(years)) %>% 
+  filter(!if_any(starts_with("pregnancy_year_"), ~coalesce(.x == years, FALSE))) %>% 
+  group_by(patid) %>% 
+  slice_min(years) %>% 
+  ungroup()%>% 
+  left_join(diagnostic_gly_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% ##now get the earliest unmatched date
+  filter(years==year(obsdate)) %>% 
+  group_by(patid) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>%  
+  rename(unmatched_gly_date = obsdate,
+         unmatched_gly_term = Term,
+         unmatched_value = value)
+
+
+#for those with no unmatched data
+diagnostic_check_single_overlap <- diagnostic_gly_obs %>% 
+  inner_join(overlap_gly_single_update %>% select(patid, unmatched_gly_date), by = "patid") %>%
+  left_join(first_update7b %>%  select(patid, gly_date, issuedate), by = "patid") %>% 
+  select(-uln, -ULN, -hba1c, -high, -index, -ndh, -ndh_fasting, -individual_id) %>% 
+  filter(obsdate<issuedate|is.na(issuedate)) %>% 
+  distinct()
+
+#now find the second diagnostic date to use for the update 
+driver_date_single_overlap <- diagnostic_check_single_overlap%>% 
+  arrange(patid, obsdate) %>% 
+    group_by(patid) %>% 
+  mutate(gly_num = row_number()) %>% 
+  ungroup() %>% 
+  filter(gly_num ==2) %>% #pick date at which glycaemia is persistent - ie at least two readings so pick second reading
+  rename(second_gly = obsdate)  %>%  
+ left_join(gdm_obs%>% select(patid, obsdate), by = "patid") %>% 
+  filter(second_gly>obsdate%m+% years(1)| is.na(obsdate)) %>% 
+  mutate(possible_gdm = if_else(unmatched_gly_date==gly_date, NA, 1)) %>% #where the unmatched date is not the original date, the original date is likely during a GDM episode
+  distinct(patid, second_gly, Term, value, possible_gdm) %>% 
+rename(gly_term_u8 = Term, #relabel for update
+       value_u8 = value)
+#only 1 possible GDM pat
+possible_gdm_pat <- driver_date_single_overlap %>% 
+  filter(!is.na(possible_gdm))
+```
+so we can remove all the glycaemic data from anyone in overlap_gly_single2, and then use any data in driver_date_single_overlap for the update
+
+
+Same for those with multiple patids
+
+```{r}
+##now do the same for those with multiple patids
+overlap_gly_multiple <- no_diagnosis_nor_hes_nor_priority1_multiple %>% 
+  filter(!is.na(gly_date)) %>%  ##filter down to subjects that have glycaemic data
+  select(-value) %>%   
+  distinct(individual_id, gly_date) %>%
+  group_by(individual_id) %>% 
+  slice_min(gly_date) %>% 
+  ungroup() %>% ##remove unnecessary value colum
+  left_join(diagnostic_gly_obs %>% select(individual_id, obsdate), by = "individual_id") %>%  ##graft on glycaemic data
+  filter(obsdate>=gly_date) %>% 
+  mutate(gly_year = year(obsdate)) %>%   ##get the year of each observation
+  group_by(individual_id) %>% 
+  summarise(years = list(unique(gly_year)), .groups = "drop") %>% 
+  fill_columns() %>% ##create a list of all the years of diagnostic tests and flatten the df
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate, Term), by = "patid") %>%
+  filter(!is.na(obsdate)) %>% ### add on pregnancy dates
+  mutate(pregnancy_year = year(obsdate),
+    pregnancy_month = month(obsdate)) %>% 
+  rowwise() %>% 
+  mutate(
+    match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+  ungroup()
+
+#and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+overlap_gly_multiple2 <- overlap_gly_multiple %>% 
+  group_by(individual_id) %>%
+  summarise(years = list(sort(unique(unlist(years)))),
+            pregnancy_years = list(sort(unique(unlist(match_year)))),
+            .groups = "drop") %>% 
+  mutate(
+    all_gly_years_matched = mapply(function(g, p)  {
+      gly <- as.integer(unlist(g))
+      preg <- as.integer(unlist(p))
+      length(gly) > 0 &&
+        all(gly %in% preg)
+    }, years, pregnancy_years
+    )) %>%
+  ungroup()
+
+#get the earliest year for which there is not a match with pregnancy
+overlap_gly_multiple_update <- overlap_gly_multiple2 %>%
+  filter(!all_gly_years_matched) %>% 
+  distinct(individual_id, pregnancy_years) %>% 
+  unnest(pregnancy_years) %>% 
+  group_by(individual_id) %>% 
+  mutate(pregnancy_number = row_number()) %>% 
+   pivot_wider(
+    names_from = pregnancy_number,
+    values_from = pregnancy_years,
+    names_prefix = "pregnancy_year_"
+  ) %>% 
+  ungroup() %>% 
+  left_join(overlap_gly_multiple2 %>% distinct(individual_id, years), by = "individual_id") %>% ##bring the gly years back
+  unnest(years) %>%
+  mutate(years = as.numeric(years)) %>% 
+  filter(!if_any(starts_with("pregnancy_year_"), ~coalesce(.x == years, FALSE))) %>% #filters down to years where there is not a match with pregnancy
+  group_by(individual_id) %>% 
+  slice_min(years) %>% #..and selects the earliest such year
+  ungroup() %>% 
+  left_join(diagnostic_gly_obs %>% select(individual_id, obsdate, Term, value), by = "individual_id") %>% ##now get the earliest unmatched date
+  filter(years==year(obsdate)) %>% 
+  group_by(individual_id) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  distinct() %>% 
+  fill_columns(obsdate, value, Term, years) %>% 
+  rename(unmatched_gly_date = obsdate,
+         unmatched_gly_term = Term,
+         unmatched_value = value)
+
+n_distinct(overlap_gly_multiple_update$individual_id)
+#check there are at least two dates
+
+#for those with no unmatched data
+diagnostic_check_multiple_overlap <- diagnostic_gly_obs %>% 
+    inner_join(overlap_gly_multiple_update %>% select(patid, unmatched_gly_date), by = "patid") %>%
+  left_join(first_update7b %>%  select(patid, gly_date, issuedate), by = "patid") %>% 
+  select(-uln, -ULN, -hba1c, -high, -index, -ndh, -ndh_fasting) %>% 
+  filter(obsdate<issuedate|is.na(issuedate)) %>% 
+  distinct()
+  
+n_distinct(diagnostic_check_multiple_overlap$individual_id)
+
+#now find the second diagnostic date to use for the update, note some individuals have two glydates ##??NOT USED? and no check non diagnostic multiple anyway
+driver_date_multiple_overlap <- check_non_diagnostic_multiple_overlap%>% 
+  filter(!is.na(value)) %>% 
+  distinct(individual_id, obsdate, gly_date, .keep_all = TRUE) %>% #ensures you keep individual obsdates so that when you pick the second row for a patient, it is not just another glycaemic test on the same date
+  arrange(individual_id, gly_date) %>% 
+    group_by(individual_id) %>% 
+  mutate(gly_num = row_number()) %>% 
+  ungroup() %>% 
+  filter(gly_num ==2) %>% #pick date at which glycaemia is persistent - ie at least two readings so pick second reading
+  rename(second_gly = obsdate) %>% 
+  select(-patid) %>% 
+  fill_columns() %>% 
+  mutate(possible_gdm = if_else(second_gly!=gly_date, 1, NA)) #if the updated second obsdate is not one of the glydates for that individual, then it has been updated because a previous date was in pregnancy and therefore suggests GDM 
+```
+In fact for those with multiple patids (24 patid, 12 individuals), those with unmatched dates did not have two convincingly separate dated glycaemic test dates (two individuals did have different dates, but they were max 3 days apart and it was the same test with the same value so probably just a trasncription issue from one patid to another). Therefore we can wipe all the glycaemic test data for all those in overlap_gly_multiple2
+
+#NEXT ensure anyone whose obs we are going to wipe doesn't have other evidence to suggest we should be keeping the pregnancy evidence as actual first evidence of diam
+look at discrepency between all years being matched in the period of interest between drugs and glycaemia - ie if we think everything is matched from drug perspective is it also from a glycaemic perspective during 2007-2013?  If so wipe all their data -> YES WIPE ALL
+
+```{r}
+#here we can simply compare drug data relevant to the delivery that is closest to the date being wipes
+check_single<- overlap_gly_single2 %>% 
+  filter(all_gly_years_matched) %>% 
+  unnest(years) %>% #some rows have more than one year
+  filter(years<2014) %>% 
+  left_join(all_deliveries_single %>% select(patid, delivery_date), by = "patid") %>% #this is a bit blunt because I don't have a delivery for every pregnancy but it's good enough numbers-wise
+  mutate(delivery_years= year(delivery_date)) %>% 
+  filter(years >= delivery_years -1  & years<= delivery_years +1) %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") %>% #expect many to many
+  mutate(drug_year = year(issuedate)) %>% 
+    filter(drug_year >= delivery_years -1) %>% 
+filter(drug_year<= delivery_years +1) %>% 
+  distinct(issuedate, delivery_years, .keep_all = TRUE) %>% 
+  select(-all_gly_years_matched)
+
+to_examin_drugs <- all_dm_drugs %>% filter(patid %in% check_single$patid)
+#nothing to recoup
+
+check_multiple <-overlap_gly_multiple2 %>% 
+  filter(all_gly_years_matched) %>% 
+  unnest(years) %>% #some rows have more than one year
+  filter(years<2014) %>% 
+  fill_columns() %>% 
+  left_join(all_deliveries_multiple %>% select(patid, delivery_date), by = "patid") %>% #this is a bit blunt because I don't have a delivery for every pregnancy but it's good enough numbers-wise
+  mutate(delivery_years= year(delivery_date)) %>% 
+  filter(years >= delivery_years -1  & years<= delivery_years +1) %>% 
+  left_join(all_dm_drugs, by = "patid") %>% #expect many to many
+  mutate(drug_year = year(issuedate)) %>% 
+    filter(drug_year >= delivery_years -1  & drug_year<= delivery_years +1) %>% 
+  distinct(issuedate, delivery_years, .keep_all = TRUE)
+
+#nothing to recoup
+
+#so build df of patids to remove
+gly_remove_overlap <- bind_rows(overlap_gly_multiple2, overlap_gly_single2)
+```
+Flicking through these subjects it is clear that there is no glycaemic data outside of pregnancy that means that drugs prescribed IN pregnancy are actually related to DM, so we can remove it all from the calculation of the DM diagnosis date.
+
+Identify those who don't need an update because the unamtched issuedate IS the original issuedate, and then prepare to wipe all others
+```{r}
+
+dont_update_single <- single(overlap_update2) %>% 
+  left_join(first_update7b %>% select(patid, gly_date, issuedate, pattern), by = "patid") %>% ##bring in the original gly_dates
+  mutate(not_gdm = if_else(unmatched_drug_update == issuedate, 1, 0)) %>% ##if the unmatched date is the original date then the original episode was not matched with pregnancy and this is not gdm
+ filter(not_gdm==1) %>% 
+  select(-priority_1, -priority, -issue_before_gdm, -issueyear, -keep, -metformin)
+
+
+dont_update_multiple <- multiple(overlap_update2) %>% 
+  left_join(first_update7b %>% select(patid, gly_date, issuedate), by = "patid") %>% ##bring in the original gly_dates 
+  group_by(individual_id) %>% 
+  slice_min(issuedate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  mutate(not_gdm = if_else(unmatched_drug_update == issuedate, 1, 0)) %>% 
+  filter(not_gdm==1) %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+wipe_drug <- no_diagnosis_nor_hes_nor_priority1 %>% 
+  filter(!patid %in% dont_update_single$patid) %>% 
+  filter(!patid %in% dont_update_multiple$patid)
+```
+
+##Now for update 8 
+remove the medication and glycamic tests for those that overlap, and update those where needed
+also create new variables for earliest ddd and earliest unequivocal ddd, which are needed for update 8 below, note will need to update metofrmin exclude at the end, note now all dates in the updated ddd column should now be context independent and reliable, therefore they can be added into the calculation of the min_unequivocal_date, but we have to be careful how we do this for those with multiple patids - some will already have context-independent codes in there for some patids
+
+```{r}
+context_indep_date_single <- single(first_update7b) %>% 
+  mutate(min_unequivocal_date = pmin(admidate, ddd, hba1c_date, priority_date, na.rm = TRUE))
+
+context_indep_date_multiple <- multiple(first_update7b) %>% 
+  group_by(individual_id) %>% 
+  summarise(ddd = safe_min(ddd),
+            admidate = safe_min(admidate)) %>% #note some patients have different admidates or no admidate in one patid and one in another so need to unify these to get to a single min_unequivocal date per individual
+  ungroup() %>% 
+  left_join(first_update7b %>% select(individual_id, hba1c_date, priority_date), by = "individual_id") %>% 
+    mutate(min_unequivocal_date = pmin(admidate, ddd, hba1c_date, priority_date, na.rm = TRUE)) %>% 
+  distinct() %>% 
+fill_columns()
+
+n_distinct(context_indep_date_multiple$patid)
+
+context_indep_date_total <- bind_rows(context_indep_date_single %>% select(patid, min_unequivocal_date), context_indep_date_multiple) %>% 
+  rename(admidate_u8 = admidate) %>% 
+  select(-hba1c_date, -priority_date, -ddd)
+
+n_distinct(context_indep_date_total$patid)
+
+first_update8 <- first_update7b %>%
+      mutate(issuedate = case_when(patid %in% wipe_drug$patid ~as.Date(NA), 
+                                   TRUE~issuedate),  
+         productname = case_when(patid %in% wipe_drug$patid ~ "drug removed",
+                                 TRUE~productname),
+         gly_date = if_else(patid %in% no_diagnosis_nor_hes_nor_priority1$patid,as.Date(NA), gly_date),## if all gly_years matched, wipe all the glycaemic data
+         gly_term = if_else(patid %in% no_diagnosis_nor_hes_nor_priority1$patid, "gly removed", gly_term),
+         value =  if_else(patid %in% no_diagnosis_nor_hes_nor_priority1$patid, NA, value)) %>% 
+  left_join(driver_date_single_overlap %>% select(patid, second_gly, gly_term_u8, value_u8), by = "patid") %>%#the only bit to update
+  select(-min_unequivocal_date) %>% #need updating so remove before left_join of updated col
+  left_join(context_indep_date_total %>% select(patid, min_unequivocal_date, admidate_u8), by = "patid") %>% 
+  mutate(gly_date = if_else(!is.na(second_gly), second_gly, gly_date),## update the gly_date if necessary
+         gly_term = if_else(!is.na(gly_term_u8), gly_term_u8, gly_term),
+         value =  if_else(!is.na(value_u8), value_u8, value),
+         possible_gdm = if_else(patid %in% possible_gdm_pat, 1, possible_gdm),
+         equivocal_date = pmin(ddd, issuedate, gly_date, admidate, na.rm = TRUE),
+         admidate = if_else(!is.na(admidate_u8), admidate_u8, admidate))
+
+
+```
+
+##now for update 9 check the diagnostic date driver 
+if it is metformin/insulin/a non-HbA1C glucose test, check it is not in the context of GDM 
+first find those whose diagnostic glycaemia/metformin/insulin predates everything
+else by at least a year 
+```{r}
+#select subjects whose issuedate is prior to the min_unequivocal date by at least a year (and only bother searching for those that have dates of diagnoses within the window of entry (not worth amending anything for the others)), get all their drugs and make a variable of all those years of prescription up to the unequivocal date, as that is the window we need to investigate
+
+drug_one_year_before_single <- single(first_update8) %>%
+  select(patid, ddd, diagnosis, gly_date, gly_term, hba1c_date, issuedate, productname, priority_date, pattern, years, admidate, min_unequivocal_date, equivocal_date, PCOS_GDM_exclude, gdm_status) %>% 
+  filter(issuedate < min_unequivocal_date %m-% years(1)) %>%
+  filter(is.na(PCOS_GDM_exclude)) %>% #probably none here to exclude
+  filter(min_unequivocal_date>=as.Date("2007-01-01") &year(equivocal_date)<2014) %>% ##no point examining those outside those date ranges
+  rename(original_issuedate = issuedate) %>% ##so as to avoid confusion with the incoming issuedates
+  left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") %>%
+  filter(issuedate>=original_issuedate & issuedate <min_unequivocal_date %m-% years(1) & issuedate < as.Date("2014-01-01")) %>% ##only bother to match values that matter ie at least a year before unequivocal date and prior to end of entry period
+  distinct() %>%
+  mutate(equivocal_years = year(issuedate)) %>% 
+  arrange(patid,issuedate) # so that when they are listed they come out in order
+
+
+n_distinct(drug_one_year_before_single$patid)
+##########################
+
+#for each patid flatten the df so that each patid only occupies one line to facilitate the join with pregnancy obs
+drug_one_year_before_single2 <- drug_one_year_before_single %>%   
+  group_by(patid) %>%
+    summarise(
+      equivocal_years = list(unique(equivocal_years))
+    ) %>%
+  ungroup() %>% 
+  left_join(first_update8 %>% select(patid, issuedate, min_unequivocal_date), by = "patid") %>% ##bring min_unequival date back
+  left_join(all_pregnancy_obs_update, by = "patid") %>%
+  filter(obsdate<=min_unequivocal_date %m-% years(1)) #no point in examining pregnancies codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
+
+n_distinct(drug_one_year_before_single2$patid) 
+
+#by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the drug prescription can be kept because there is no strong evidence of GDM
+
+#now get the relevant dates for the pregnancy episodes
+  drug_one_year_before_single3 <- drug_one_year_before_single2 %>% 
+    mutate(pregnancy_year = year(obsdate),
+      pregnancy_month = month(obsdate)) %>% 
+    rowwise() %>% 
+    mutate(
+     match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+    ungroup()
+  
+  n_distinct(drug_one_year_before_single3$patid) #5719
+  
+  #and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+  drug_one_year_before_single4 <- drug_one_year_before_single3 %>% 
+  group_by(patid) %>%
+    summarise(equivocal_years = list(sort(unique(unlist(equivocal_years)))),
+              pregnancy_years = list(sort(unique(unlist(match_year)))),
+              .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(p, g)  {
+      presc <- as.integer(unlist(p))
+      preg <- as.integer(unlist(g))
+      length(presc) > 0 &&
+        all(presc %in% preg)
+    }, equivocal_years, pregnancy_years
+  )) %>%
+  ungroup()
+  
+  table(drug_one_year_before_single4$all_years_matched)  
+  #for those whose drug prescription years don't all match, check if any overlap at all
+
+drug_years_dont_all_overlap <- drug_one_year_before_single4 %>% 
+    filter(!all_years_matched) %>%
+  select(-all_years_matched) %>% 
+  left_join(first_update8 %>% select(patid, min_unequivocal_date, pattern, years, gly_date, admidate), by = "patid") %>%
+    mutate(
+    any_years_matched = mapply(function(p, g)  {
+      presc <- as.integer(unlist(p))
+      preg <- as.integer(unlist(g))
+      length(presc) > 0 &&
+        any(presc %in% preg)
+    }, equivocal_years, pregnancy_years
+  )) %>%
+  ungroup() %>% 
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate), by = "patid") 
+n_distinct(drug_years_dont_all_overlap$patid) 
+
+
+use_first_unmatched_single <-  drug_years_dont_all_overlap %>% 
+  filter(any_years_matched) %>% 
+   mutate(
+    earliest_unmatched_year = sapply(seq_len(nrow(.)), function(i){  ###find the earliest unmatched drug prescription year
+      a_years <- equivocal_years[[i]]
+      b_years <- pregnancy_years[[i]]
+      unmatched_years <- setdiff(a_years, b_years)
+      min(unmatched_years, na.rm = TRUE)
+    })
+  ) %>% 
+    distinct() %>% 
+      left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") %>% #expect many to many
+    group_by(patid) %>% 
+    filter(year(issuedate)==earliest_unmatched_year) %>% 
+    slice_min(issuedate) %>% 
+    slice(1) %>% 
+    ungroup()
+
+n_distinct(use_first_unmatched_single$patid)
+
+#for those with all their years matched, find the first drug withi the year prior to unequivocal evidence of DM as we are entering DM territory
+drug_update_single <- drug_one_year_before_single4 %>% 
+  filter(all_years_matched) %>% 
+  left_join(first_update8 %>%  select(patid, min_unequivocal_date), by = "patid") %>% 
+  left_join(all_dm_drugs, by = "patid") %>% 
+  filter(issuedate>=min_unequivocal_date %m-% years(1)) %>% #find first drug within a year prior to DM (even if all drugs match, if some are within a year of a DM diagnosis they are likely to be part of the DM episode)
+    mutate(prioritise_score = case_when(
+    !is.na(priority_1)~1,
+    !is.na(priority_2)~2,
+    TRUE~3
+  )) %>% 
+  group_by(patid) %>% 
+  slice_min(issuedate) %>%
+slice_min(prioritise_score) %>% 
+    slice(1) %>% 
+  ungroup() 
+
+drug_remove_single <- drug_one_year_before_single4 %>% 
+    filter(all_years_matched) 
+```
+
+
+Looking at the overlap with pregnancy and delivery dates, the approach taken above works well
+
+
+```{r}
+drug_one_year_before_multiple <- multiple(first_update8) %>%
+  select(patid, individual_id, ddd, diagnosis, gly_date, gly_term, issuedate, productname, priority_date, pattern, years, admidate, min_unequivocal_date, equivocal_date, PCOS_GDM_exclude, gdm_status) %>% 
+   filter(is.na(PCOS_GDM_exclude)) %>% #probably none here to exclude %>% 
+  group_by(individual_id) %>%  ##need to find the earliest of all the following within the patients's data
+  summarise(original_issuedate = safe_min(issuedate),
+            min_unequivocal_date = safe_min(min_unequivocal_date),
+            equivocal_date = safe_min(equivocal_date),
+            gdm_status = first(gdm_status),
+            PCOS_GDM_exclude = first(PCOS_GDM_exclude),
+            .groups = "drop") %>% 
+  filter(original_issuedate < min_unequivocal_date-years(1)) %>%
+  filter(min_unequivocal_date>=as.Date("2007-01-01") & pmin(equivocal_date, min_unequivocal_date)<as.Date("2014-01-01")) %>% ##no point examining those outside those date ranges
+   left_join(all_dm_drugs %>% select(individual_id, issuedate, productname), by = "individual_id") %>%
+  filter(original_issuedate <min_unequivocal_date %m-% years(1) & issuedate < as.Date("2014-01-01")) %>% ##only bother to match those that matter ie at least a year before unequivocal date and prior to end of entry period
+  distinct() %>%
+  mutate(equivocal_years = year(issuedate)) %>% 
+  arrange(equivocal_years) ## so that when they are listed they come out in order
+n_distinct(drug_one_year_before_multiple$individual_id) 
+
+#for each patid flatten the df so that each patid only occupies one line to facilitate the join with pregnancy obs
+drug_one_year_before_multiple2 <- drug_one_year_before_multiple %>%   
+  group_by(individual_id) %>%
+    summarise(
+      equivocal_years = list(unique(equivocal_years)),
+      min_unequivocal_date = first(min_unequivocal_date)
+    ) %>%
+  ungroup() %>%  ##bring min_unequival date back
+  left_join(all_pregnancy_obs_update, by = "individual_id") %>%
+  filter(obsdate<=min_unequivocal_date %m-% years(1)) #no point in examining pregnancy codings after one year before unequivocal evidence of diabetes as that is probably contiguous with the DM episode
+
+n_distinct(drug_one_year_before_multiple2$individual_id)
+
+#by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the drug prescription can be kept because there is no strong evidence of GDM
+
+#now get the relevant dates for the GDM episodes
+  drug_one_year_before_multiple3 <- drug_one_year_before_multiple2 %>% 
+    mutate(
+        pregnancy_year = year(obsdate),
+      pregnancy_month = month(obsdate)) %>% 
+    rowwise() %>% 
+    mutate(
+     match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+    ungroup()
+  
+  #and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+  drug_one_year_before_multiple4 <- drug_one_year_before_multiple3 %>% 
+  group_by(individual_id) %>%
+    summarise(equivocal_years = list(sort(unique(unlist(equivocal_years)))),
+              pregnancy_years = list(sort(unique(unlist(match_year)))),
+              .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(p, g)  {
+      presc <- as.integer(unlist(p))
+      preg <- as.integer(unlist(g))
+      length(presc) > 0 &&
+        all(presc %in% preg)
+    }, equivocal_years, pregnancy_years
+  )) %>%
+  ungroup()
+  
+  table(drug_one_year_before_multiple4$all_years_matched)  
+
+  #identify those whose drug years don't all match
+drug_years_dont_all_overlap_multiple <- drug_one_year_before_multiple4 %>% 
+    filter(!all_years_matched) %>% 
+    select(-all_years_matched) %>% 
+  left_join(first_update8 %>% select(individual_id, patid, min_unequivocal_date, pattern, years, gly_date, admidate), by = "individual_id") %>% #note this brings all the patids back in, one patid per row
+    mutate(
+    any_years_matched = mapply(function(p, g)  {
+      presc <- as.integer(unlist(p))
+      preg <- as.integer(unlist(g))
+      length(presc) > 0 &&
+        any(presc %in% preg)
+    }, equivocal_years, pregnancy_years
+  )) %>%
+  ungroup() %>% 
+  distinct() %>% 
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate), by = "patid") #expect many to many
+
+n_distinct(drug_years_dont_all_overlap_multiple$individual_id)#336
+```
+
+look at all the pregnancy records for overlap, not just gdm pregnancies and see if there is any overlap.  If so, take first unmatched year.  If not, don't bother updating
+```{r}
+use_first_unmatched_multiple <-  drug_years_dont_all_overlap_multiple %>% 
+  filter(any_years_matched) %>%
+   mutate(
+    earliest_unmatched_year = sapply(seq_len(nrow(.)), function(i){  ###find the earliest unmatched drug prescription year
+      a_years <- equivocal_years[[i]]
+      b_years <- pregnancy_years[[i]]
+      unmatched_years <- setdiff(a_years, b_years)
+      min(unmatched_years, na.rm = TRUE)
+    })
+  ) %>% 
+    distinct() %>% 
+      left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") %>% #expect many to many
+     filter(year(issuedate)==earliest_unmatched_year) %>% ##get earliest date in that unmatched year
+    group_by(individual_id) %>% 
+    slice_min(issuedate) %>% 
+    slice(1) %>% 
+    ungroup() %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+n_distinct(use_first_unmatched_multiple$individual_id)
+
+drug_update_multiple <- drug_one_year_before_multiple4%>%
+  filter(all_years_matched) %>% 
+  left_join(first_update8 %>%  select(individual_id, patid, min_unequivocal_date), by = "individual_id") %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, productname, priority_1, priority_2), by = "patid") %>% 
+  filter(issuedate>=min_unequivocal_date %m-% years(1)) %>% 
+    mutate(prioritise_score = case_when(
+    !is.na(priority_1)~1,
+    !is.na(priority_2)~2,
+    TRUE~3
+  )) %>% 
+  group_by(individual_id) %>% 
+  slice_min(issuedate) %>%
+slice_min(prioritise_score) %>% 
+    slice(1) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+  fill_columns() 
+
+n_distinct(drug_update_multiple$individual_id)
+
+drug_remove_multiple <- drug_one_year_before_multiple4 %>% 
+  filter(all_years_matched) %>% 
+  fill_columns()
+```
+
+Now do the same for glycaemia
+
+```{r}
+gly_one_year_before_single<- single(first_update8) %>%
+  select(patid, ddd, diagnosis, gly_date, gly_term, issuedate, productname, priority_date, pattern, years, admidate, min_unequivocal_date, equivocal_date, PCOS_GDM_exclude, gdm_status) %>% 
+  filter(gly_date < min_unequivocal_date %m-% years(1)) %>%
+  filter(is.na(PCOS_GDM_exclude)) %>% 
+  filter(min_unequivocal_date>=as.Date("2007-01-01") & pmin(equivocal_date, min_unequivocal_date)<as.Date("2014-01-01")) %>% ##no point examining those outside those date ranges
+  left_join(diagnostic_gly_obs %>% select(patid, obsdate, Term, value, hba1c), by = "patid") %>%
+  filter(obsdate <min_unequivocal_date %m-% years(1) & obsdate < as.Date("2014-01-01")) %>% ##only bother to match those that matter ie at least a year before uneqeuivocal date and prior to end of entry period %>% 
+  distinct() %>%
+  mutate(equivocal_years = year(obsdate)) %>% 
+  arrange(equivocal_years) ## so that when they are listed they come out in order
+
+
+#for each patid flatten the df so that each patid only occupies one line to facilitate the join with GDM obs
+gly_one_year_before_single2 <- gly_one_year_before_single %>%   
+  group_by(patid) %>%
+    summarise(
+      equivocal_years = list(unique(equivocal_years))
+    ) %>%
+  ungroup() %>% 
+  left_join(first_update8 %>% select(patid, issuedate, min_unequivocal_date), by = "patid") %>% ##bring min_unequival date back
+  left_join(all_pregnancy_obs_update, by = "patid") %>%
+  filter(obsdate<min_unequivocal_date) #no point in examining GDM codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
+
+#by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the drug prescription can be kept because there is no strong evidence of GDM
+
+#now get the relevant dates for the GDM episodes
+  gly_one_year_before_single3 <- gly_one_year_before_single2 %>% 
+    mutate(
+          pregnancy_year = year(obsdate),
+      pregnancy_month = month(obsdate)) %>% 
+    rowwise() %>% 
+    mutate(
+     match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+    ungroup()
+  
+  #and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+  gly_one_year_before_single4 <- gly_one_year_before_single3 %>% 
+  group_by(patid) %>%
+    summarise(equivocal_years = list(sort(unique(unlist(equivocal_years)))),
+              pregnancy_years = list(sort(unique(unlist(match_year)))),
+              .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(p, g)  {
+      gly <- as.integer(unlist(p))
+      pregnancy <- as.integer(unlist(g))
+      length(gly) > 0 &&
+        all(gly %in% pregnancy)
+    }, equivocal_years, pregnancy_years
+  )) %>%
+  ungroup()
+
+  table(gly_one_year_before_single4$all_years_matched)
+
+```
+
+For those whose glycaemic data don't all line up with gdm obs but who DO have GDM at some point, essentially remove the glycaemia 
+
+```{r}
+gly_years_dont_all_overlap <- gly_one_year_before_single4 %>% 
+    filter(!all_years_matched) %>%
+  select(-all_years_matched) %>% 
+  left_join(first_update8 %>% select(patid, min_unequivocal_date), by = "patid") %>%
+    mutate(
+    any_years_matched = mapply(function(g, p)  {
+      gly <- as.integer(unlist(g))
+      preg <- as.integer(unlist(p))
+      length(gly) > 0 &&
+        any(gly %in% preg)
+    }, equivocal_years, pregnancy_years
+  )) %>%
+  ungroup() %>% 
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate), by = "patid") 
+
+table(gly_years_dont_all_overlap$any_years_matched)
+
+n_distinct(gly_years_dont_all_overlap$patid) 
+
+use_first_unmatched_gly_single <-  gly_years_dont_all_overlap %>% 
+  filter(any_years_matched) %>% #32 patids
+  rename(preg_date = obsdate) %>% 
+   mutate(
+    earliest_unmatched_year = sapply(seq_len(nrow(.)), function(i){  ###find the earliest unmatched drug prescription year
+      a_years <- equivocal_years[[i]]
+      b_years <- pregnancy_years[[i]]
+      unmatched_years <- setdiff(a_years, b_years)
+      min(unmatched_years, na.rm = TRUE)
+    })
+  ) %>% 
+    distinct() %>% 
+      left_join(diagnostic_gly_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% #expect many to many
+    group_by(patid) %>% 
+    filter(year(obsdate)==earliest_unmatched_year) %>% 
+    slice_min(obsdate) %>% 
+    slice(1) %>% 
+    ungroup()
+
+```
+
+now for those with a glycaemic tests outside of pregnancy, check that there are at least two dates prior to other evidence of diabetes; for those with an unmatched date, check that there are at least two dates (inc that date).  If there are two such dates, the second is probably when the DM was revealed as DM requires PERSISTENT hyperglycaemia (it is not persistent on first reading)
+
+```{r}
+
+n_distinct(use_first_unmatched_gly_single$patid)
+
+diagnostic_check_single_unmatched <- diagnostic_gly_obs %>% 
+  filter(patid %in% use_first_unmatched_gly_single$patid) %>% 
+  left_join(first_update8 %>%  select(patid, gly_date, issuedate, min_unequivocal_date), by = "patid") %>% 
+  filter((obsdate <min_unequivocal_date) & (obsdate<issuedate))
+
+#examine the glycaemic tests prior to other evidence of diabetes - below this combines both normoglycaemic dates (showing NOT dm) and diagnostic tests
+check_non_diagnostic_single_unmatched <- use_first_unmatched_gly_single %>% 
+  distinct(patid) %>% 
+left_join(first_update8 %>%  select(patid,gly_date, issuedate, min_unequivocal_date), by = "patid") %>% 
+  left_join(normo %>% select(patid, obsdate), by = "patid") %>% 
+  filter(gly_date<obsdate) %>% #only bother looking at those where the DIAGNOSTIC value is prior to a non-diagnostic one...
+  filter((obsdate <min_unequivocal_date| is.na(min_unequivocal_date) ) & (obsdate<issuedate | is.na(issuedate))) %>% #and where the non-diagnostic one is prior to other evidence of DM because it is after it won't affect the final ddd anuway
+  mutate(not_dm_date = 1) %>% #mark out dates that are NOT diabetes
+  bind_rows(.,diagnostic_check_single_unmatched %>% select(patid, obsdate, Term, value, gly_date, issuedate, min_unequivocal_date)) #this brings in the values meeting the diagnostic threshold
+
+n_distinct(check_non_diagnostic_single_unmatched$patid)
+
+#now find the second diagnostic date to use for the update
+driver_date_single_unmatched <- check_non_diagnostic_single_unmatched %>% 
+  filter(!is.na(value)) %>% #effectively just selects those with a diagnostic value as the non-diagnostic test date rows s are NA in the value column
+  group_by(patid) %>% 
+  mutate(gly_num = row_number()) %>% 
+  ungroup() %>% 
+  filter(gly_num ==2) %>% #pick date at which glycaemia is persistent - ie at least two readings so pick second reading
+  rename(second_gly = obsdate)
+
+#now for those that don't have any matching gly dates with pregnancy
+diagnostic_check_single_no_unmatched <- diagnostic_gly_obs %>% 
+  filter(patid %in% gly_years_dont_all_overlap$patid) %>% 
+  filter(!patid %in% use_first_unmatched_gly_single$patid) %>% 
+  left_join(first_update8 %>%  select(patid, gly_date, issuedate, min_unequivocal_date), by = "patid") %>% 
+  filter((obsdate <min_unequivocal_date | is.na(min_unequivocal_date) ) & (obsdate<issuedate | is.na(issuedate)))
+
+#examine the glycaemic tests prior to other evidence of diabetes - below this combines both normoglycaemic dates (showing NOT dm) and diagnostic tests
+check_non_diagnostic_single_no_unmatched <- gly_years_dont_all_overlap %>% 
+  filter(!any_years_matched) %>% 
+  distinct(patid) %>% 
+left_join(first_update8 %>%  select(patid,gly_date, issuedate, min_unequivocal_date), by = "patid") %>% 
+  left_join(normo %>% select(patid, obsdate), by = "patid") %>% 
+  filter(gly_date<obsdate) %>% 
+  filter((obsdate <min_unequivocal_date| is.na(min_unequivocal_date) ) & (obsdate<issuedate | is.na(issuedate))) %>% 
+  mutate(not_dm_date = 1) %>% #mark out dates that are NOT diabetes
+  bind_rows(.,diagnostic_check_single_no_unmatched %>% select(patid, obsdate, Term, value, gly_date, issuedate, min_unequivocal_date))
+
+n_distinct(use_first_unmatched_gly_single$patid)
+
+#now find the second diagnostic date to use for the update
+driver_date_single_no_unmatched <- check_non_diagnostic_single_no_unmatched %>% 
+  filter(!is.na(value)) %>% 
+  distinct(patid, obsdate, .keep_all = TRUE) %>% 
+  group_by(patid) %>% 
+  mutate(gly_num = row_number()) %>% 
+  ungroup() %>% 
+  filter(gly_num ==2) %>% #pick date at which glycaemia is persistent - ie at least two readings so pick second reading
+  rename(second_gly = obsdate)
+
+driver_date_single <- bind_rows(driver_date_single_no_unmatched, driver_date_single_unmatched)
+
+#identify those that had an unmatched date but do not have a second date prior to other evidence of dm, for those we will have to remove the glycaemic data as we don't have evidence of persistent hyperglcaemia
+remove_use_first_gly_single <- use_first_unmatched_gly_single %>% 
+  filter(!patid %in% driver_date_single$patid) %>% 
+  distinct(patid)
+
+#now build the updated dates
+gly_update_single <-gly_one_year_before_single4 %>% 
+  filter(all_years_matched) %>% 
+  left_join(first_update8 %>%  select(patid, min_unequivocal_date), by = "patid") %>% 
+  left_join(diagnostic_gly_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  filter(obsdate>=min_unequivocal_date %m-% years(1)) %>% #find first gly within a year prior to DM (even if all gly match, if some are within a year of a DM diagnosis they are likely to be part of the DM episode)
+      group_by(patid) %>% 
+  slice_min(obsdate) %>%
+    slice(1) %>% 
+  ungroup() %>% 
+  bind_rows(., driver_date_single %>% select(patid, second_gly, Term, value)) %>% 
+  mutate(obsdate = coalesce(second_gly, obsdate))
+#Note we will remove all glycaemic data for those in gly_one_year_before_single4 and replace it with the update above
+```
+
+do the same for those with multiple patids
+```{r}
+gly_one_year_before_multiple<- multiple(first_update8) %>%
+  select(patid, individual_id, ddd, diagnosis, gly_date, gly_term, issuedate, productname, priority_date, pattern, years, admidate, min_unequivocal_date, equivocal_date, PCOS_GDM_exclude, gdm_status) %>% 
+    group_by(individual_id) %>% 
+  summarise(gly_date = safe_min(gly_date),
+            min_unequivocal_date = safe_min(min_unequivocal_date),
+            equivocal_date = safe_min(equivocal_date),
+            gdm_status = first(gdm_status),
+            PCOS_GDM_exclude = first(PCOS_GDM_exclude),
+            pattern = first(pattern),
+            .groups = "drop") %>%   
+  filter(gly_date < min_unequivocal_date %m-% years(1)) %>%
+  filter(is.na(PCOS_GDM_exclude)) %>% 
+  filter(min_unequivocal_date>=as.Date("2007-01-01") & pmin(equivocal_date, min_unequivocal_date)<as.Date("2014-01-01")) %>% ##no point examining those outside those date ranges
+  left_join(diagnostic_gly_obs %>% select(individual_id, obsdate, Term, value, hba1c), by = "individual_id") %>%
+  filter(obsdate <min_unequivocal_date %m-% years(1) & obsdate < as.Date("2014-01-01")) %>% ##only bother to match those that matter ie at least a year before uneqeuivocal date and prior to end of entry period %>% 
+  distinct() %>%
+  mutate(equivocal_years = year(obsdate)) %>% 
+  arrange(equivocal_years) ## so that when they are listed they come out in order
+
+
+#for each patid flatten the df so that each patid only occupies one line to facilitate the join with GDM obs
+gly_one_year_before_multiple2 <- gly_one_year_before_multiple %>%   
+  group_by(individual_id) %>%
+    summarise(
+      equivocal_years = list(unique(equivocal_years)),
+      .groups = "drop"
+    ) %>%
+  ungroup() %>% 
+  fill_columns(equivocal_years) %>% 
+  left_join(first_update8 %>% select(patid, issuedate, min_unequivocal_date), by = "patid") %>% ##bring min_unequival date back
+  left_join(all_pregnancy_obs_update %>% select(-individual_id), by = "patid") %>%
+  filter(obsdate<min_unequivocal_date) #no point in examining GDM codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
+
+#by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the drug prescription can be kept because there is no strong evidence of GDM
+
+#now get the relevant dates for the GDM episodes
+  gly_one_year_before_multiple3 <- gly_one_year_before_multiple2 %>% 
+    mutate(
+          pregnancy_year = year(obsdate),
+      pregnancy_month = month(obsdate)) %>% 
+    rowwise() %>% 
+    mutate(
+     match_year = list(if(pregnancy_month <= 6) c(pregnancy_year, pregnancy_year - 1) else pregnancy_year)) %>% 
+    ungroup()
+  
+  #and see if they all match up during the period of interest (ie issuedate to min_equivocal_date)
+  gly_one_year_before_multiple4 <- gly_one_year_before_multiple3 %>% 
+  group_by(individual_id) %>%
+    summarise(equivocal_years = list(sort(unique(unlist(equivocal_years)))),
+              pregnancy_years = list(sort(unique(unlist(match_year)))),
+              .groups = "drop") %>% 
+  mutate(
+    all_years_matched = mapply(function(p, g)  {
+      gly <- as.integer(unlist(p))
+      preg <- as.integer(unlist(g))
+      length(gly) > 0 &&
+        all(gly %in% preg)
+    }, equivocal_years, pregnancy_years
+  )) %>%
+  ungroup() %>% 
+    fill_columns()
+ 
+```
+now look for overlap with any pregnancy
+
+```{r}
+gly_years_dont_all_overlap_multiple <- gly_one_year_before_multiple4 %>% 
+    filter(!all_years_matched) %>%
+  select(-all_years_matched) %>% 
+  left_join(first_update8 %>% select(patid, min_unequivocal_date), by = "patid") %>%
+    mutate(
+    any_years_matched = mapply(function(g, p)  {
+      gly <- as.integer(unlist(g))
+      preg <- as.integer(unlist(p))
+      length(gly) > 0 &&
+        any(gly %in% preg)
+    }, equivocal_years, pregnancy_years
+  )) %>%
+  ungroup() %>% 
+  left_join(all_pregnancy_obs_update %>% select(patid, obsdate), by = "patid") 
+
+
+use_first_unmatched_gly_multiple <-  gly_years_dont_all_overlap_multiple %>% 
+  filter(any_years_matched) %>% #32
+  rename(preg_date = obsdate) %>% 
+   mutate(
+    earliest_unmatched_year = sapply(seq_len(nrow(.)), function(i){  ###find the earliest unmatched drug prescription year
+      a_years <- equivocal_years[[i]]
+      b_years <- pregnancy_years[[i]]
+      unmatched_years <- setdiff(a_years, b_years)
+      min(unmatched_years, na.rm = TRUE)
+    })
+  ) %>% 
+    distinct() %>% 
+      left_join(diagnostic_gly_obs %>% select(patid, obsdate, value, Term), by = "patid") %>% #expect many to many
+     filter(year(obsdate)==earliest_unmatched_year) %>% ##get earliest date in that unmatched year
+    group_by(individual_id) %>% 
+    slice_min(obsdate) %>% 
+    slice(1) %>% 
+    ungroup() %>% 
+  select(-patid) %>% 
+  fill_columns()
+#few patids
+
+diagnostic_check_multiple_unmatched <- diagnostic_gly_obs %>% 
+  filter(individual_id %in% use_first_unmatched_gly_multiple$individual_id) %>% 
+  left_join(first_update8 %>%  select(patid, gly_date, issuedate, min_unequivocal_date), by = "patid") %>% 
+  filter((obsdate <min_unequivocal_date | is.na(min_unequivocal_date)) & (obsdate<issuedate| is.na(issuedate)))
+
+#examine the glycaemic tests prior to other evidence of diabetes - below this combines both normoglycaemic dates (showing NOT dm) and diagnostic tests - in fact there are NONE in our case
+check_non_diagnostic_multiple_unmatched <- use_first_unmatched_gly_multiple %>% 
+  distinct(individual_id) %>% 
+left_join(first_update8 %>%  select(patid,individual_id, gly_date, issuedate, min_unequivocal_date), by = "individual_id") %>% 
+  left_join(normo %>% select(patid, obsdate), by = "patid") %>% 
+  filter(gly_date<obsdate) %>% 
+  filter((obsdate <min_unequivocal_date |is.na(min_unequivocal_date)) & (obsdate<issuedate |is.na(issuedate))) %>% 
+  mutate(not_dm_date = 1) %>% #mark out dates that are NOT diabetes
+  bind_rows(.,diagnostic_check_multiple_unmatched %>% select(individual_id, obsdate, Term, value, gly_date, issuedate, min_unequivocal_date)) %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+n_distinct(use_first_unmatched_gly_single$patid)
+
+
+#now find the second diagnostic date to use for the update ~NOONE
+driver_date_multiple_unmatched <- check_non_diagnostic_multiple_unmatched %>% 
+  filter(!is.na(value)) %>% 
+  distinct(individual_id, obsdate, .keep_all = TRUE) %>% #ensures you keep individual obsdates so that when you pick the second row for a patient, it is not just another glycaemic test on the same date
+    group_by(individual_id) %>% 
+  mutate(gly_num = row_number()) %>% 
+  ungroup() %>% 
+  filter(gly_num ==2) %>% #pick date at which glycaemia is persistent - ie at least two readings so pick second reading
+  rename(second_gly = obsdate) %>% 
+  fill_columns()
+
+#for those with no unmatched data
+diagnostic_check_multiple_no_unmatched <- diagnostic_gly_obs %>% 
+  filter(individual_id %in% gly_years_dont_all_overlap_multiple$individual_id) %>%
+  filter(!individual_id %in% use_first_unmatched_gly_multiple$individual_id) %>% 
+  left_join(first_update8 %>%  select(patid, gly_date, issuedate, min_unequivocal_date), by = "patid") %>% 
+  filter((obsdate <min_unequivocal_date | is.na(min_unequivocal_date)) & (obsdate<issuedate|is.na(issuedate)))
+
+
+#examine the glycaemic tests prior to other evidence of diabetes - below this combines both normoglycaemic dates (showing NOT dm) and diagnostic tests
+check_non_diagnostic_multiple_no_unmatched <- gly_years_dont_all_overlap_multiple %>% 
+  filter(!any_years_matched) %>% 
+  distinct(individual_id) %>% 
+left_join(first_update8 %>%  select(patid,individual_id, gly_date, issuedate, min_unequivocal_date), by = "individual_id") %>% 
+  left_join(normo %>% select(patid, obsdate), by = "patid") %>% #expect many to many
+  filter(gly_date<obsdate) %>% 
+  filter((obsdate <min_unequivocal_date |is.na(min_unequivocal_date)) & (obsdate<issuedate |is.na(issuedate))) %>% 
+  mutate(not_dm_date = 1) %>% #mark out dates that are NOT diabetes
+  bind_rows(.,diagnostic_check_multiple_no_unmatched %>% select(individual_id, obsdate, Term, value, gly_date, issuedate, min_unequivocal_date)) %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+
+#now find the second diagnostic date to use for the update
+driver_date_multiple_no_unmatched <- check_non_diagnostic_multiple_no_unmatched %>% 
+  filter(!is.na(value)) %>% 
+  distinct(individual_id, obsdate, .keep_all = TRUE) %>% #ensures you keep individual obsdates so that when you pick the second row for a patient, it is not just another glycaemic test on the same date
+    group_by(individual_id) %>% 
+  mutate(gly_num = row_number()) %>% 
+  ungroup() %>% 
+  filter(gly_num ==2) %>% #pick date at which glycaemia is persistent - ie at least two readings so pick second reading
+  rename(second_gly = obsdate) %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+
+n_distinct(use_first_unmatched_gly_multiple$individual_id)
+
+gly_update_multiple <- gly_one_year_before_multiple4%>%
+  filter(all_years_matched) %>% 
+  distinct(individual_id) %>% 
+  left_join(first_update8 %>%  select(patid, individual_id, min_unequivocal_date), by = "individual_id") %>% 
+  left_join(diagnostic_gly_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  filter(obsdate>=min_unequivocal_date %m-% years(1)) %>% 
+  group_by(individual_id) %>% 
+  slice_min(obsdate) %>% 
+    slice(1) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+  fill_columns() %>% 
+  bind_rows(., driver_date_multiple_no_unmatched %>% select(patid, individual_id, second_gly, Term, value)) %>% 
+  mutate(obsdate = coalesce(second_gly, obsdate))
+
+n_distinct(gly_update_multiple$individual_id)
+#Note we will remove all glycaemic data for those in gly_one_year_before_multiple4 and replace it with the update above
+
+```
+
+
+now  tidy things up
+```{r}
+gly_remove <- bind_rows(gly_one_year_before_multiple4, gly_one_year_before_single4)
+
+drug_remove <- bind_rows(drug_remove_multiple, drug_remove_single)
+
+use_unmatched_drug <- bind_rows(use_first_unmatched_multiple, use_first_unmatched_single) %>% 
+  rename(issuedate_u9 = issuedate,
+         productname_u9 = productname) %>% 
+  left_join(first_update8 %>% select(patid, issuedate), by = "patid") %>% 
+  mutate(original = if_else(issuedate_u9==issuedate, 1, NA)) %>% # if the original date is an unmatched date, then this doesn't count as a gdm episode and so doesn't need an update
+  filter(is.na(original))
+
+drug_update <- bind_rows(drug_update_single, drug_update_multiple) %>% 
+   rename(issuedate_u9 = issuedate,
+         productname_u9 = productname) %>% 
+  bind_rows(.,use_unmatched_drug)
+
+gly_update <- bind_rows(gly_update_single, gly_update_multiple) %>% 
+    rename(gly_date_u9 = obsdate,
+         gly_term_u9 = Term,
+         value_u9 = value) 
+
+#those with possible GDM - required a drug update, or a gly update  IF that update was pregnancy related (note some were gly-dates were lost from thsoe in whom the dates did NOT relate to pregnancy but there was just only one date, to be ignored - these have no evidence of GDM)
+possible_gdm_pats <- drug_update %>% 
+  distinct(patid) %>% 
+  bind_rows(.,gly_one_year_before_multiple4 %>% filter(all_years_matched)) %>% 
+  bind_rows(.,gly_one_year_before_single4%>% filter(all_years_matched)) %>% 
+  bind_rows(., use_first_unmatched_gly_single %>% filter(any_years_matched)) %>% 
+   bind_rows(., use_first_unmatched_gly_multiple %>% filter(any_years_matched)) 
+
+```
+
+
+#now for update 9 - if subjects appear in drug_one_year_before4, we wipe their drugs and call label them as GDM
+```{r}
+first_update9<- first_update8%>% 
+  #wipe relevant data
+  mutate(issuedate = if_else(patid %in% drug_remove$patid, as.Date(NA), issuedate),
+          productname = if_else(patid %in% drug_remove$patid, "remove_u9", productname), #logging the removes helps with accountability
+         gly_date =if_else(patid %in% gly_remove$patid, as.Date(NA), gly_date),
+         gly_term = if_else(patid %in% gly_remove$patid, "remove_u9", gly_term),
+         value = if_else(patid %in% gly_remove$patid, NA, value)) %>% 
+#update relevant data
+  left_join(drug_update %>% select(patid, issuedate_u9, productname_u9), by = "patid") %>% 
+  left_join(gly_update %>% select(patid, gly_date_u9, gly_term_u9, value_u9), by = "patid") %>% 
+  mutate(issuedate = if_else(!is.na(issuedate_u9), issuedate_u9, issuedate),
+  productname= if_else(!is.na(productname_u9), productname_u9, productname),
+  gly_date = if_else(!is.na(gly_date_u9), gly_date_u9, gly_date),
+  gly_term = if_else(!is.na(gly_term_u9), gly_term_u9, gly_term),
+  value = if_else(!is.na(value_u9), value_u9, value),
+  possible_gdm = if_else(patid %in% possible_gdm_pats$patid, 1, possible_gdm)) %>% #log possible gdm events for those who have evidence of treatment or glycaemia in pregnancy
+  distinct()
+  
+```
+Again if there have been changes to the clinical codes retained in first_update9 it is important to ensure that there are no new patients that potentially have no evidence of DM and only GDM or PCOS so we have to cycle through the process undertaken in update 4
+```{r}
+metformin_alone_single <- single(first_update) %>% 
+  inner_join(metformin_code, by = "productname") %>% 
+  filter(is.na(gly_date)) %>% 
+  filter(is.na(ddd)) %>% 
+  filter(is.na(admidate)) %>% 
+  select(-priority_1, -priority_2, -prodcodeid) %>% 
+  select(patid)
+
+metformin_alone_multiple <- multiple(first_update9) %>% 
+  inner_join(metformin_code, by = "productname") %>% 
+  group_by(individual_id) %>% 
+  filter(all(is.na(gly_date))) %>% 
+  filter(all(is.na(ddd))) %>% 
+  filter(all(is.na(admidate))) %>%
+  ungroup() %>% 
+  select(-priority_1, -priority_2, -prodcodeid) %>% 
+  distinct(individual_id)
+
+```
+
+now pull their drugs
+
+```{r}
+
+###or just use all_dm_drugs
+metformin_alone_all_drugs_single <- all_dm_drugs %>% 
+  inner_join(metformin_alone_single, by = "patid") %>% 
+  filter(year(issuedate)<2014)
+
+metformin_alone_all_drugs_multiple <- all_dm_drugs %>% 
+  inner_join(metformin_alone_multiple, by = "individual_id") %>% 
+    filter(year(issuedate)<2014)
+```
+
+ look at subjects that have nothing other than metformin - THESE ARE FOR EXCLUSION
+
+```{r}
+really_just_metformin_single <- metformin_alone_all_drugs_single %>%
+  group_by(patid) %>%
+  filter(all(is.na(priority_1))& all(is.na(priority_2))) %>% #filters out any patient that has even a single priority 1 or 2 drug
+  ungroup() %>% 
+  distinct(patid)
+
+n_distinct(really_just_metformin_single$patid)
+
+really_just_metformin_multiple <- multiple(metformin_alone_all_drugs_multiple) %>%
+  group_by(individual_id) %>%
+  filter(all(is.na(priority_1)) & all(is.na(priority_2))) %>%
+  ungroup() %>% 
+  distinct(individual_id, issuedate) %>% 
+  group_by(individual_id) %>% 
+  slice_min(issuedate) %>% 
+  ungroup() %>% 
+  fill_columns(issuedate) %>% 
+  distinct(patid, individual_id)
+
+really_just_metformin <- bind_rows(really_just_metformin_multiple, really_just_metformin_single)
+
+```
+
+
+now need to recheck that those coded with metformin before did not have it prescribed for PCOS so effectively 
+```{r}
+ metformin_first_multiple <- multiple(first_update9) %>%
+  group_by(individual_id) %>%
+  mutate(
+    min_ddd = safe_min(ddd),
+    min_issuedate = safe_min(issuedate),
+    min_productname = if (all(is.na(issuedate))) NA_character_
+                      else first(productname[issuedate == min(issuedate, na.rm = TRUE)]),
+    
+    min_gly = safe_min(hba1c_date),
+    min_context_indep_date = safe_min(context_indep_date),
+    min_admidate = safe_min(admidate),
+    min_priority_date = safe_min(priority_date)) %>%
+  ungroup() %>% 
+  mutate(new_ddd = pmin(min_gly, min_issuedate, min_ddd, min_admidate, na.rm=TRUE),
+         ddd_sans_met =pmin(min_gly, min_priority_date, min_ddd, min_admidate, na.rm=TRUE) ) %>% 
+  filter(min_productname %in% metformin_code$productname) %>%
+ filter(min_issuedate==new_ddd) %>%  #identify those whose ddd is driven by a drug prescription
+    filter(min_issuedate %m+% years(1)< ddd_sans_met)
+  
+metformin_first_multiple <- metformin_first_multiple%>% 
+  select(patid, individual_id, min_issuedate, min_gly, min_admidate, min_ddd, min_priority_date, ddd_sans_met, min_context_indep_date) 
+
+metformin_first_single <- single(first_update9) %>%
+  mutate(new_ddd = pmin(hba1c_date, issuedate, ddd, admidate, na.rm=TRUE),
+         ddd_sans_met =pmin(hba1c_date, priority_date, ddd, admidate, na.rm=TRUE)) %>%
+  filter(productname %in% metformin_code$productname) %>%
+  filter(issuedate==new_ddd) %>% 
+  filter(issuedate %m+% years(1)< ddd_sans_met) %>% 
+  select(patid, ddd, issuedate, gly_date, admidate, priority_date, ddd_sans_met)
+
+metformin_first <- bind_rows(metformin_first_multiple, metformin_first_single)
+```
+
+#now find those that have pcos in PCOS code list
+Now identify anyone who is in the metformin_first df who also has PCOS,
+within 4 month - ie PCOS very likely the reason for the metformin script
+so for these ladies, will need to find a subsequent script
+
+```{r}
+metformin_pcos <- all_pcos_obs %>% 
+  inner_join(metformin_first %>% select(patid, issuedate, min_issuedate, ddd_sans_met), by = "patid") %>% 
+  mutate(issuedate = coalesce(issuedate, min_issuedate))
+n_distinct(metformin_pcos$patid) #9768
+
+relevant_ndh_single <- single(metformin_first) %>% 
+  filter(!patid %in% metformin_pcos$patid) %>% 
+  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate<=issuedate %m+% months(6)), 1, NA)) %>% 
+  select(-individual_id, -min_ddd, -min_issuedate, -min_gly, -min_admidate, -min_priority_date, -min_context_indep_date) %>% 
+  filter(!is.na(prior_1_year))
+
+relevant_ndh_multiple <- multiple(metformin_first) %>% 
+  filter(!individual_id %in% metformin_pcos$individual_id) %>% 
+  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  mutate(prior_1_year = if_else((obsdate>= min_issuedate%m-% years(1))&(obsdate<= min_issuedate %m+% months(6)), 1, NA)) %>% 
+  filter(!is.na(prior_1_year))
+```
+#actually likely just remove metformin for all those with PCOS or NDH
+#for these women, metformin probably prescribed for PCOS, need to find 
+next drug that was prescribed within a year of a diabetes diagnosis date
+that does NOT take into account that metformin script (new variable
+created above: ddd_sans_met), ie that relies on other markers of DM
+
+```{r}
+need_to_update_issuedate_single <- metformin_first_single %>% 
+  filter(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid) %>% 
+  rename(issuedate_old = issuedate) %>% 
+  left_join(all_dm_drugs, by ="patid") %>% 
+  filter(!is.na(priority_1)|!is.na(priority_2)) %>% 
+  filter(issuedate > issuedate_old) %>% 
+  group_by(patid) %>% 
+  slice_min(issuedate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(issuedate_u9b = issuedate,
+         prodname_u9b = productname)
+
+need_to_update_issuedate_multiple <- metformin_first_multiple %>% 
+  filter(individual_id %in% metformin_pcos$individual_id|individual_id %in% relevant_ndh_multiple$individual_id) %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate, productname, priority_1, priority_2), by ="patid") %>% 
+  filter(!is.na(priority_1)|!is.na(priority_2)) %>% 
+    filter(issuedate > min_issuedate) %>% 
+  group_by(individual_id) %>% 
+  slice_min(issuedate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(issuedate_u9b = issuedate,
+         prodname_u9b = productname) %>% 
+  select(-patid) %>% 
+  fill_columns()
+need_to_update_issuedate <- bind_rows(need_to_update_issuedate_multiple, need_to_update_issuedate_single)
+
+```
+
+#UPDATE 9b
+
+```{r}
+first_update9b <- first_update9%>% 
+  left_join(need_to_update_issuedate %>% select(patid, issuedate_u9b, prodname_u9b), by = "patid") %>% 
+  mutate(issuedate = if_else(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid|individual_id %in% relevant_ndh_multiple$patid|patid %in% really_just_metformin$patid, as.Date(NA), issuedate),
+         productname = if_else(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid|individual_id %in% relevant_ndh_multiple$patid| patid %in% really_just_metformin$patid, "removed u5", productname)) %>%   
+  mutate(issuedate = coalesce(issuedate_u9b, issuedate),
+         productname = coalesce(prodname_u9b, productname),
+         metformin_exclude = if_else(patid %in% really_just_metformin$patid, 1, metformin_exclude))
+
+```
+
+
+#now for update 10 deal with death date
+Some patids have multiple ONS death dates, some have discrepant CPRD and ONS death dates, and for those with multiple patids there is a
+greater risk of multiple different death dates
+```{r}
+#load dates
+setwd("YOUR DIR")
+ONS <- read.delim("YOUR ONS FILE", stringsAsFactors = TRUE)
+
+ONS$patid <- as.character(ONS$patid)
+
+##note some patients have more than one date of death because either a single patid has two ONS death dates or an individual has more than one patid
+
+ons_filtered <- ONS %>% 
+  select(patid, reg_date_of_death) %>% 
+  group_by(patid) %>%
+  filter(n_distinct(reg_date_of_death)>1) %>% #identify those with multiple ONS death dates
+  ungroup() 
+
+ons_filtered <- ons_filtered %>% 
+  left_join(first_update9b %>% select(patid, cprd_ddate, individual_id), by = "patid") ##add in the individual_id and cprd death date
+
+single_ons_filtered <- single(ons_filtered)
+
+#for those with more than one ONS death date, the cprd death date is more useful
+ons_filtered_cprd_present <- ons_filtered %>% 
+  filter(!is.na(cprd_ddate)) %>% 
+  mutate(updated_death_date = cprd_ddate,
+         reg_date_of_death = as.Date(NA)) %>% 
+  distinct(patid, updated_death_date, reg_date_of_death)
+
+ons_filtered$reg_date_of_death <- as.Date(ons_filtered$reg_date_of_death)
+
+#if no cprd death date present, use the earliest ONS date
+ons_filtered_cprd_absent <- ons_filtered %>% 
+  filter(is.na(cprd_ddate)) %>% 
+  group_by(patid) %>% 
+  summarise(updated_death_date = min(reg_date_of_death)) %>% 
+  mutate(reg_date_of_death = as.Date(NA)) %>% 
+  ungroup()
+
+ons_filtered <- rbind(ons_filtered_cprd_absent, ons_filtered_cprd_present)
+n_distinct(ons_filtered$patid)
+
+##now to update deaths take all ONS and update it with those few deaths
+ONS$reg_date_of_death <- as.Date(ONS$reg_date_of_death)
+ons_filtered_cprd_absent$updated_death_date <- as.Date(ons_filtered_cprd_absent$updated_death_date)
+
+ons_filtered_cprd_present$updated_death_date <- as.Date(ons_filtered_cprd_present$updated_death_date)
+class(ONS$reg_date_of_death)
+
+ONS$patid <- as.character(ONS$patid)
+updated_ons <- ONS %>% 
+  anti_join(ons_filtered, by = "patid") %>% 
+  select(patid, reg_date_of_death) %>% 
+  distinct() %>% 
+  mutate(updated_death_date = as.Date(NA))# added column so that you can then add updated_ons
+
+updated_ons <-rbind(updated_ons, ons_filtered)%>% 
+  mutate(updated_death_date = case_when
+         (is.na(updated_death_date)~reg_date_of_death, 
+           TRUE~updated_death_date)) %>% 
+  select(patid, updated_death_date) 
+
+n_distinct(ONS$patid)
+
+ons_filtered$patid <- as.character(ons_filtered$patid)
+ons_filtered$reg_date_of_death <- as.Date(ons_filtered$reg_date_of_death, format = "%Y/%m/%d")
+
+
+#now for update 10, update the death dates for those patids with discrepancies in their death dates across their patids
+first_update10 <- first_update9b %>% 
+  left_join(updated_ons, by = "patid") %>% 
+  mutate(death_date = coalesce(updated_death_date, cprd_ddate))
+
+#find individuals where death is discrepant AND PRESENT
+first_update10_multiple_patid_death_date_discrepent <- multiple(first_update10) %>% 
+   filter(!is.na(death_date)) %>% 
+   group_by(individual_id) %>%
+  filter(n_distinct(death_date)>1) %>% 
+  select(individual_id, death_date, cprd_ddate)
+
+n_distinct(first_update10_multiple_patid_death_date_discrepent$individual_id)
+ 
+first_update10_multiple_patid_death_date_discrepent_mode <- first_update10_multiple_patid_death_date_discrepent %>%   
+   group_by(individual_id, death_date) %>% 
+  tally() %>% 
+  group_by(individual_id) %>% 
+  slice_max(n, with_ties = FALSE) %>% 
+  select(individual_id, modal_death_date = death_date)
+  
+   
+ #now need to propagate the death date for those patids that are missing a death date, and need to bring in the modal death date above in the case that an individual has, say death date A for patid 1, death date b for patid 2, and is missing it for patid 3
+
+ first_update10_multiple_patid_death_date_updated<- multiple(first_update10)%>%
+   group_by(individual_id) %>% 
+   filter(n_distinct(death_date)>1) %>% 
+   ungroup() %>% 
+   left_join(first_update10_multiple_patid_death_date_discrepent_mode %>% select(individual_id, modal_death_date), by = "individual_id") %>% 
+   mutate(death_date=if_else(is.na(modal_death_date), death_date, modal_death_date)) %>% 
+   group_by(individual_id) %>% 
+   mutate(death_date_revised = if_else(is.na(death_date),
+                               first(na.omit(death_date)),
+                               death_date)) %>% 
+ ungroup() %>% 
+   distinct(individual_id, death_date_revised)
+ 
+  n_distinct(first_update10_multiple_patid_death_date_updated$individual_id)
+ 
+ #now need to update first_update_multiple_patid to contain these individuals with discrepent deaths alongside those with correct deaths
+ first_update10_multiple_patid <- multiple(first_update10) %>% 
+  left_join(first_update10_multiple_patid_death_date_updated, by = "individual_id")  %>% 
+   mutate(death_date = if_else(is.na(death_date_revised), death_date, death_date_revised))
+ 
+ first_update10_single_patid <- single(first_update10) 
+ 
+first_update10_single_patid$death_date_revised <- as.Date(NA) 
+
+ first_update10 <- rbind(first_update10_single_patid, first_update10_multiple_patid) %>% 
+   distinct()
+
+ #for later, add in number of gly-tests
+ 
+```
+
+Add in number of gly tests - those who only have 1 and no other evidence of DM will be excluded
+```{r}
+single_gly_single <- single(diagnostic_gly_obs) %>% 
+  group_by(patid) %>% 
+  mutate(gly_num = row_number()) %>% 
+  slice_max(gly_num) %>% 
+  ungroup()
+
+single_gly_multiple <- multiple(diagnostic_gly_obs) %>% 
+  group_by(individual_id) %>% 
+  mutate(gly_num = row_number()) %>% 
+  slice_max(gly_num) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+  fill_columns()
+ 
+ single_gly <- bind_rows(single_gly_single, single_gly_multiple)
+ 
+ first_update10 <- first_update10 %>% 
+   left_join(single_gly %>% select(patid, gly_num), by = "patid")
+ 
+ saveRDS(firstt_update10, "first_update10.rds")
+```
+##now for update 11 - remove anyone who died before registration 
+-> go to
+6_final_cohort_formation.rmd

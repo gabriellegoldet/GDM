@@ -1,0 +1,255 @@
+---
+title: "6_final_cohort_formation"
+author: "Gabrielle Goldet"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+#load data
+```{r}
+setwd("YOUR DIR")
+first_update10 <- readRDS( "first_update10.rds") #created in 5_adjusting_dates.Rmd
+total_gdm_deliveries_slimmed_single <-readRDS("total_gdm_deliveries_slimmed_single.rds") #created in 4_pregnancy.Rmd
+total_gdm_deliveries_slimmed_multiple <-readRDS("total_gdm_deliveries_slimmed_multiple.rds") #created in 4_pregnancy.Rmd
+```
+
+
+now get there max reg duration (i.e. erliest registration start to latest registration end or prefarably no reg end (i.e. current registration period))
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+
+cprd_mpsid <- first_update10_multiple_patid %>% 
+  filter(!is.na(cprd_mpsid)) %>% 
+  distinct(individual_id, cprd_mpsid)
+
+combined_registration <- multiple(first_update10)%>%
+  group_by(individual_id) %>% 
+  summarise(
+    regstartdate = min(regstartdate, na.rm=TRUE),
+        regenddate = if(any(is.na(regenddate))) NA_Date_ else max(regenddate, na.rm = TRUE),
+    .groups = "drop"
+  ) %>% 
+  left_join(cprd_mpsid, by = "individual_id")
+
+
+summary(combined_registration)
+```
+
+Now for update 11, remove anyone with a death date prior to the earliest registration
+
+```{r}
+first_update11_single_patid <-single(first_update10) %>% 
+   filter(death_date>regstartdate|is.na(death_date)) %>% 
+  select(patid)
+
+death_dates <- first_update10_multiple_patid %>% 
+  distinct(individual_id, death_date)
+
+#obtain valid individuals (who have no death date or a date after their reg)
+first_update11_multiple_patid <- combined_registration%>% 
+  left_join(death_dates,  by = "individual_id") %>% 
+  filter(death_date>regstartdate|is.na(death_date)) %>% 
+  distinct(individual_id)
+
+##get total patients remaining
+first_update11 <-first_update10 %>% 
+  filter(patid %in% first_update11_single_patid$patid|individual_id %in% first_update11_multiple_patid$individual_id)
+n_distinct(first_update10_single_patid$patid)+n_distinct(first_update10_multiple_patid$individual_id)
+
+#number of deaths remove
+n_distinct(first_update10_multiple_patid$individual_id) -  n_distinct(first_update11_multiple_patid$individual_id)
+
+#number of deaths remove
+n_distinct(first_update10_single_patid$patid) -  n_distinct(first_update11_single_patid$patid)
+
+```
+
+
+For those with multiple patids, need to find the first earliest diagnoses for each individual_id, and then recalcalculate the new ddd.  
+```{r}
+##1. get earliest issuedate per individual
+issuedate_df <- first_update11 %>%
+  filter(!is.na(individual_id)) %>% 
+  group_by(individual_id) %>%
+  slice_min(issuedate, n = 1, with_ties = FALSE) %>%
+  ungroup() %>% 
+  select(individual_id, issuedate, productname)
+
+# 2. Get earliest ddd row
+ddd_df <- first_update11 %>%
+  filter(!is.na(individual_id)) %>% 
+  group_by(individual_id) %>%
+  slice_min(ddd, n = 1, with_ties = FALSE) %>%
+  ungroup() %>% 
+  select(individual_id, ddd, diagnosis)
+
+# 3. Get earliest admidate row
+admidate_df <- first_update11 %>%
+  filter(!is.na(individual_id)) %>% 
+  group_by(individual_id) %>%
+  slice_min(admidate, n = 1, with_ties = FALSE) %>%
+  ungroup() %>% 
+  select(individual_id, admidate, HES_term)
+
+
+# 4. Get earliest gly_date and arrivaldate and pick up gdm and pcos status (needed later)
+dates_df <- first_update11 %>%
+  filter(!is.na(individual_id)) %>% 
+  group_by(individual_id) %>%
+  slice_min(gly_date, n = 1, with_ties = FALSE) %>% 
+    ungroup() %>% 
+ select(individual_id, gly_date, gly_term, value)
+
+
+#now put it all together
+first_multiple_patid_combined <- combined_registration %>% 
+  filter(individual_id %in% first_update11_multiple_patid$individual_id) %>% #removes those with a death date before registration
+  left_join(first_update11%>% select(individual_id, yob, PCOS_GDM_exclude, metformin_exclude, priority_date, min_unequivocal_date, hba1c_date, death_date, gly_num, gdm_status, pattern), by = "individual_id") %>%
+  distinct() %>% 
+left_join(dates_df, by = "individual_id") %>% 
+  left_join(ddd_df, by = "individual_id") %>% 
+  left_join(issuedate_df, by = "individual_id") %>% 
+  left_join(admidate_df, by = "individual_id")
+
+```
+
+Now update first update 12 put those with single patids with those with multiple patids collapsed to a single line (first_multiple_patid_combined) together and find the earliest date across a row.  This is the new diabetes diagnosis date (ddd)
+
+```{r}
+first_update12 <- single(first_update11) %>%
+  bind_rows(., first_multiple_patid_combined) %>% 
+  mutate(new_ddd = pmin(admidate, issuedate, gly_date, ddd, na.rm = TRUE),
+         single_gly_reading = if_else(!is.na(gly_num)&gly_num==1&is.na(ddd)&is.na(issuedate)&is.na(admidate), 1, NA))#log subjects with only a single glycaemic test to evidence DM as will need to be excluded
+```
+
+
+### Update13 - now form the GDM cohort
+
+```{r}
+gdm_obs_single <- total_gdm_single_deliveries_slimmed %>% #take all the GDM delivery dates
+  left_join(first_update12%>% select(patid, new_ddd), by = "patid") %>% 
+  filter(!is.na(new_ddd)) %>% 
+  filter(delivery_date<new_ddd %m-% years(1)) %>% 
+  group_by(patid) %>% 
+  slice_max(delivery_date) %>% 
+  slice(1) %>% 
+  ungroup()
+
+gdm_obs_multiple <- total_gdm_multiple_deliveries_slimmed %>% 
+  left_join(first_update12 %>% select(individual_id, new_ddd), by = "individual_id") %>% 
+  filter(!is.na(new_ddd)) %>% 
+  filter(delivery_date<new_ddd %m-% years(1)) %>% 
+  group_by(individual_id) %>% 
+  slice_max(delivery_date) %>% 
+  slice(1) %>% 
+  ungroup()
+
+```
+#now update 13, update the GDM status with the above
+
+```{r}
+first_update13 <- first_update12%>% 
+  mutate(gdm_status = if_else(patid %in% gdm_obs_single$patid|individual_id %in% gdm_obs_multiple$individual_id, "GDM", gdm_status)) 
+
+table(first_update13$possible_gdm)
+```
+
+
+Now filter down to the actual cohort
+
+```{r}
+filtered_cohort <- first_update13 %>% 
+  filter(new_ddd>= as.Date("2007-01-01")& (new_ddd<as.Date("2014-01-01"))) %>% #inside entry window only
+  filter(new_ddd>=regstartdate+years(1)&(new_ddd<regenddate|is.na(regenddate))) %>%  #at least one year of registration, and diagnosis before regend IF there is a regend
+  filter(is.na(PCOS_GDM_exclude)) %>% #not flagged for exclusion based on greater likelihood of PCOS and GDM 
+  filter(is.na(metformin_exclude)) %>% #not flagged for exclusion based on having metformin only as evidence of DM
+  filter(is.na(single_gly_reading)) %>% #not flagged for exclusion based on having only a single glycaemic test as evidence of DM
+  mutate(age_at_diagnosis = year(new_ddd)-yob,   #create age at diagnosis 
+         single_script = if_else(pattern=="one-off"&is.na(admidate)&is.na(ddd)&is.na(gly_date), 1, NA)) %>% #create those with single scripts and no other evidence of DM...
+  filter(is.na(single_script)) %>% #... and exclude them
+  filter(age_at_diagnosis>=18 & age_at_diagnosis <= 65) %>% # only include those within the right age range
+    filter(new_ddd<death_date|is.na(death_date))%>% #exclude those whose death was on the day of diagnosis or before diagnosis
+  mutate (glicla = if_else(is.na(gly_date)&is.na(ddd)&is.na(admidate)&pattern=="short term"&(productname=="Gliclazide 40mg tablets"|productname=="Gliclazide 80mg tablets"), 1, NA))%>% #identify those whose only evidence of DM is a short course of gliclazide...
+  filter(is.na(glicla)) %>% #... and exclude them
+  filter(is.na(HES_term)|#either the patient doesn't have a HES term...
+           HES_term!= "Unspecified diabetes mellitus Without complications"| # or if they do it is not #'unspecified'...
+           (!is.na(gly_date)|!is.na(ddd)|!is.na(issuedate)))  # but if it is unspecified, they have to have other evidence of DM
+
+
+#the GDM cohort
+GDM <- filtered_cohort %>% 
+  filter(!is.na(gdm_status))
+
+#the possible GDM cohort
+possible_gdm <- filtered_cohort %>% 
+  filter(!is.na(possible_gdm))
+
+#Now determine the numbers excluded at each step
+glicla_exclude <- first_update13 %>% 
+  mutate (glicla = if_else(is.na(gly_date)&is.na(ddd)&is.na(admidate)&pattern=="short term"&(productname=="Gliclazide 40mg tablets"|productname=="Gliclazide 80mg tablets"), 1, NA))%>% 
+  filter(!is.na(glicla))
+
+#excluded by ambiguous HES code
+amb_hes_exclude <- first_update13 %>% 
+  filter(HES_term== "Unspecified diabetes mellitus Without complications"&is.na(gly_date)&is.na(ddd)&is.na(issuedate))
+
+#excluded because of insufficient evidence of DM - i.e. all data lost in the filtration process in 5_adjusting_dates.Rmd
+    insufficient <- first_update13 %>% 
+    filter(is.na(admidate)&is.na(issuedate)&is.na(ddd)&is.na(gly_date)) 
+
+    #excluded because they had PCOS and GDM but no diabetes coding from the dm_code list and only had insulin and metformin as evidence of DM
+    PCOS_GDM_exclude <- first_update13 %>% 
+      filter(!is.na(PCOS_GDM_exclude))
+  
+    #excluded as only evidence of DM was metformin  
+    metformin_exclude <- first_update13 %>% 
+      filter(!is.na(metformin_exclude))
+  
+    #excluded because only evidence of DM was a single script  
+    single_script <- first_update13 %>% 
+       mutate(single_script = if_else(pattern=="one-off"&is.na(admidate)&is.na(ddd)&is.na(gly_date), 1, NA)) %>% 
+      filter(!is.na(single_script))
+  
+    #excluded because only evidence of DM was a single lgycaemic test  
+    single_gly_exclude <- first_update13 %>% 
+    filter(is.na(admidate)&is.na(issuedate)&is.na(ddd)&!is.na(single_gly_reading))
+    
+  #total of patients with insufficient data for the CONSORT diagram
+      total_insufficient <- first_update13 %>% 
+             mutate(single_script = if_else(pattern=="one-off"&is.na(admidate)&is.na(ddd)&is.na(gly_date), 1, NA)) %>% 
+    filter((is.na(admidate)&is.na(issuedate)&is.na(ddd)&is.na(gly_date))|
+             !is.na(metformin_exclude)|
+             !is.na(single_script)|
+             !is.na(PCOS_GDM_exclude)| 
+             gdm_status=="GDM exclude")
+      
+    #excluded as outside age range
+    age_exclude <- first_update13 %>% 
+        mutate(age_at_diagnosis = year(new_ddd)-yob) %>% 
+      filter(age_at_diagnosis<18 | age_at_diagnosis > 65)
+
+#excluded as diagnosed outside window    
+    outside_window <- first_update13%>% 
+        filter(new_ddd> as.Date("2007-01-01")| new_ddd>=as.Date("2014-01-01")) 
+    
+    #excluded as registered either within or prior to the registration start or after the registration end
+    reg_outisde <- first_update13 %>% 
+      filter(new_ddd<regstartdate %m+% years(1)|new_ddd>regenddate) 
+    
+    #excluded because they died on or before day of diagnosis
+    death_before_diagnosis <- first_update13 %>% 
+      filter(death_date<=new_ddd)
+       
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.

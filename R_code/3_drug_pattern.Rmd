@@ -1,0 +1,189 @@
+---
+title: "3_drug_pattern"
+author: "Gabrielle Goldet"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+In this R markdown file we create the first priority drug variable - i.e. for each subject, this is the earliest presription of a medication that is only used to treat diabetes (for example a DPP4i).  We also create patterns of drug prescription.  In the end these were not used in the algorithms to determine when the diabetes diagnosis date was or whether the subject should even be in the cohort (i.e. had enough evidence fo DM) but when looking at individual cases when a query came up, it helped to give an idea as to the degree of evidence of chronicity
+
+We assume you by now have a df with all the antidiabetic medications for your cohort called all_dm_drugs and that the variables are of an appropriate class (e.g. patid and prodcodeid are factor or character and issuedate is date)
+
+First, two useful simple functions to filter by those subjects with only one patid and those with multiple.  It is important to treat them differently because for those individuals with multiple patids, we will have to look through ALL the patids related to a given individual when filtering for specific data.  For example below, when looking for the first prescription of a specific antidiabetic drug for an individiual with multiple patids, we need to look for it in all the records of the associated patids for that individual.  Once that date is found, it needs to be propagated to all the patids for a given individual, and fill_columns() is the function for that.
+```{r}
+#filtering according to whether an individual has or doesn't have more than 1 patid
+single <- function(df){df %>% filter(is.na(individual_id))}
+multiple <- function(df){df %>% filter(!is.na(individual_id))}
+
+
+#propagating relevant data across all the patids of a given individual
+fill_columns <- function(df, ...) {
+  df %>% 
+    left_join(all_pats, by = "individual_id") %>%
+    group_by(individual_id) %>%
+    fill(..., .direction = "downup") %>%
+    ungroup()
+}
+```
+
+Now filter down to first priority_1 drug, having ensure that all_dm_drugs has the newly created individual_ids from all_patds reated in 2_patient_linking.rmd
+```{r}
+all_dm_drugs<-all_dm_drugs %>% 
+  left_join(all_pats, by = "patid")
+
+first_priority_1 <- all_dm_drugs %>%  
+  left_join(patient_file %>% select(patid, yob), by = "patid") %>% #add in the year of birth
+  filter(!is.na(priority_1)) %>% 
+  filter(year(issuedate)>yob) #so that you can remove erroneously dated prescriptions
+
+first_priority_1_single <- single(first_priority_1)%>% 
+  group_by(patid) %>%
+  filter(issuedate == min(issuedate)) %>% 
+           filter(index == min(index)) %>% 
+           slice(1) %>% 
+  ungroup() %>% 
+    rename(priority_date = issuedate) #to avoid confusing with the issuedate of the first of any antidiabetic drug prescriptions already in first_obs_gly_drug_HES
+
+first_priority_1_multiple <- multiple(first_priority_1)%>% 
+  group_by(individual_id) %>%
+  filter(issuedate == min(issuedate)) %>% 
+  filter(index == min(index)) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(priority_date = issuedate) %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+first_priority_1 <- bind_rows(first_priority_1_multiple, first_priority_1_single)
+
+first_obs_gly_drug_HES <-first_obs_gly_drug_HES %>% 
+  left_join(first_priority_1 %>% select(patid, priority_date), by = "patid")
+```
+
+Now for the drug pattern
+1. set a threshold which suggests a significant gap in prescriptions, e.g. 9 months
+2. Define the particularly useful (priority_1) drugs
+3. Split into 4 patterns:
+- one off
+- gap after first (where there is one prescription and then nothing for at least 9 months)
+- episodic (at least 9 month cgaps in prescriptions
+- short term - prescriptions over less than 2 years
+- continuous, no 9 month gaps and running over at least 2 years)
+```{r}
+
+# threshold for what counts as a significant gap
+gap_threshold <- 273
+
+#find all priority_1 drugs
+priority_1 <- dm_drugs %>% 
+  filter(!is.na(priority_1))
+priority <- priority_1$productname
+
+#function used to label assign a drug pattern for those with single patids
+drug_pattern_fun2 <- function(df) {
+  df %>%
+    group_by(patid) %>%
+    mutate(first_presc_date= min(issuedate)) %>% 
+    arrange(patid, issuedate) %>%
+    mutate(is_priority = productname %in% priority) %>%
+    arrange(issuedate, .by_group = TRUE) %>%
+    mutate(
+      gap_days = as.numeric(difftime(issuedate, lag(issuedate), units = "days")),
+      gap_days = ifelse(issuedate == first_presc_date, NA, gap_days),
+      gap_after_first_flag = any(
+        gap_days > gap_threshold & lag(issuedate) == first_presc_date,
+        na.rm = TRUE
+      )
+    ) %>%
+    summarise(
+      first_date = first(first_presc_date),
+      n_prescriptions = n(),
+      n_unique_dates = n_distinct(issuedate),
+      n_large_gaps = sum(gap_days > gap_threshold, na.rm = TRUE),
+      ever_priority = any(is_priority),
+      first_priority_date = suppressWarnings(min(issuedate[is_priority], na.rm = TRUE)),
+      gap_after_first_flag = first(gap_after_first_flag),
+      prescription_span_years = as.numeric(difftime(max(issuedate), min(issuedate), units = "days")) / 365.25,
+      years = paste(sort(unique(year(issuedate))), collapse = ", ")
+    ) %>%
+    mutate(
+      pattern = case_when(
+        n_unique_dates == 1 ~ "one-off",
+        n_large_gaps == 0 & prescription_span_years >= 2 ~ "continuous",
+        n_large_gaps == 0 & prescription_span_years < 2 ~ "short term",
+        gap_after_first_flag ~ "gap after first",
+        n_large_gaps >= 1 ~ "episodic",
+        TRUE ~ "other"
+      ),
+      first_priority_date = ifelse(is.infinite(first_priority_date), NA, first_priority_date)
+    )
+}
+all_dm_drugs_single <- single(all_dm_drugs)
+all_dm_patterns_single <- drug_pattern_fun2(all_dm_drugs_single) %>% 
+  select(patid, pattern, years)
+
+#function used to label assign a drug pattern for those with multiple patids
+drug_pattern_fun3 <- function(df){
+df %>%
+  group_by(individual_id) %>%
+  mutate(first_presc_date= safe_min(issuedate)) %>% 
+  arrange(individual_id, issuedate) %>%
+  mutate(is_priority = productname %in% priority) %>%
+  arrange(issuedate, .by_group = TRUE) %>%
+  mutate(
+    gap_days = as.numeric(difftime(issuedate, lag(issuedate), units = "days")),
+    gap_days = ifelse(issuedate == first_presc_date, NA, gap_days),
+    gap_after_first_flag = any(
+      gap_days > gap_threshold & lag(issuedate) == first_presc_date,
+      na.rm = TRUE
+    )
+  ) %>%
+  summarise(
+    first_date = first(first_presc_date),
+    n_prescriptions = n(),
+    n_unique_dates = n_distinct(issuedate),
+    n_large_gaps = sum(gap_days > gap_threshold, na.rm = TRUE),
+    ever_priority = any(is_priority),
+    first_priority_date = suppressWarnings(min(issuedate[is_priority], na.rm = TRUE)),
+    gap_after_first_flag = first(gap_after_first_flag),
+    prescription_span_years = as.numeric(difftime(max(issuedate), min(issuedate), units = "days")) / 365.25,
+    years = paste(sort(unique(year(issuedate))), collapse = ", ")
+  ) %>%
+  mutate(
+    pattern = case_when(
+      n_unique_dates == 1 ~ "one-off",
+      n_large_gaps == 0 & prescription_span_years >= 2 ~ "continuous",
+      n_large_gaps == 0 & prescription_span_years < 2 ~ "short term",
+      gap_after_first_flag ~ "gap after first",
+      n_large_gaps >= 1 ~ "episodic",
+      TRUE ~ "other"
+    ),
+    first_priority_date = ifelse(is.infinite(first_priority_date), NA, first_priority_date)
+  )
+}
+
+
+all_dm_drugs_multiple <-multiple(all_dm_drugs) 
+
+all_dm_patterns_multiple <-drug_pattern_fun3(all_dm_drugs_multiple) 
+
+#propagate the apttern to all relevant patids
+all_dm_patterns_multiple <- all_dm_patterns_multiple%>% 
+  select(individual_id, pattern, years) %>% 
+  fill_columns()
+
+#prepare the df to be joined to our master df first_obs_gly_drug_HES
+all_dm_drug_patterns <- bind_rows(all_dm_patterns_single, all_dm_patterns_multiple) %>% 
+  select(patid,individual_id, pattern, years)
+
+#now join
+first_obs_gly_drug_HES <- first_obs_gly_drug_HES %>% 
+  left_join(all_dm_drug_patterns %>% select(patid, pattern, years), by = "patid")
+```
+
+Now go to 4_pregnancy.rmd in the same github repository to get delivery dates.

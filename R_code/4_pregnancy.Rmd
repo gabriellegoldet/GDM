@@ -1,0 +1,535 @@
+---
+title: "4_pregnancy"
+author: "Gabrielle Goldet"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+libraries and functions
+
+```{r}
+library(dplyr)
+library(lubridate)
+
+#filtering according to whether an individual has or doesn't have more than 1 patid
+single <- function(df){df %>% filter(is.na(individual_id))}
+multiple <- function(df){df %>% filter(!is.na(individual_id))}
+
+
+#propagating relevant data across all the patids of a given individual
+fill_columns <- function(df, ...) {
+  df %>% 
+    left_join(all_pats, by = "individual_id") %>%
+    group_by(individual_id) %>%
+    fill(..., .direction = "downup") %>%
+    ungroup()
+}
+```
+
+This file walks through how to determine delivery dates from the pregnancy observations.  the pregnancy code is flagged for observations that indicate a delivery.  Note also that a delivery date can be imputed by backdating the observation date of the maternal 6 weeks postnatal examination by 6 weeks.
+
+Start by gatethering all the pregnancy observations then all the delivery observations. If you have all your obersvation files in a list of dfs (observation_list - in our case we compounded all the 200+ observation files into 17 dfs which are in this list), you can select all rows related to pregnancy observations 
+```{r}
+setwd("YOUR DIRECTORY")
+pregnancy_code <- read.delim("pregnancy_code.txt", stringsAsFactors = TRUE)
+pregnancy_ICD10_code <- read.delim("pregnancy_ICD10_code.txt", stringsAsFactors = TRUE)
+all_HES_apc <- #load your hes apc data
+#also load your data - in our case it is stored in observation_list and all the HES APC data
+
+pregnancy_fun <- function(df){df %>% inner_join(pregnancy_code, by = "medcodeid") %>% filter(is.na(obsdate))} # also ensure to remove observations without a date
+
+#get all cprd codes
+all_pregnancy_obs <- bind_rows(lapply(observation_list, pregnancy_fun))
+
+#get all your HES data
+all_hes_pregnancy <- all_HES_apc %>% 
+  inner_join(pregnancy_ICD10_code, by = "ICD")# note delivery codes are flagged in this code list too
+
+# now load all hes_maternity data if you have it
+hes_maternity$epistart <- as.Date(hes_maternity$epistart, format = "%Y/%m/%d")
+
+hes_deliveries <- hes_maternity %>% 
+    filter(numbaby=="1" | numbaby=="2"| numbaby=="3"| numbaby=="4") %>%
+  distinct(patid, epistart) %>% 
+  mutate(delivery = 1) %>% 
+  rename(obsate=epistart)
+
+
+#now bind all pregnancy data
+all_pregnancy_obs <- bind_rows(all_pregnancy_obs, hes_maternity, hes_deliveries)
+```
+
+first we need to add the individual ids of those with mltiple patids and also the years of birth so that dates of pregnancy that are likely dated erroneously (i.e before the age of, say, 14) are removed
+.  Note there is a delivery colum in delivery obs that comes from the pregnancy_code.  This flags delivery observations
+```{r}
+all_pregnancy_obs <- all_pregnancy_obs %>% 
+  left_join(patient_file %>% select(patid, yob), by = "patid") %>% 
+  left_join(all_pats, by = "patid")
+
+#filter the delivery obs and backdate observations related to a postnatal 6 week exam
+delivery_obs <- all_pregnancy_obs_update %>% 
+  filter(!is.na(delivery)) %>% 
+  mutate(update_del_date = if_else(grepl("postnatal 6 week", Term, ignore.case = TRUE), obsdate %m-% weeks(6), NA)) %>% 
+  mutate(obsdate = coalesce(update_del_date, obsdate)) %>% 
+  filter(year(obsdate) > yob + 14)
+```
+now determine unique deliveries - look for clusters of delivery observations within a 2 month period separated by at least 9 months from the next delivery observations.  Do this separately for those with single and multiple patids
+
+We identified individual delivery events using a two-stage approach to account for both data quality and biological plausibility. 
+First, observation records were grouped into clusters within each patient, where any records occurring within 60 days of each other were assumed to relate to the same delivery episode; only the earliest date within each cluster was retained to reduce duplication from multiple records of a single event. 
+Second, these cleaned episode-level dates were further evaluated using a minimum gap of 273 days (approximately nine months) to define distinct deliveries, ensuring that separate delivery events were biologically plausible. The earliest date within each resulting delivery group was then taken as the final delivery date. This approach allows us to minimise noise from repeated records while accurately identifying unique delivery events.
+```{r}
+#single patid
+unique_deliveries_single <- single(delivery_obs) %>%
+  arrange(patid, obsdate) %>%
+  group_by(patid) %>%
+  mutate(
+    obsdate = as.Date(obsdate),
+    gap_from_prev = as.numeric(obsdate - lag(obsdate)),
+    # Create cluster IDs for episodes within 2 months (<= 60 days)
+    new_cluster = if_else(is.na(gap_from_prev) | gap_from_prev > 60, 1L, 0L),
+    cluster_id = cumsum(new_cluster)
+  ) %>%
+  ungroup() %>% 
+  # Collapse each cluster to the earliest observation date
+  group_by(patid, cluster_id) %>%
+  slice_min(order_by = obsdate, n = 1, with_ties = FALSE) %>% #pick earliest date within the flucser
+  ungroup() %>%
+  arrange(patid, obsdate) %>%
+  group_by(patid) %>%
+  mutate(
+    # Apply the 9-month rule between clustered delivery dates
+    gap_from_prev_delivery = as.numeric(obsdate - lag(obsdate)),
+    new_delivery = if_else(is.na(gap_from_prev_delivery) | gap_from_prev_delivery >= 273, 1L, 0L),
+    delivery_id = cumsum(new_delivery)
+  ) %>%
+  ungroup() %>% 
+  group_by(patid, delivery_id) %>% 
+  slice_min(order_by = obsdate, n = 1, with_ties = FALSE) %>% #then pick the earliest date within each delivery_id
+  ungroup()
+
+
+
+unique_deliveries_multiple <- multiple(delivery_obs) %>%
+  arrange(individual_id, obsdate) %>%
+  group_by(individual_id) %>%
+  mutate(
+    obsdate = as.Date(obsdate),
+    gap_from_prev = as.numeric(obsdate - lag(obsdate)),
+    # Create cluster IDs for episodes within 2 months (<= 60 days)
+    new_cluster = if_else(is.na(gap_from_prev) | gap_from_prev > 60, 1L, 0L),
+    cluster_id = cumsum(new_cluster)
+  ) %>%
+  ungroup() %>% 
+  # Collapse each cluster to the earliest observation date
+  group_by(individual_id, cluster_id) %>%
+  slice_min(order_by = obsdate, n = 1, with_ties = FALSE) %>%
+  ungroup() %>%
+  arrange(individual_id, obsdate) %>%
+  group_by(individual_id) %>%
+  mutate(
+    # Apply the 9-month rule between clustered delivery dates
+    gap_from_prev_delivery = as.numeric(obsdate - lag(obsdate)),
+    new_delivery = if_else(is.na(gap_from_prev_delivery) | gap_from_prev_delivery >= 273, 1L, 0L),
+    delivery_id = cumsum(new_delivery)
+  ) %>%
+  ungroup()%>% 
+  group_by(individual_id, delivery_id) %>% 
+  slice_min(order_by = obsdate, n = 1, with_ties = FALSE) %>% #then pick the earliest date within each delivery_id
+  ungroup() %>% 
+  select(-patid) %>% 
+  distinct() %>% 
+  fill_columns(obsdate, medcodeid, Term, ICD, delivery_id) ##expect many to many because any indvidiual could have more than one delivery
+
+#bind all the deliveries
+unique_deliveries <- bind_rows(unique_deliveries_multiple, unique_deliveries_single)
+
+```
+Now identify deliveries related to a GDM pregnancy.   First, note some codes in the pregnancy observation suggest PRE-EXISTING DM - any GDM during or after such a pregnancy must be ignored as this is likely DM
+```{r}
+
+all_pregnancy_obs <- all_pregnancy_obs %>% 
+  mutate(preexisting = if_else(grepl("pre-existing type", Term, ignore.case = TRUE)|grepl("pre-existing diab", Term, ignore.case = TRUE), 1, NA))
+
+#for single patid
+earliest_preexisting_single <- single(all_pregnancy_obs) %>% 
+  filter(!is.na(preexisting)) %>% 
+  group_by(patid) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(earliest_preexisting= obsdate)
+
+#for multiple patid
+earliest_preexisting_multiple <- multiple(all_pregnancy_obs_update) %>% 
+  select(-earliest_preexisting) %>% 
+  filter(!is.na(preexisting)) %>% 
+  group_by(individual_id) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  rename(earliest_preexisting= obsdate) %>%
+  select(-patid) %>% 
+  fill_columns() #propagate across all the patids for an individual
+
+#bind them together to facilitate left join
+earliest_preexisting <- bind_rows(earliest_preexisting_single, earliest_preexisting_multiple) %>% 
+  distinct(patid, earliest_preexisting)
+
+all_pregnancy_obs_update <- all_pregnancy_obs%>% 
+  left_join(earliest_preexisting %>% select(patid, earliest_preexisting), by = "patid") 
+
+```
+
+Now find valid gdm observations before any evidence of pre-existing DM and search for related delivery date.  Note that in the final step of assigning a patient to a particular group (GDM or non-GDM), only GDM deliveries predating the DM delivery date by at least a year will be counted as evidence of GDM so the process below is only one step in assuring that the GDM assignation is appropriate
+```{r}
+#check for valid GDM obs, ie before those suggesting chronic DM by at least a year
+valid_gdm_obs_single <- single(all_pregnancy_obs_update) %>% 
+  filter(obsdate < earliest_preexisting %m-% years(1)|is.na(earliest_preexisting)) %>% 
+  filter(medcodeid %in% gdm_code$medcodeid|ICD=="O24.4") %>% #filter by those on the gdm medcodeid list or with the relevant ICD 10 code
+  filter(!grepl("history", Term, ignore.case = TRUE)|is.na(Term)) %>% #remove the historic codes because we don't have a reliable observation date for them
+  filter(!grepl("h/o", Term, ignore.case = TRUE)) #remove the historic codes because we don't have a reliable observation date for them
+
+#now look for delivery dates related to those gdm episodes
+gdm_pregnancy_search_single <- single(unique_deliveries) %>% 
+  distinct(patid, obsdate, delivery_id) %>% 
+  rename(delivery_date = obsdate) %>% 
+  left_join(valid_gdm_obs_single %>% select(patid, obsdate), by = "patid") %>%   ##expect many-to-many warning
+  filter(obsdate<= delivery_date %m+% months(6) & obsdate >= delivery_date %m-% months(9)) %>%  #look for a gdm observation within a reasonable time span ie within 6 months post partum or within 9 months of delivery
+  distinct() %>% 
+  group_by(patid, delivery_id) %>% 
+  slice_min(obsdate) %>% 
+  ungroup()
+
+#now repeat the process for those with mutliple patids
+valid_gdm_obs_multiple <- multiple(all_pregnancy_obs_update) %>% 
+  filter(obsdate < earliest_preexisting %m-% years(1)|is.na(earliest_preexisting)) %>%
+  filter(medcodeid %in% gdm_code$medcodeid|ICD=="O24.4") %>% 
+  filter(!grepl("history", Term, ignore.case = TRUE)) %>% 
+  filter(!grepl("h/o", Term, ignore.case = TRUE))
+
+gdm_pregnancy_search_multiple <-multiple(unique_deliveries) %>% 
+  distinct(individual_id, obsdate, delivery_id) %>% 
+  rename(delivery_date = obsdate) %>% 
+    left_join(valid_gdm_obs_multiple %>% select(individual_id, obsdate), by = "individual_id") %>%   ##expect many-to-many
+  filter(obsdate<= delivery_date %m+% months(9) & obsdate >= delivery_date %m-% months(9)) %>% 
+  distinct() %>% 
+  group_by(individual_id, delivery_id) %>% 
+  slice_min(obsdate) %>% 
+  ungroup()
+```
+Now we have to go hunt for GDM codings outside of pregnancy episodes defined by the delivery dates created above.  For the next few code chunks we are just going to look at those with single patids.
+
+```{r}
+#rename obsdate to avoid confusion
+unique_deliveries_single <- single(unique_deliveries) %>% 
+  rename(delivery_date = obsdate)
+
+#define start and end of pregnancy
+unique_deliveries_single <- unique_deliveries_single %>%
+        mutate(
+          start = delivery_date %m-% months(9),  # 9 months before delivery
+          end   = delivery_date %m+% months(3)   # 3 months after delivery
+        )
+
+  #find all obs during pregnancy
+  in_pregnancy_single <- all_pregnancy_obs_update %>%
+    inner_join(unique_deliveries_single %>% select(patid, start, end),#expect many to many
+               by = "patid") %>%
+    filter(obsdate >= start & obsdate <= end)
+  
+ #label the GDM obs in all_pregnancy_obs_update based on their presence on the gdm cprd code list or the relevant ICD 10 code
+  all_pregnancy_obs_update <- all_pregnancy_obs_update %>% 
+    mutate(gdm = if_else(medcodeid %in% gdm_code$medcodeid| ICD == "O24.4", 1, NA))
+  
+   #find gdm codings outside of pregnancy
+ gdm_obs_outside_del_single <- single(all_pregnancy_obs_update) %>%
+    anti_join(in_pregnancy_single %>% select(patid, obsdate, start, end), by = c("patid", "obsdate")) %>% #add start and end dates of already identified pregnancies
+    group_by(patid) %>%
+    filter(any(gdm == 1)) %>% #keep any patids that have a gdm coding
+    ungroup() %>% 
+        filter(obsdate < earliest_preexisting %m-% years(1)|is.na(earliest_preexisting)) %>% #remove pre-existing diabetes episodes
+    filter(!grepl("history", Term, ignore.case = TRUE)) %>% #remove historical gdm codings
+    filter(!grepl("h/o", Term, ignore.case = TRUE))
+  
+```
+So now we have GDM codings outside of pregnancy.  Examining these it is clear that there are some gdm episodes that do actually have a delivery date but, for example, it was misdated as 01-01 or there is a historical delivery observation during the pregnancy that is conflicting.
+Having removed the delivery date obtained above, if we cycle through to find more delivery dates that should remove some ambiguity, so we effectively need to repeat the search for delivery dates with the data outside the dates that were already found
+
+```{r}
+#now find new delivery dates for those with gdm episodes outside those previously found
+ unique_deliveries_gdm_single <- gdm_obs_outside_del_single %>%
+   filter(!is.na(delivery)) %>% 
+   arrange(patid, obsdate) %>%
+   group_by(patid) %>%
+   mutate(
+     obsdate = as.Date(obsdate),
+     gap_from_prev = as.numeric(obsdate - lag(obsdate)),
+     # Create cluster IDs for episodes within 2 months (<= 60 days)
+     new_cluster = if_else(is.na(gap_from_prev) | gap_from_prev > 60, 1L, 0L),
+     cluster_id = cumsum(new_cluster)
+   ) %>%
+   ungroup() %>% 
+   # Collapse each cluster to the earliest observation date
+   group_by(patid, cluster_id) %>%
+   slice_min(order_by = obsdate, n = 1, with_ties = FALSE) %>%
+   ungroup() %>%
+   arrange(patid, obsdate) %>%
+   group_by(patid) %>%
+   mutate(
+     # Apply the 9-month rule between clustered delivery dates
+     gap_from_prev_delivery = as.numeric(obsdate - lag(obsdate)),
+     new_delivery = if_else(is.na(gap_from_prev_delivery) | gap_from_prev_delivery >= 273, 1L, 0L),
+     delivery_id = cumsum(new_delivery)
+   ) %>%
+   ungroup() %>% 
+   group_by(patid, delivery_id) %>% 
+   slice_min(order_by = obsdate, n = 1, with_ties = FALSE) %>% #then pick the earliest date within each delivery_id
+   ungroup()
+
+
+#define pregnancies by start and end date
+ unique_deliveries_gdm_single <- unique_deliveries_gdm_single %>%
+   rename(delivery_date = obsdate) %>% 
+   mutate(
+     start = delivery_date %m-% months(9),  # 9 months before delivery
+     end   = delivery_date %m+% months(3)   # 3 months after delivery #give a bit of leeway for late coding)
+   )
+```
+Now label the gdm pregnancies found in this round
+```{r}
+
+ #find further pregnancies associated with a delivery as defined by the second round
+ in_pregnancy_gdm_single <- gdm_obs_outside_del_single %>%
+   inner_join(unique_deliveries_gdm_single %>% select(patid, start, end),#expect many to many
+              by = "patid") %>%
+   filter(obsdate >= start & obsdate <= end) %>% 
+      rename(delivery_date = obsdate) %>% 
+   distinct(patid, delivery_date, start)
+```
+And now find all the gdm observations where we really don't have a delivery date, and bind all the relevant dfs to find all the gdm episodes
+```{r}
+ #now find all gdm data outside those deliveries
+ gdm_obs_outside_del_single_round2 <- gdm_obs_outside_del_single %>%
+   rename(delivery_date = obsdate) %>% 
+   anti_join(in_pregnancy_gdm_single %>% select(patid, delivery_date, start), by = c("patid", "delivery_date")) %>% 
+   filter(!is.na(gdm)) %>% 
+   group_by(patid) %>% 
+   slice_min(delivery_date) %>% 
+   slice(1) %>% 
+   ungroup() %>% 
+   distinct(patid, delivery_date)
+ 
+
+#bind together
+ total_gdm_single_deliveries <- bind_rows(gdm_obs_outside_del_single_round2, gdm_pregnancy_search_single, in_pregnancy_gdm_single)
+ 
+```
+Now lastly because, in the second round we ensure that we were looking for episodes that had been missed because of a likely erroneous 1st jan delivery date picked up in the first round, we need to prioritise the TRUE delivery date
+```{r}
+ total_gdm_single_deliveries_slimmed <- total_gdm_single_deliveries %>%
+     # ---- Rule: identify 01-01 placeholders ----
+ mutate(
+   year   = year(delivery_date),
+   is_jan1 = month(delivery_date) == 1 & day(delivery_date) == 1
+ ) %>%
+   group_by(patid, year) %>%
+   filter(!(is_jan1 & n() > 1)) %>%   # drop Jan 1 when another date exists
+   ungroup() %>%
+      # ---- Rule: create 9-month clusters ----
+ arrange(patid, delivery_date) %>%
+   group_by(patid) %>%
+   mutate(
+     cluster = cumsum(c(0, diff(delivery_date) > months(9)))
+   ) %>%
+      # ---- Rule: pick 1 date in each cluster ----
+ group_by(patid, cluster) %>%
+   mutate(
+     has_id       = any(!is.na(delivery_id)),
+     cluster_size = n(),
+     keep = case_when(
+       # If any delivery_id exists → keep ONLY the row with ID because that was created above
+       has_id ~ !is.na(delivery_id),
+              # No ID and multiple dates → keep the latest
+       !has_id & cluster_size > 1 ~ delivery_date == max(delivery_date),
+              # No ID and single date → keep it
+       !has_id & cluster_size == 1 ~ TRUE
+     )
+   ) %>%
+   filter(keep) %>%
+   ungroup() %>% 
+   mutate(gdm_del_date = delivery_date) %>% 
+   distinct(patid, delivery_date, delivery_id, gdm_del_date) 
+ 
+```
+
+Some other potentially relevant delivery data
+
+```{r}
+
+ ###all deliveries of women loged with gdm OTHER than the deliveries following a pregnancy complicated by GDM
+  other_deliveries <- unique_deliveries_single %>% 
+   filter(patid %in% total_gdm_single_deliveries_slimmed$patid) %>% 
+   anti_join(total_gdm_single_deliveries_slimmed, by = c("patid", "delivery_date")) %>% #remove the gdm delivery dates
+   distinct(patid, delivery_date, delivery_id)
+ 
+  #all the deliveries for gdm patients, included those the pregnancies that were not coded with GDM
+ all_gdm_patients_deliveries_single <- bind_rows(other_deliveries, total_gdm_single_deliveries_slimmed)
+ saveRDS(all_gdm_patients_deliveries_single, "all_gdm_patients_deliveries_single.rds")
+ 
+ #for all unique deliveries for single patid (whether or not they had GDM), which were NOT coded with GDM
+ all_deliveries_minus_gdm_episodes <- unique_deliveries_single %>% 
+   anti_join(total_gdm_single_deliveries_slimmed, by = c("patid", "delivery_date")) %>% 
+   distinct(patid, delivery_date, delivery_id)
+ 
+ #for all unique deliveries for single patids, get ALL their deliveries plus GDM episodes suggestive of pregnancies (albeit without a delivery date)
+ all_deliveries_single <-bind_rows(all_deliveries_minus_gdm_episodes, total_gdm_single_deliveries_slimmed) %>% 
+   left_join(first_obs_gly_drug_HES %>% select(patid, yob), by = "patid") %>% 
+   filter(year(delivery_date)>yob & (year(gdm_del_date)>yob)|is.na(gdm_del_date))
+ 
+```
+
+Now do the same process as above with those with multiple patids
+```{r}
+ unique_deliveries_multiple <- multiple(unique_deliveries) %>% 
+   rename(delivery_date = obsdate)
+ 
+ unique_deliveries_multiple <- unique_deliveries_multiple %>%
+   mutate(
+     start = delivery_date %m-% months(9),  # 9 months before delivery
+     end   = delivery_date %m+% months(3)   # 3 months after delivery
+   )
+ 
+ in_pregnancy_multiple <- all_pregnancy_obs_update %>%
+   inner_join(unique_deliveries_multiple %>% select(individual_id, start, end),
+              by = "individual_id") %>% ##expect many to many
+   filter(obsdate >= start & obsdate <= end)
+ 
+ gdm_obs_outside_del_multiple <-multiple(all_pregnancy_obs_update) %>%
+   anti_join(in_pregnancy_multiple %>% select(individual_id, obsdate, start, end), by = c("individual_id", "obsdate")) %>% #expect many to many
+   filter(any(gdm == 1)) %>%
+   filter(obsdate < earliest_preexisting %m-% years(1)|is.na(earliest_preexisting)) %>% 
+   filter(!grepl("history", Term, ignore.case = TRUE)) %>% 
+   filter(!grepl("h/o", Term, ignore.case = TRUE)) %>% 
+   distinct()
+ 
+ #exmining these it is clear that there are some gdm episodes that do actually ahve a delivery date but, for example, it was misdate as 01-01 or there is a historical delivery observation during the pregnancy that is conflicting
+ # Having removed the delivery date obtained above, if we cycle through to find more delivery dates that should remove some ambiguity
+ 
+ unique_deliveries_gdm_multiple <- gdm_obs_outside_del_multiple %>%
+   filter(!is.na(delivery)) %>% 
+   arrange(individual_id, obsdate) %>%
+   group_by(individual_id) %>%
+   mutate(
+     obsdate = as.Date(obsdate),
+     gap_from_prev = as.numeric(obsdate - lag(obsdate)),
+     # Create cluster IDs for episodes within 2 months (<= 60 days)
+     new_cluster = if_else(is.na(gap_from_prev) | gap_from_prev > 60, 1L, 0L),
+     cluster_id = cumsum(new_cluster)
+   ) %>%
+   ungroup() %>% 
+   # Collapse each cluster to the earliest observation date
+   group_by(individual_id, cluster_id) %>%
+   slice_min(order_by = obsdate, n = 1, with_ties = FALSE) %>%
+   ungroup() %>%
+   arrange(individual_id, obsdate) %>%
+   group_by(individual_id) %>%
+   mutate(
+     # Apply the 9-month rule between clustered delivery dates
+     gap_from_prev_delivery = as.numeric(obsdate - lag(obsdate)),
+     new_delivery = if_else(is.na(gap_from_prev_delivery) | gap_from_prev_delivery >= 273, 1L, 0L),
+     delivery_id = cumsum(new_delivery)
+   ) %>%
+   ungroup() %>% 
+   group_by(individual_id, delivery_id) %>% 
+   slice_min(order_by = obsdate, n = 1, with_ties = FALSE) %>% #then pick the earliest date within each delivery_id
+   ungroup()
+ 
+ unique_deliveries_gdm_multiple <- unique_deliveries_gdm_multiple %>%
+   rename(delivery_date = obsdate) %>% 
+   mutate(
+     start = delivery_date %m-% months(9),  # 9 months before delivery
+     end   = delivery_date %m+% months(3)   # 3 months after delivery
+   )
+ 
+ #find further pregnancies associated with a delivery as defined by the second round
+ in_pregnancy_gdm_multiple <- gdm_obs_outside_del_multiple %>%
+   inner_join(unique_deliveries_gdm_multiple %>% select(individual_id, start, end),#expect many to many
+              by = "individual_id") %>%
+   filter(obsdate >= start & obsdate <= end) %>% 
+   distinct(individual_id, obsdate, start, end)
+ 
+ #now find all gdm data outside those deliveries
+ gdm_obs_outside_del_multiple_round2 <- gdm_obs_outside_del_multiple %>%
+   anti_join(in_pregnancy_gdm_multiple %>% select(individual_id, obsdate, start, end), by = c("individual_id", "obsdate")) %>% 
+   filter(!is.na(gdm)) %>% 
+   group_by(individual_id) %>% 
+   slice_min(obsdate) %>% 
+   slice(1) %>% 
+   ungroup() %>% 
+   rename(delivery_date = obsdate) %>% 
+   distinct(individual_id, delivery_date)
+ 
+ in_pregnancy_gdm_multiple <- in_pregnancy_gdm_multiple %>% 
+   rename(delivery_date=obsdate) %>% 
+   distinct(individual_id, delivery_date)
+ 
+ total_gdm_multiple_deliveries <- bind_rows(gdm_obs_outside_del_multiple_round2,  gdm_pregnancy_search_multiple, in_pregnancy_gdm_multiple)
+ 
+ total_gdm_multiple_deliveries_slimmed <- total_gdm_multiple_deliveries %>%
+   # ---- Rule: identify 01-01 placeholders ----
+ mutate(
+   year   = year(delivery_date),
+   is_jan1 = month(delivery_date) == 1 & day(delivery_date) == 1
+ ) %>%
+   group_by(individual_id, year) %>%
+   filter(!(is_jan1 & n() > 1)) %>%   # drop Jan 1 when another date exists
+   ungroup() %>%
+   # ---- Rule: create 9-month clusters ----
+ arrange(individual_id, delivery_date) %>%
+   group_by(individual_id) %>%
+   mutate(
+     cluster = cumsum(c(0, diff(delivery_date) > months(9)))
+   ) %>%
+   # ---- Rule: pick 1 date in each cluster ----
+ group_by(individual_id, cluster) %>%
+   mutate(
+     has_id       = any(!is.na(delivery_id)),
+     cluster_size = n(),
+     keep = case_when(
+       # If any delivery_id exists → keep ONLY the row with ID
+       has_id ~ !is.na(delivery_id),
+       # No ID and multiple dates → keep the latest
+       !has_id & cluster_size > 1 ~ delivery_date == max(delivery_date),
+       # No ID and single date → keep it
+       !has_id & cluster_size == 1 ~ TRUE
+     )
+   ) %>%
+   filter(keep) %>%
+   ungroup() %>%
+      mutate(gdm_del_date = delivery_date) %>% 
+   distinct(individual_id, delivery_date, delivery_id, gdm_del_date)
+  
+ 
+ ##same for multiple
+ other_deliveries_multiple <- unique_deliveries_multiple %>% 
+   filter(individual_id %in% total_gdm_single_deliveries_slimmed$patid) %>% 
+   anti_join(total_gdm_single_deliveries_slimmed, by = c("patid", "delivery_date")) %>% 
+   distinct(patid, delivery_date, delivery_id)
+ 
+ all_gdm_patients_deliveries_multiple <- bind_rows(other_deliveries, total_gdm_multiple_deliveries_slimmed)
+ saveRDS(all_gdm_patients_deliveries_multiple, "all_gdm_patients_deliveries_multiple.rds")
+ 
+ all_deliveries_minus_gdm_episodes_multiple <- unique_deliveries_multiple %>% 
+   anti_join(total_gdm_multiple_deliveries_slimmed, by = c("individual_id", "delivery_date")) %>% 
+   distinct(individual_id, delivery_date, delivery_id)
+ 
+ all_deliveries_multiple <-bind_rows(all_deliveries_minus_gdm_episodes_multiple, total_gdm_multiple_deliveries_slimmed)
+ 
+```
+
