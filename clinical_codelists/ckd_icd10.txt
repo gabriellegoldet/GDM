@@ -1,0 +1,105 @@
+search terms as for code browser
+
+ICD10 CKD
+N28.9 Disorder of kidney and ureter, unspecified
+Nephropathy NOS
+Renal disease NOS
+Excl.:
+nephropathy NOS and renal disease NOS with morphological lesion specified in .0-.8 before N00.- (N05.-)
+
+I13 Hypertensive heart and renal disease
+Incl.:
+any condition in I11.- with any condition in I12.-
+disease:
+cardiorenal
+cardiovascular renal
+I13.0 Hypertensive heart and renal disease with (congestive) heart failure
+I13.1 Hypertensive heart and renal disease with renal failure
+I13.2 Hypertensive heart and renal disease with both (congestive) heart failure and renal failure
+I13.9 Hypertensive heart and renal disease, unspecified
+
+I12 Hypertensive renal disease
+Incl.:
+any condition in N00-N07, N18.-, N19 or N26 due to hypertension
+arteriosclerosis of kidney
+arteriosclerotic nephritis (chronic)(interstitial)
+hypertensive nephropathy
+nephrosclerosis
+Excl.:
+secondary hypertension (I15.-)
+I12.0 Hypertensive renal disease with renal failure
+I12.9 Hypertensive renal disease without renal failure
+
+N18 Chronic kidney disease
+Use additional code, if desired, to identify underlying disease.
+Use additional code, if desired, to identify presence of hypertension.
+N18.1 Chronic kidney disease, stage 1
+Kidney damage with normal or increased GFR (> 90 mL/min)
+N18.2 Chronic kidney disease, stage 2
+Kidney damage with mild decreased GFR (60-89 mL/min)
+N18.3 Chronic kidney disease, stage 3
+Kidney damage with moderately decreased GFR (30-59 mL/min)
+N18.4 Chronic kidney disease, stage 4
+Kidney damage with severely decreased GFR (15-29 mL/min)
+N18.5 Chronic kidney disease, stage 5
+Chronic uraemia
+End stage kidney disease:
+in allograft failure
+NOS
+on dialysis
+without dialysis or transplant
+Renal retinitis (H32.8*)
+Uraemic:
+apoplexia+ (I68.8*)
+dementia+ (F02.8*)
+neuropathy+ (G63.8*)
+paralysis+ (G99.8*)
+pericarditis+ (I32.8*)
+N18.9 Chronic kidney disease, unspecified
+
+D63.8* Anaemia in other chronic diseases classified elsewhere
+Anaemia in chronic kidney disease ≥ stage 3 (N18.3 – N18.5+)
+
+E14.2 Unspecified diabetes mellitus with renal complications  
+
+N08.3 Glomerular disorders in diabetes mellitus  
+
+N04.8 Nephrotic syndrome : other  
+ 
+N04.9 Nephrotic syndrome : unspecified  
+
+R80 Isolated proteinuria  
+
+N39.1 Persistent proteinuria, unspecified
+
+Y84.1 Kidney dialysis
+
+Z49 Care involving dialysis
+Incl.:
+dialysis preparation and treatment
+Excl.:
+renal dialysis status (Z99.2)
+Z49.0 Preparatory care for dialysis
+Z49.1 Extracorporeal dialysis
+Z49.2Other dialysis, Peritoneal dialysis
+
+Z99.2 renal dialysis status
+
+E 85.3 Secondary systemic amyloidosis: Haemodialysis-associated amyloidosis
+
+Y62.2 failure of sterile technique during kidney dialysis or other perfusion
+
+Y61.2 Foreign object during kidney dialysis or other perfusion
+
+T82.4 Mechanical complication of vascular dialysis catheter
+Conditions listed in T82.0 due to vascular dialysis catheter
+Excl.:
+mechanical complication of intraperitoneal dialysis catheter (T85.6)
+
+Y60.2 Unintentional puncture During kidney dialysis or other perfusion
+
+Z94.0 Kidney transplant status
+
+T86.1 Kidney transplant failure and rejection
+
+N16.5* Renal tubulo-interstitial disorders in transplant rejection (T86.-+)

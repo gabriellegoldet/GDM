@@ -1,0 +1,33 @@
+ICD	term
+N28.9	Disorder of kidney and ureter, unspecified
+I13.0	Hypertensive heart and renal disease with (congestive) heart failure
+I13.1	Hypertensive heart and renal disease with renal failure
+I13.2	Hypertensive heart and renal disease with both (congestive) heart failure and renal failure
+I13.9	Hypertensive heart and renal disease, unspecified
+I12.0	Hypertensive renal disease with renal failure
+I12.9	Hypertensive renal disease without renal failure
+N18.1	Chronic kidney disease, stage 1
+N18.2	Chronic kidney disease, stage 2
+N18.3	Chronic kidney disease, stage 3
+N18.4	Chronic kidney disease, stage 4
+N18.5	Chronic kidney disease, stage 5
+N18.9	Chronic kidney disease, unspecified
+D63.8	Anaemia in other chronic diseases classified elsewhere Anaemia in chronic kidney disease ≥ stage 3 (N18.3 – N18.5+)
+E14.2	Unspecified diabetes mellitus with renal complications  
+N08.3	Glomerular disorders in diabetes mellitus  
+N04.8	Nephrotic syndrome : other  
+N04.9	Nephrotic syndrome : unspecified 
+N39.1	Persistent proteinuria, unspecified
+Y84.1	Kidney dialysis
+Z49.0	Preparatory care for dialysis
+Z49.1	Extracorporeal dialysis
+Z49.2	Other dialysis, Peritoneal dialysis
+Z99.2	renal dialysis status
+E85.3	Secondary systemic amyloidosis: Haemodialysis-associated amyloidosis
+Y62.2	failure of sterile technique during kidney dialysis or other perfusion
+Y61.2	Foreign object during kidney dialysis or other perfusion
+T82.4	Mechanical complication of vascular dialysis catheter
+Y60.2	Unintentional puncture During kidney dialysis or other perfusion
+Z94.0	Kidney transplant status
+T86.1	Kidney transplant failure and rejection
+N16.5	Renal tubulo-interstitial disorders in transplant rejection (T86.-+)

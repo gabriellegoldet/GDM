@@ -1,0 +1,11 @@
+ICD	Term
+E78.0	Pure hypercholesterolaemia
+E78.1	Pure hyperglyceridaemia
+E78.2	Mixed hyperlipidaemia
+E78.3	Hyperchylomicronaemia
+E78.4	Other hyperlipidaemia
+E78.5	Hyperlipidaemia, unspecified
+E78.6	Lipoprotein deficiency
+E78.8	Other disorders of lipoprotein metabolism
+E78.9	Disorder of lipoprotein metabolism, unspecified
+

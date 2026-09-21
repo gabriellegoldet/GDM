@@ -1,0 +1,11 @@
+medcodeid	Term	
+303457015	Non-alcoholic fatty liver
+851341000006110	Fatty liver
+1786211000006116	Fatty liver
+4787291000006118	NAFLD - Nonalcoholic fatty liver disease
+1879891000006111	Non-alcoholic fatty liver disease (NAFLD) fibrosis score
+7837271000006119	Non-alcoholic fatty liver disease without non-alcoholic steatohepatitis
+8454891000006113	NAFLD (Non-Alcoholic Fatty Liver Disease) fibrosis score
+8454911000006110	NAFLD (Non-Alcoholic Fatty Liver Disease) fibrosis score
+2969211000006118	Steatosis
+303463012	Steatosis of liver
