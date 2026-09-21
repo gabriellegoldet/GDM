@@ -11,3 +11,13 @@ Dataframe then prepared to be used in 2_patient_linking.rmd in which we identify
 5_adjusting_dates starts to clean the data frame of spurious dates and removes data that is likely not related to chronic diabetes but could relate to gestational DM, non-diabetic hyperglycaemia or polycystic ovarian syndrome
 
 6_final_cohort_formation collapses the subjects with multiple patids down to a single row with all the relevant info, identifies subjects to be entered in the GDM cohort and then subsequently forms the final cohort.
+
+7_demographics extracts processes all the demographic data on the patients in the cohort formed in 6.
+
+8_clinical_characteristics extracts and processes all comorbidities as well as showing the diabetes type was determined.
+
+9_km shows how the Kaplan-Meier analysis was undertaken on Cohorts 1-3, as well as the ethnicity-stratified analysis
+
+10_multivariable_regression shows how the log regression, Restricted Mean Survival Analysis and Accelerated Failure Time models were constructed.
+
+11_matching shows how the different matching strategies were undertaken and resultant Kaplan-Meier analysis.
