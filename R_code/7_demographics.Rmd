@@ -1,0 +1,938 @@
+---
+title: "demographics"
+author: "Gabrielle Goldet"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#some basic libraries
+```{r}
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(tidyr)
+library(stringr)
+options(scipen = 999)
+```
+
+#some basic functions
+```{r}
+#filtering according to whether an individual has or doesn't have more than 1 patid
+single <- function(df){df %>% filter(is.na(individual_id))}
+multiple <- function(df){df %>% filter(!is.na(individual_id))}
+
+#propagating relevant data across all the patids of a given individual
+fill_columns <- function(df, ...) {
+  df %>% 
+    left_join(all_pats, by = "individual_id") %>%
+    group_by(individual_id) %>%
+    fill(..., .direction = "downup") %>%
+    ungroup()
+}
+
+#finding the earliest date across events for all an individual's patids, taking into account some or none of them may have had it (avoids error messages because of NAs)
+safe_min <- function(x) if (all(is.na(x))) NA_Date_ else min(x, na.rm=TRUE)
+
+#filter down to earliest obsdate per patid or individual_id
+obsdate_single_fun <- function(df){df %>% group_by(patid) %>% slice_min(obsdate) %>% slice(1) %>% ungroup()}
+obsdate_multiple_fun <- function(df){df %>% group_by(individual_id) %>% slice_min(obsdate) %>% slice(1) %>% ungroup()}
+```
+
+
+
+## R Creating age at diagnosis 
+gdm_full contains data on the GDM group. Age at diagnosis was calculated by deducting the year of birth from the year at diagnosis and is stored in the age_at_diagnosis column.
+non_gdm_full contains datain on non-GDM group 1 (i.e. the total non-GDM group)
+filtered is the dataframe produced by 6_final_cohort_formation.rmd containing the data on the final total cohort, with GDM status and date of diabetes diagnosis
+```{r}
+IQR(gdm_full$age_at_diagnosis)
+
+hist(gdm_full$age_at_diagnosis)
+median(gdm_full$age_at_diagnosis)
+non_gdm_full <- filtered %>% 
+  filter(is.na(gdm_status))
+
+IQR(non_gdm_full$age_at_diagnosis)
+hist(non_gdm_full$age_at_diagnosis)
+median(non_gdm_full$age_at_diagnosis) 
+
+#prepare df 'age' for hypothesis testing
+age <-gdm_full %>% 
+  select(age_at_diagnosis) %>% 
+  mutate(group = 1) %>% #label the GDM group
+  bind_rows(., non_gdm_full %>% select(age_at_diagnosis)) %>% 
+  mutate(group = if_else(is.na(group), 2, group),#label the non-GDM group
+         group = as.factor(group))
+#hypothesis test
+wilcox.test(age_at_diagnosis~group, data= age)
+
+#barplot for interest
+ggplot(age, aes(x = age_at_diagnosis, fill = group)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 position = "identity",
+                 alpha = 0.4,
+                 binwidth = 2) +
+  theme_classic() +
+  labs(x = "Age",
+       y = "Density",
+       fill = "Group")
+```
+the above can be repeat by comparing with other non-GDM groups (e.g. the age-matched group 2 or the age- and pregnancy matched group 3).
+
+
+## ethnicity
+First the ethnicity coding in secondary care was used where available.  This is stored in hes_patient as gen_ethnicity.
+all_pats is a df containing the patids of those individuals with multiple patids along with their unique individual_id
+
+```{r}
+#add on the individual_id
+hes_patient<- hes_patient %>% 
+  left_join(all_pats, by = "patid")
+
+# need to treat patients with single and multiple IDs differencly
+gdm_single_full <- gdm_full %>% 
+  filter(!is.na(patid)) %>%  
+  left_join(hes_patient %>% select(patid, gen_ethnicity), by = "patid") %>% 
+  filter(!is.na(gen_ethnicity)) %>% 
+  distinct(patid, gen_ethnicity)
+
+gdm_multiple_full <- multiple(gdm_full) %>% 
+  distinct(individual_id) %>% 
+  left_join(hes_patient %>% select(individual_id, gen_ethnicity), by = "individual_id") %>% 
+  filter(!is.na(gen_ethnicity)) %>% 
+  distinct(individual_id, gen_ethnicity)
+
+#check to see if there are any individuals who have multiple ethnicities recorded in HES
+test <- gdm_multiple_full %>% 
+  group_by(individual_id) %>% 
+  filter(n_distinct(gen_ethnicity)>1)
+#in our case no discordant ethnicities
+
+#bind all the gdm patients together
+gdm_ethnicity <- bind_rows(gdm_single_full, gdm_multiple_full)
+
+#determine the gdm patients with sincle patids lacking an ethnicity
+ethnicity_to_find_gdm_single <- single(gdm_full) %>%
+  filter(!patid %in% gdm_single_full$patid)
+
+#determine the gdm patients with multiple patids lacking an ethnicity
+ethnicity_to_find_gdm_multiple <- multiple(gdm_full) %>%
+  filter(!individual_id %in% gdm_multiple_full$individual_id) %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+#repeat the process above for the non-gdm group
+non_gdm_single_full <- single(non_gdm_full) %>% 
+  left_join(hes_patient %>% select(patid, gen_ethnicity), by = "patid") %>% 
+  filter(!is.na(gen_ethnicity)) %>% 
+  distinct(patid, gen_ethnicity)
+
+non_gdm_multiple_full <- multiple(non_gdm_full) %>% 
+  distinct(individual_id) %>% 
+  left_join(hes_patient %>% select(individual_id, gen_ethnicity), by = "individual_id") %>% 
+    filter(!is.na(gen_ethnicity)) %>% 
+  distinct(individual_id, gen_ethnicity)
+
+test <- non_gdm_multiple_full %>% 
+  group_by(individual_id) %>% 
+  filter(!is.na(gen_ethnicity)) %>% 
+  filter(n_distinct(gen_ethnicity)>1)
+#no idscordant ethnicities
+
+non_gdm_ethnicity <- bind_rows(non_gdm_single_full %>% select(patid, gen_ethnicity), non_gdm_multiple_full %>%  select(individual_id, gen_ethnicity))
+
+#the below creates a df with the counts and percentages of each ethnicity
+percentages_non_gdm_full <- as.data.frame(table(non_gdm_ethnicity$gen_ethnicity)) %>% 
+  mutate(percentage = Freq*100/sum(Freq))
+
+#identify those without an ethnicity in HES
+ethnicity_to_find_single <- single(non_gdm_full) %>%
+  filter(!patid %in% non_gdm_single_full$patid)
+
+ethnicity_to_find_multiple <- multiple(non_gdm_full) %>% 
+  filter(!individual_id %in% non_gdm_multiple_full$individual_id) %>% 
+  select(-patid) %>% 
+  fill_columns() %>% #this brings in the original patids (necessary for the enxt step)
+  distinct(patid, individual_id)
+
+#build total df of subjects whose ethnicity is missing
+ethnicity_to_find <- bind_rows(ethnicity_to_find_multiple, ethnicity_to_find_single, ethnicity_to_find_gdm_multiple, ethnicity_to_find_gdm_single) %>% 
+  distinct(patid, individual_id)
+```
+Now go find missing ethnicities in cprd
+```{r}
+
+setwd("..") #set your working directory
+ethnicity_code <- read.table("ethnicity_code.txt", header = TRUE, sep = "\t") #this is the code list available in same github repository
+ethnicity_code$medcodeid <- as.character(ethnicity_code$medcodeid)
+
+#function to extract all ethnicity related data (per code present on the ethnicity code list) on the subjects of interes
+ethnicity_fun <- function(df){df %>% 
+    inner_join(ethnicity_to_find, by = "patid") %>%  #just select the patients we are interested in
+    left_join(ethnicity_code, by = "medcodeid") %>% #join ethnicity code
+    filter(!is.na(term))} #only keep data related to ethnicity noting that the term column contains the name of the ethnicity
+
+ethnicity_obs <- bind_rows(lapply(character_list, ethnicity_fun))
+
+
+```
+
+The cprd data is more complicated and any given patient may have more than one ethnic category (note all the ethnicities have been split into the 5 census categories).  The most commonly occurring ethnicity is selected in the process below
+
+```{r}
+#for those with single patids
+ethnicity_single <- single(ethnicity_obs) %>% 
+  distinct(patid, term, eth5) %>% 
+    filter(eth5!=5) %>% 
+  group_by(patid, eth5) %>%
+  summarise(n = n(), .groups = "drop_last") %>%   # count occurrences
+  slice_max(order_by = n, n = 1, with_ties = FALSE) %>%  # pick most frequent code per person
+  ungroup() %>%
+  select(patid, eth5)
+
+#for those with multiple patids
+ethnicity_multiple <- multiple(ethnicity_obs) %>% 
+  distinct(individual_id,eth5) %>% 
+  filter(eth5!=5) %>% 
+  group_by(individual_id, eth5) %>%
+  summarise(n = n(), .groups = "drop_last") %>%   # count occurrences
+  slice_max(order_by = n, n = 1, with_ties = FALSE) %>%  # pick most frequent code per person
+  ungroup() %>%
+  select(individual_id, eth5)
+
+##split into GDM/non-GDM groups
+ethnicity_single_gdm <- ethnicity_single %>% 
+  inner_join(filtered_single %>% select(patid, gdm_status), by = "patid") %>% 
+  filter(gdm_status=="GDM")
+
+ethnicity_single_non_gdm <- ethnicity_single %>% 
+  inner_join(filtered_single %>% select(patid, gdm_status), by = "patid") %>%
+  filter(is.na(gdm_status))
+
+ethnicity_multiple_gdm <- ethnicity_multiple %>% 
+  inner_join(filtered_multiple %>% select(individual_id, gdm_status), by = "individual_id") %>% 
+  filter(gdm_status=="GDM")
+
+ethnicity_multiple_non_gdm <- ethnicity_multiple %>% 
+  inner_join(filtered %>% select(individual_id, gdm_status), by = "individual_id") %>% 
+  filter(is.na(gdm_status))
+```
+
+now make totalethnicities for each group, and complete the eth5 variable from the CPRD data with the gen_ethnicty from the HES data
+```{r}
+gdm_ethnicity_full <- bind_rows(ethnicity_single_gdm, gdm_single_full, ethnicity_multiple_gdm, gdm_multiple_full) %>% 
+  select(-gdm_status) %>% 
+  mutate(eth5 = case_when(gen_ethnicity=="White"~0, #the gen_ethnicity comes from the HES data and needs to be added into the eth5 category
+                       gen_ethnicity=="Chinese"|gen_ethnicity=="Indian"|gen_ethnicity=="Oth_Asian"|gen_ethnicity=="Pakistani"|gen_ethnicity=="Bangladesi"~1,
+                        gen_ethnicity=="Bl_Carib"|gen_ethnicity=="Bl_Afric"|gen_ethnicity=="Bl_Other"~2,
+                          gen_ethnicity=="Other"~3,
+                          gen_ethnicity=="Mixed"~4,
+                          TRUE~eth5 )) %>% 
+  select(patid, individual_id, gen_ethnicity, eth5)
+
+gdm_ethnicity_full <-gdm_ethnicity_full %>% 
+   select(patid, individual_id, gen_ethnicity, eth5)%>% 
+  mutate(group = "GDM")
+
+table(gdm_ethnicity_full$eth5)
+
+prop.table(table(gdm_ethnicity_full$eth5))
+table(gdm_ethnicity_full$eth5, useNA = "ifany")
+
+#do the same for the non-gdm group
+non_gdm_ethnicity_full <- bind_rows(ethnicity_single_non_gdm, non_gdm_single_full, ethnicity_multiple_non_gdm, non_gdm_multiple_full) %>% 
+  select(-gdm_status) %>% 
+    mutate(eth5 = case_when(gen_ethnicity=="White"~0,
+                       gen_ethnicity=="Chinese"|gen_ethnicity=="Indian"|gen_ethnicity=="Oth_Asian"|gen_ethnicity=="Pakistani"|gen_ethnicity=="Bangladesi"~1,
+                          gen_ethnicity=="Bl_Carib"|gen_ethnicity=="Bl_Afric"|gen_ethnicity=="Bl_Other"~2,
+                          gen_ethnicity=="Other"~3,
+                          gen_ethnicity=="Mixed"~4,
+                          TRUE~eth5)
+         )
+
+
+non_gdm_ethnicity_full <- bind_rows(non_gdm_ethnicity_full) %>% 
+   select(patid, individual_id, gen_ethnicity, eth5) %>% 
+  mutate(group = "NGDM")
+
+
+prop.table(table(non_gdm_ethnicity_full$eth5))
+table(non_gdm_ethnicity_full$eth5, useNA = "ifany")
+
+prop.table(table(gdm_ethnicity_full$eth5))
+table(gdm_ethnicity_full$eth5, useNA = "ifany")
+
+#now X2 test for hypothesis testing
+
+table_eth <- bind_rows(gdm_ethnicity_full, non_gdm_ethnicity_full) %>% 
+  select(patid, individual_id, group, eth5)
+ table_eth <- table(table_eth$group, table_eth$eth5)
+ table_eth
+chisq.test(table_eth)
+```
+Again this can be repeated with other non-GDM groups
+
+#IMD
+With CPRD data, one receives a .txt file with colums for pracid and e_2019_imd_10 (the practice-level IMD). This
+```{r}
+#read in your pracid - IMD file
+setwd("...")
+practice_imd <- read.delim("....txt", stringsAsFactors = TRUE)
+
+#read in the patient file which links patids to pracids
+setwd("...")
+patient_file <- read.delim("...", stringsAsFactors = TRUE)
+
+practice_imd_patient <- patient_file %>% 
+  select(patid, pracid, regstartdate, regenddate) %>% #just keep relevant columns
+  left_join(practice_imd, by = "pracid")
+
+#prepare variables
+practice_imd_patient$patid <- as.character(practice_imd_patient$patid)
+practice_imd_patient$regenddate <- dmy(practice_imd_patient$regenddate)
+practice_imd_patient$regstartdate <- dmy(practice_imd_patient$regstartdate)
+
+#start with adding in the imd to the GDM group and just keeping patients with an IMD
+gdm_imd_single <- single(gdm_full) %>% 
+  left_join(practice_imd_patient, by = "patid") %>% 
+  filter(!is.na(e2019_imd_10))
+
+# for those with multiple patids the practid that was closest to the point of diagnosis of diabetes (stored in the new_ddd column) is chosen, then if there are two dates that are similarly distributed around the diabetes diagnosis date, select the registration that is current (i.e. regeenddate is NA) and if there are still multiple lines per patient chose the longest registration as stored in the time_in_surgery column
+gdm_imd_multiple <- multiple(gdm_full) %>%
+  select(-patid, -regstartdate, -regenddate) %>% 
+  left_join(all_pats, by = "individual_id") %>% #brings patids back
+  left_join(practice_imd_patient %>% select(patid, e2019_imd_10, regstartdate, regenddate), by = "patid") %>%  #this brings in the regstart date 
+    select(patid, individual_id, e2019_imd_10, regstartdate, regenddate, new_ddd) %>% 
+    filter(regstartdate<=new_ddd %m-% years(1)) %>% 
+  filter(!is.na(e2019_imd_10)) %>% 
+  mutate(time_in_surgery = if_else(!is.na(regenddate), as.numeric(regenddate-regstartdate), as.numeric(as.Date("2024-06-01")-regstartdate))) %>% 
+  mutate(closest_date = abs(as.numeric(new_ddd-regstartdate)),
+         priority = if_else(is.na(regenddate), 1, 2)) %>% 
+  group_by(individual_id) %>% 
+  slice_min(closest_date) %>% 
+  slice_min(priority) %>% 
+  slice_max(time_in_surgery) %>% 
+  slice(1) %>% ##for a small number of individuals there are two identical registration periods at different pracids with diff IMD, pick one at random in the slice 1 above
+  ungroup()
+
+#now bind together all the gdm patients together and label the group as GDM
+gdm_imd_full <- bind_rows(gdm_imd_single %>% select(patid, individual_id, e2019_imd_10), gdm_imd_multiple %>% select(patid, individual_id, e2019_imd_10)) %>% 
+  mutate(group = "GDM")
+
+#calculate percentages for each IMD group for the GDM group
+percentages_gdm<- as.data.frame(table(gdm_imd_full$e2019_imd_10)) %>% 
+  mutate(Percentage = Freq*100/sum(Freq),
+         group = "GDM")%>% 
+  rename(IMD_decile = Var1)
+summary(gdm_imd_full)
+
+non_gdm_imd_single <- non_gdm_full %>% 
+  filter(!is.na(patid)) %>% 
+  left_join(practice_imd_patient, by = "patid") %>% 
+   filter(!is.na(e2019_imd_10)) 
+
+non_gdm_imd_multiple <-multiple(non_gdm_full) %>%
+  select(-patid, -regstartdate, -regenddate) %>% 
+  left_join(all_pats, by = "individual_id") %>% 
+  left_join(practice_imd_patient, by = "patid") %>% 
+  select(patid, individual_id, e2019_imd_10, regstartdate, regenddate, new_ddd) %>% 
+  filter(regstartdate<=new_ddd %m-% years(1)) %>% 
+  filter(!is.na(e2019_imd_10)) %>% 
+   mutate(closest_date = abs(as.numeric(new_ddd-regstartdate)),
+          time_in_surgery = if_else(!is.na(regenddate), as.numeric(regenddate-regstartdate), as.numeric(as.Date("2024-06-01")-regstartdate)),
+          priority = if_else(is.na(regenddate), 1, 2)) %>% 
+  group_by(individual_id) %>% 
+ slice_min(closest_date) %>% 
+  slice_min(priority) %>% 
+  slice_max(time_in_surgery) %>% 
+  slice(1) %>% 
+  ungroup()
+
+non_gdm_imd <- bind_rows(non_gdm_imd_single %>% select(patid, individual_id, e2019_imd_10), non_gdm_imd_multiple %>% select(patid, individual_id, e2019_imd_10)) %>% 
+  mutate(group = "Non-GDM")
+
+
+#calculate percentages for each IMD group for the non-GDM group
+percentages_ngdm<- as.data.frame(table(non_gdm_imd$e2019_imd_10)) %>% 
+  mutate(Percentage = Freq*100/sum(Freq),
+         group = "Non-GDM") %>% 
+  rename(IMD_decile = Var1)
+summary(non_gdm_imd)
+
+#calc numbers of patients with missing IMD
+nrow(gdm_full)-nrow(gdm_imd_full)
+nrow(non_gdm_full) - nrow(non_gdm_imd)
+
+```
+This can be repeated for the other non-gdm groups
+
+
+total pracids for whom we have an IMD
+```{r}
+patient_file$patid <- as.character(patient_file$patid)
+
+pracid_filtered <- patient_file %>% 
+  select(patid, pracid) %>% 
+  left_join(all_pats)
+
+single_pracid_filtered <- single(pracid_filtered) %>% 
+  filter(patid %in% filtered_single$patid)
+
+multiple_pracid_filtered <- multiple(pracid_filtered) %>% 
+  filter(individual_id %in% filtered_multiple$individual_id)
+
+pracid_filtered <- bind_rows(single_pracid_filtered, multiple_pracid_filtered)
+
+#total number of pracids in cohort
+n_distinct(pracid_filtered$pracid)
+
+
+practices_with_imd <- practice_imd_patient %>% 
+  left_join(all_pats)
+
+single_practice_imd <-practices_with_imd %>% 
+  filter(patid %in% filtered_single$patid)
+multiple_practice_imd <- multiple(practices_with_imd) %>% 
+  filter(individual_id %in% filtered_multiple$individual_id)
+
+filtered_with_imd <- bind_rows(single_practice_imd, multiple_practice_imd) %>% 
+  filter(!is.na(e2019_imd_10))
+
+n_distinct(filtered_with_imd$pracid)
+
+summary(df_log_reg)
+```
+
+
+#now for BMI
+note that "character_list" is a list of dataframes containing raw data extracted by cprd. A practical solution to the large aamount of data received was to remove columns that I was not going to use and combine the many files into (in my case 17) different data frames (rather than 1 df that would have been too large to load). I kept the columns for patid, medcodeid, obsdate and value. Having loaded each of these 17 dataframes, I created a list of these dataframes (termed character_list, as I had converted the patids from numerical to character) and with that I was able to use functions and lapply to execute various operations on all the data.
+```{r}
+#load all relevant code lists available in the github repository
+setwd("...") #your working directory
+bmi_code <- readRDS("bmi_code.rds")
+height <- read.csv("height.csv", header = TRUE)
+weight <- read.csv("weight.csv", header = TRUE)
+
+#now get BMI data from the character_list of dataframes containing raw cprd data
+add_bmi_fun <- function(df){df %>% left_join(bmi_code, by = "medcodeid") %>% filter(!is.na(term))}
+bmi_obs <- bind_rows(lapply(character_list, add_bmi_fun))
+
+#format date
+bmi_obs$obsdate <-dmy(bmi_obs$obsdate)
+
+#add the individual_id for those with multiple patids
+bmi_obs <- bmi_obs %>% 
+    left_join(all_pats) 
+
+#split into single and multiple and find the bmi closest to the diabetes diagnosis date (new_ddd)  
+bmi_obs_single <- bmi_obs %>% 
+  inner_join(filtered_single %>% select(patid, new_ddd), by = "patid") %>% 
+  mutate(from_ddd = abs(as.numeric(obsdate-new_ddd))) %>% 
+  filter(value>14) %>% 
+  filter(value<60) %>% 
+   group_by(patid) %>% 
+  arrange(patid, from_ddd) %>% 
+  slice(1) %>% 
+  ungroup()
+
+
+bmi_obs_multiple <- multiple(bmi_obs) %>%
+    inner_join(filtered_multiple %>% select(individual_id, new_ddd), by = "individual_id") %>% 
+  mutate(from_ddd = abs(as.numeric(obsdate-new_ddd))) %>% 
+  filter(value>14) %>% 
+  filter(value<60) %>% 
+ group_by(patid) %>% 
+  arrange(patid, from_ddd) %>% 
+  slice(1) %>% 
+  ungroup()
+
+##get quantitative height and weight observations
+height_weight_code <- bind_rows(height, weight)
+height_weight_code$medcodeid <- as.character(height_weight_code$medcodeid)
+
+add_height_weight_fun <- function(df){df %>% 
+    inner_join(height_weight_code, by = "medcodeid") %>% 
+    filter(!is.na(obsdate))}
+
+height_weight_obs <- bind_rows(lapply(character_list, add_height_weight_fun)) %>% 
+  left_join(all_pats)#add individual_id
+
+height_weight_obs <- height_weight_obs %>% 
+  filter(!is.na(value) & !is.na(obsdate)) %>% #only keep rows containing a value and an observation date
+  select(patid, obsdate, medcodeid, value, term, height, comment, weight, individual_id) 
+
+#split into single and multiple patid dfs
+height_weight_obs_single <- single(height_weight_obs) %>% 
+ left_join(filtered_single %>% select(patid, new_ddd, yob), by = "patid") %>% 
+  filter(year(obsdate)>yob+17) %>% #only keep observations in adulthood
+  filter(value>0)
+
+#find height per patient
+closest_height_single <- height_weight_obs_single %>% 
+  filter(!is.na(height)) %>% 
+  filter(value>100 & value <220) %>% #remove errouneous heights
+      mutate(from_ddd = abs(as.numeric(obsdate-new_ddd))) %>% #find gap between that recording tand diabetes diagnosis
+  group_by(patid) %>% 
+   slice_min(from_ddd, n = 1, with_ties = FALSE) %>% #select height closet to diabetes diagnosis
+  ungroup()
+
+#calculate closest weight to diagnosis of DM
+closest_weight_single <- height_weight_obs_single %>% 
+    mutate(from_ddd = abs(as.numeric(obsdate-new_ddd))) %>% 
+  filter(!is.na(weight)) %>% 
+  filter(value>35 & value<250) %>% #data clean
+  select(-weight) %>% 
+  group_by(patid) %>% 
+  slice_min(from_ddd, n = 1, with_ties = FALSE) %>% #find the weight closest to the diabetes diagnosis 
+  ungroup() %>% 
+  rename(weight_date = obsdate,
+         weight = value)
+
+#now do those with multiple patids
+height_weight_obs_multiple <- multiple(height_weight_obs) %>% 
+ left_join(filtered %>% select(individual_id, new_ddd, yob), by = "individual_id") %>% 
+  filter(year(obsdate)>yob+17) %>% 
+  filter(value>0)
+
+#find height per patient
+closest_height_multiple <- height_weight_obs_multiple %>% 
+  filter(!is.na(height)) %>% 
+  filter(value>100 & value <220) %>% 
+      mutate(from_ddd = abs(as.numeric(obsdate-new_ddd))) %>% 
+  group_by(individual_id) %>% 
+ slice_min(from_ddd, n = 1, with_ties = FALSE) %>% 
+  ungroup()
+
+#calculate closest weight to diagnosis of DM
+closest_weight_multiple <- height_weight_obs_multiple %>% 
+    mutate(from_ddd = abs(as.numeric(obsdate-new_ddd))) %>% 
+  filter(!is.na(weight)) %>% 
+   filter(value>35 & value<250) %>% 
+  select(-weight) %>% 
+  group_by(individual_id) %>% 
+  slice_min(from_ddd, n = 1, with_ties = FALSE) %>% 
+  ungroup() %>% 
+  rename(weight_date = obsdate,
+         weight = value)
+
+#now add in HES obesity coding
+# all HES apc data is stored in all_HES_apc
+
+all_HES_apc$patid <- as.character(all_HES_apc$patid)
+
+#load BMI code list for HES
+setwd("...") # yourdirectory
+bmi_icd <- read.delim("bmi_icd.txt", header = TRUE, sep = "\t") #codelist on github
+
+HES_bmi <- all_HES_apc %>% 
+  left_join(all_pats, by = "patid") %>% #add indivudyak_id
+  inner_join(bmi_icd, by = "ICD") %>% #keep only rows related to BMI
+  select(patid, individual_id, admidate, ICD, term) %>% 
+  mutate(admidate = as.Date(admidate, format = "%Y/%m/%d"), #format dates
+         obese = 1) %>% #flag all this data as relating to obesity
+  rename(obsdate = admidate) #rename the date to obsdate so that it can be lined up wiht the cprd data
+
+#filter by those present in the cohort 
+HES_bmi_single <- single(HES_bmi) %>% 
+  filter(patid %in% filtered$patid)
+
+HES_bmi_multiple <- multiple(HES_bmi) %>% 
+  filter(individual_id %in% filtered$individual_id)
+
+##now put it all together
+calc_bmi_single <- closest_height_single %>% 
+  select(-weight,  -individual_id) %>% #remove unnecessary columns
+  inner_join(closest_weight_single %>% select(patid, weight_date, weight), by = "patid") %>% 
+  mutate(height_m = value/100,  #convert to metres
+    bmi_value = weight/(height_m^2)) %>%  #calculate bmi
+  filter(bmi_value < 60) %>% # get rid of bmis that are erroneous
+  mutate(obsdate = coalesce(weight_date, obsdate)) %>% #merge the dates
+    bind_rows(.,bmi_obs_single%>% select(patid, obsdate, term, new_ddd, bmi, low_bmi, normal_bmi, high_bmi, obese, value)) %>% 
+  bind_rows(., HES_bmi_single %>% select(patid, obsdate, term, obese)) %>% 
+  mutate(bmi_value = if_else(!is.na(bmi), value, bmi_value)) %>% #bring in the value from bmi_obs
+   mutate(from_ddd = abs(as.numeric(obsdate-new_ddd))) %>% 
+  group_by(patid) %>% 
+  slice_min(from_ddd) %>% #get the closest date to the diabetes diagnosis date
+  slice(1) %>% 
+  ungroup() %>% 
+  left_join(filtered_single %>% select(patid, gdm_status), by = "patid") #bring in the gdm status
+
+#same for those with multiple patids
+calc_bmi_multiple <- closest_height_multiple %>% 
+  select(-weight, -weight_4cat, -patid) %>% 
+  inner_join(closest_weight_multiple %>% select(individual_id, weight_date, weight), by = "individual_id") %>% 
+  mutate(height_m = value/100,
+    bmi_value = weight/(height_m^2)) %>% 
+  filter(bmi_value < 60) %>% 
+  mutate(obsdate = coalesce(weight_date, obsdate)) %>% 
+  bind_rows(.,bmi_obs_multiple%>% select(individual_id, obsdate, term, new_ddd, bmi, low_bmi, normal_bmi, high_bmi, obese, value)) %>% 
+   bind_rows(., HES_bmi_multiple %>% select(individual_id, obsdate, term, obese)) %>% 
+  mutate(bmi_value = if_else(!is.na(bmi), value, bmi_value)) %>% 
+   mutate(from_ddd = abs(as.numeric(obsdate-new_ddd))) %>% 
+  group_by(individual_id) %>% 
+  slice_min(from_ddd) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  left_join(filtered_multiple %>% select(individual_id, gdm_status), by = "individual_id")
+  
+##group these into bmi categories
+calc_bmi_single <- calc_bmi_single%>% 
+  mutate(bmi_value = coalesce(bmi_value, value), #some values for bmi that had not been picked up earlier
+    bmi_cat = case_when(bmi_value<18.5|!is.na(low_bmi)~"Underweight",
+                             bmi_value>=18.5&bmi_value<25|!is.na(normal_bmi)~"Normal weight",
+                             bmi_value>= 25&bmi_value<30| !is.na(high_bmi)~"Overweight",
+                             bmi_value>=30 & bmi_value<40| !is.na(obese) ~"Obese",
+                        bmi_value>40~"Severely obese"
+                        )) 
+
+calc_bmi_multiple <- calc_bmi_multiple%>% 
+  mutate(bmi_value = coalesce(bmi_value, value),
+    bmi_cat = case_when(bmi_value<18.5|!is.na(low_bmi)~"Underweight",
+                             bmi_value>=18.5&bmi_value<25|!is.na(normal_bmi)~"Normal weight",
+                             bmi_value>= 25&bmi_value<30| !is.na(high_bmi)~"Overweight",
+                             bmi_value>=30| !is.na(obese) ~"Obese",
+                        bmi_value>40~"Severely obese")) 
+
+table(calc_bmi_single$bmi_cat)
+
+barplot(calc_bmi_single$bmi_cat)
+
+
+#now for calculation of raw quantitative BMI
+  BMI_raw <- bind_rows(calc_bmi_multiple, calc_bmi_single) %>% 
+    select(patid, individual_id, gdm_status, bmi_value) %>% 
+    mutate(gdm_status = if_else(is.na(gdm_status), 0, 1)) %>% 
+    filter(!is.na(bmi_value)) %>% 
+    group_by(gdm_status) %>% 
+    summarise(mean_bmi = mean(bmi_value),
+              median_bmi = median(bmi_value),
+              IQR_bmi = IQR(bmi_value))
+
+  hist(BMI_raw$bmi_value) #examine distribution of BMIs
+  
+    BMI_raw <- bind_rows(calc_bmi_multiple, calc_bmi_single) %>% 
+    select(patid, individual_id, gdm_status, bmi_value) %>% 
+    mutate(gdm_status = if_else(is.na(gdm_status), 0, 1)) %>% 
+    filter(!is.na(bmi_value))
+    
+##now get GDM and non gem single and multiple
+
+gdm_bmi_single <- calc_bmi_single %>% 
+  filter(!is.na(gdm_status)) %>% 
+  select(patid, bmi_cat, bmi_value)
+
+non_gdm_bmi_single <- calc_bmi_single %>% 
+  filter(is.na(gdm_status)) %>% 
+  select(patid, bmi_cat, bmi_value)
+
+gdm_bmi_multiple <-  calc_bmi_multiple %>% 
+  filter(!is.na(gdm_status)) %>% 
+  select(individual_id, bmi_cat, bmi_value)
+
+non_gdm_bmi_multiple <- calc_bmi_multiple %>% 
+  filter(is.na(gdm_status)) %>% 
+  select(individual_id, bmi_cat, bmi_value)
+
+#bind all the gdm data
+gdm_bmi <- bind_rows(gdm_bmi_single, gdm_bmi_multiple) %>% 
+  mutate(group = "GDM")
+
+percentages <- as.data.frame(table(gdm_bmi$bmi_cat)) %>% 
+  mutate(percentages = Freq*100/sum(Freq))
+
+non_gdm_bmi <- bind_rows(non_gdm_bmi_single, non_gdm_bmi_multiple) %>% 
+  mutate(group = "Non-GDM")
+
+percentages <- as.data.frame(table(non_gdm_bmi$bmi_cat)) %>% 
+  mutate(percentage = Freq*100/sum(Freq))
+
+#calc the number of subjects with missing BMI
+nrow(non_gdm_full)-nrow(non_gdm_bmi)
+
+nrow(gdm_full)-nrow(gdm_bmi)
+
+##now for distributions
+hist(gdm_bmi$bmi_value) # slight right skew so use wilcoxon
+
+hist(non_gdm_bmi$bmi_value)
+```
+
+now for p and some summary statistics
+```{r}
+table_bmi <- bind_rows(non_gdm_bmi, gdm_bmi) %>% 
+  select(patid, individual_id, group, bmi_cat) 
+ table_bmi <- table(table_bmi$group, table_bmi$bmi_cat)
+ 
+chisq.test(table_bmi)
+
+#medians
+median(gdm_bmi$bmi_value, na.rm = TRUE)
+IQR(gdm_bmi$bmi_value, na.rm = TRUE)
+
+median(non_gdm_bmi$bmi_value, na.rm = TRUE)
+IQR(non_gdm_bmi$bmi_value, na.rm = TRUE)
+
+
+bmi <- bind_rows(gdm_bmi, non_gdm_bmi)
+wilcox.test(bmi_value~gdm_status, data = bmi)
+
+```
+
+#smoking
+Again the character list of dfs containing all observations is necessary here.
+The character drugs list is simiar to the character list but instead of observations, itcontains drug issue data
+```{r}
+setwd("....") #your dir
+smoking_drugs <- read.delim("smoking_meds.txt", stringsAsFactors = TRUE)
+smoking_code <-readRDS("smoking_code.rds")
+
+smoking_drugs <- smoking_drugs %>% 
+    rename(prodcodeid = ProdCodeId,
+         productname = ProductName) %>% 
+    mutate(productname = if_else(productname=="", TermfromEMIS, productname)) %>% 
+  select(prodcodeid, productname)
+
+#create a function to extract smoking data from character list 
+smoking_fun <- function(df){df %>% left_join(smoking_code, by = "medcodeid") %>% filter(!is.na(term))}
+
+#extract smoking observations
+smoking_obs <-bind_rows(lapply(character_list, smoking_fun)) %>% 
+  left_join(all_pats, by = "patid") #add the individual id
+
+
+#this one code was identified as coming with a value that looked like the number of cigarettes a day and 0 was assumed to mean non-smoker"
+smoking_obs <- smoking_obs %>% 
+    mutate(ever_smoker = case_when(medcodeid=="108938018" & value == 0~ 0, #if smokes no cigarettes, assume long-term non-smoker
+                                   medcodeid=="108938018" & value != 0~ 1, #if non-zero, assume smoked at some time
+                                   TRUE~ever_smoker),#or keep columns as they are
+         smoking_status = case_when(medcodeid=="108938018" & value == 0~ 0, #if smokes no cigarettes, assume non-smoker
+                                   medcodeid=="108938018" & value != 0~ 2, #if non-zero, assume current smoker
+                                   TRUE~smoking_status))
+ 
+smoking_obs$obsdate <- dmy(smoking_obs$obsdate)
+
+#just patients with single-Patids
+filtered_single <- single(filtered)
+
+#add individual_id
+smoking_obs <- smoking_obs %>% 
+  left_join(all_pats, by = "patid")
+
+#now filter to relevant patients
+smoking_single <- smoking_obs %>% 
+  inner_join(filtered_single%>%select(patid, gdm_status, new_ddd, yob), by = "patid") %>%  
+  filter(year(obsdate)>yob+8) %>% #get reasonable date
+  filter(obsdate<=new_ddd) %>% 
+  group_by(patid) %>% 
+    mutate(ever_updated = if_else(any(smoking_status!=0), 1, 0)) %>% #for each patient identify any eveidence of smoking at any point
+  slice_max(obsdate) %>% #take the closest date before new_ddd
+  slice(1) %>% 
+  mutate(ever_updated2 = pmax(smoking_status, ever_updated)) %>% #take the max of the smoking status and whether they have ever smoked.  This ensures that any current smoking is logged as an ex-smoker
+ungroup()
+
+#note smoking_multiple below
+
+##now add in drug cessation data
+smoking_drugs_fun <- function(df){df %>% inner_join(smoking_drugs, by = "prodcodeid") %>% filter(!is.na(issuedate))}
+
+smoking_drugs_obs <- bind_rows(lapply(character_drugs_list, smoking_drugs_fun)) %>% 
+  left_join(all_pats)
+
+smoking_drugs_obs_single <- single(smoking_drugs_obs) %>% 
+  inner_join(filtered_single %>% select(patid, gdm_status, new_ddd, yob), by = "patid") %>%  
+  filter(year(obsdate)>yob+8) %>% 
+  filter(obsdate<=new_ddd) %>% 
+  group_by(patid) %>% 
+    mutate(ever_updated = if_else(any(smoking_status!=0), 1, 0)) %>% #for each patient identify any evidence of smoking at any point
+  slice_max(obsdate) %>% #take the closest date before new_ddd
+  slice(1) %>% 
+  mutate(ever_updated2 = pmax(smoking_status, ever_updated))
+
+filtered_multiple <- multiple(filtered)
+
+smoking_drugs_obs_multiple <- multiple(smoking_drugs_obs) %>% 
+    inner_join(filtered_multiple %>% select(individual_id, gdm_status, new_ddd, yob), by = "individual_id")
+
+smoking_total_single<- bind_rows(smoking_single, smoking_drugs_obs_single) %>% 
+  filter(year(obsdate)>yob+8) %>% 
+  filter(obsdate<=new_ddd) %>% 
+  group_by(patid) %>% 
+    mutate(ever_updated = if_else(any(smoking_status!=0), 1, 0)) %>% #for each patient identify any evidence of smoking at any point
+  slice_max(obsdate) %>% #take the closest date before new_ddd
+  slice(1) %>% 
+  mutate(ever_updated2 = pmax(smoking_status, ever_updated))
+
+##now split into GDM and not
+gdm_smoking_single <- smoking_total_single %>% 
+  filter(!is.na(gdm_status))
+
+gdm_single <- single(gdm_full)
+non_gdm_single <- single(non_gdm_full)
+
+missing_gdm_smoking_single <-gdm_single %>% 
+  filter(!patid %in% gdm_smoking_single$patid) #39
+
+non_gdm_smoking_single <- smoking_total_single %>% 
+  filter(is.na(gdm_status))
+
+missing_non_gdm_smoking_single <- non_gdm_single %>% 
+  filter(!patid %in% non_gdm_smoking_single$patid) #449
+
+##now for the multiple patid - this coding could be cleaned up and all the filtering down ot the bound dfs
+
+
+smoking_obs_multiple <-smoking_obs %>%  
+  inner_join(filtered_multiple%>%select(individual_id, gdm_status, new_ddd, yob), by = "individual_id") %>%  
+  filter(year(obsdate)>yob+8) %>% 
+  filter(obsdate<=new_ddd) %>% 
+  group_by(individual_id) %>% 
+    mutate(ever_updated = if_else(any(smoking_status!=0), 1, 0)) %>% #for each patient identify any evidence of smoking at any point
+  slice_max(obsdate) %>% #take the closest date before new_ddd
+  slice(1) %>% 
+  mutate(ever_updated2 = pmax(smoking_status, ever_updated)) %>% #take the max of the smoking status and whether they have ever smoked.  This ensures that any current smoking is logged as an ex-smoker
+ungroup()
+  
+
+smoking_total_multiple <- bind_rows(smoking_obs_multiple, smoking_drugs_obs_multiple) %>% 
+  filter(year(obsdate)>yob+8) %>% 
+  filter(obsdate<=new_ddd) %>% 
+  group_by(individual_id) %>% 
+    mutate(ever_updated = if_else(any(smoking_status!=0), 1, 0)) %>% #for each patient identify any evidence of smoking at any point
+  slice_max(obsdate) %>% #take the closest date before new_ddd
+  slice(1) %>% 
+  mutate(ever_updated2 = pmax(smoking_status, ever_updated)) %>% #take the max of the smoking status and whether they have ever smoked.  This ensures that any previous current smoking is logged as an ex-smoker
+  ungroup()
+
+
+gdm_multiple <- multiple(gdm_full)
+  
+gdm_smoking_multiple <- smoking_total_multiple %>% 
+  filter(!is.na(gdm_status))
+
+missing_gdm_smoking_multiple <-gdm_multiple %>% 
+  filter(!individual_id %in% gdm_smoking_multiple$individual_id) #10
+
+gdm_smoking_single <- smoking_total_single %>% 
+  filter(!is.na(gdm_status))
+
+ 
+non_gdm_smoking_multiple <- smoking_total_multiple %>% 
+filter(is.na(gdm_status))
+
+non_gdm_multiple <- multiple(filtered) %>% 
+  filter(is.na(gdm_status))
+
+non_gdm_smoking_single <- smoking_total_single %>% 
+  filter(is.na(gdm_status))
+
+missing_non_gdm_smoking_multiple <- non_gdm_multiple %>% 
+  filter(!individual_id %in% non_gdm_smoking_multiple$individual_id) 
+
+gdm_smoking <- bind_rows(gdm_smoking_single, gdm_smoking_multiple) %>% 
+  mutate(group = "GDM")
+percentages <- as.data.frame(table(gdm_smoking$ever_updated2)) %>% 
+  mutate(percentage = Freq*100/sum(Freq))
+
+non_gdm_smoking <- bind_rows(non_gdm_smoking_single, non_gdm_smoking_multiple,) %>% 
+  mutate(group = "Non-GDM")
+
+
+percentages <- as.data.frame(table(non_gdm_smoking$ever_updated2)) %>% 
+  mutate(percentage = Freq*100/sum(Freq))
+
+#calc number with missing data
+nrow(gdm_full)-nrow(gdm_smoking)
+nrow(non_gdm_full)-nrow(non_gdm_smoking)
+```
+
+now for stats
+
+```{r}
+
+table_smoking <- bind_rows(non_gdm_smoking, gdm_smoking) %>% 
+  select(patid, individual_id, group, ever_updated2)
+ table_smoking <- table(table_smoking$group, table_smoking$ever_updated2)
+ 
+ table_smoking
+chisq.test(table_smoking)
+```
+
+#Follow-up time
+```{r}
+f_up_time <- filtered %>% 
+  mutate(f_up = if_else(!is.na(regenddate)|!is.na(death_date), pmin(regenddate, death_date, na.rm = TRUE) - new_ddd, as.Date("2024-12-01") - new_ddd)) %>% 
+  select(patid, individual_id, gdm_status,new_ddd, regenddate, death_date, f_up) %>% 
+  mutate(f_up = as.numeric(stringr::str_extract(f_up, "\\d+")), # converts difftime object to plain number
+         group = if_else(is.na(gdm_status), "NGDM", "GDM"))
+  
+
+gdm_f_up <- f_up_time %>% 
+  filter(!is.na(gdm_status))
+median(gdm_f_up$f_up)
+hist(gdm_f_up$f_up)
+IQR(gdm_f_up$f_up)
+
+ngdm_f_up <- f_up_time %>% 
+  filter(is.na(gdm_status))
+
+median(ngdm_f_up$f_up)
+hist(ngdm_f_up$f_up)
+IQR(ngdm_f_up$f_up)
+
+wilcox.test(f_up~group, data= f_up_time)
+```
+
+#calculate the date that what drives ddd
+```{r}
+filtered <- filtered %>% 
+  mutate(driver = case_when(new_ddd==issuedate~"drug",
+                            new_ddd==admidate~"HES",
+                            new_ddd==ddd~"diag",
+                            new_ddd==gly_date~"gly",
+                            new_ddd==gly_date & new_ddd==ddd | new_ddd==gly_date & new_ddd==gly_date & new_ddd==issuedate |new_ddd==gly_date & new_ddd==admidate|new_ddd==issuedate & new_ddd==ddd| new_ddd==admidate & new_ddd==ddd|new_ddd==issuedate & new_ddd==admidate~"multiple"))
+table(filtered$driver)
+```
+
+#get average HbA1C
+need diagnostic_gly_obs, which is a large df containing all the observations related to codes on the gly_code list available on github
+```{r}
+average_hba1c_single <- filtered_single %>% 
+  select(patid, new_ddd, gdm_status) %>% 
+  left_join(diagnostic_gly_obs, by = "patid") %>% 
+  filter(hba1c==1) %>% #get all observations flagged as relating to hba1c   
+  select(patid, new_ddd, obsdate, value) %>%
+  filter(value<200 & (obsdate>=new_ddd)) %>% #only keep values that are reasonable i.e. <200 and after diabetes diagnosis
+  mutate(hba1c_mmol_mol = if_else(value>=48, value, (value - 2.15) * 10.929)) %>% #ensure all in same unit
+  group_by(patid) %>% 
+  summarise(average_hba1c = mean(hba1c_mmol_mol)) %>% 
+    ungroup() %>% 
+  left_join(filtered_single %>% select(patid, gdm_status), by = "patid")
+
+average_hba1c_multiple <- filtered_multiple %>% 
+  select(individual_id, new_ddd, gdm_status) %>% 
+  left_join(diagnostic_gly_obs, by = "individual_id") %>% 
+  filter(hba1c==1) %>%   
+  select(individual_id, new_ddd, obsdate, value) %>%
+  filter(value<200 & (obsdate>=new_ddd)) %>% 
+  mutate(hba1c_mmol_mol = if_else(value>=48, value, (value - 2.15) * 10.929)) %>% 
+  group_by(individual_id) %>% 
+  summarise(average_hba1c = mean(hba1c_mmol_mol)) %>% 
+    ungroup() %>% 
+    left_join(filtered_multiple %>% select(individual_id, gdm_status), by = "individual_id")
+
+total_average_hba1c <- bind_rows(average_hba1c_multiple, average_hba1c_single) %>% 
+  mutate(gdm_status = if_else(is.na(gdm_status), "non GDM", gdm_status))
+
+#check distribution type (in our case right skey)
+hist(average_hba1c_single$average_hba1c)
+
+table_hba1c <- total_average_hba1c %>% group_by(gdm_status) %>% 
+  summarise(n = n(),
+            median_hba1c = median(average_hba1c),
+            iqr = IQR(average_hba1c),)
+ 
+wilcox.test(average_hba1c ~ gdm_status, data = total_average_hba1c)
+```
