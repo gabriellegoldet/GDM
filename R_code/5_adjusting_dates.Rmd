@@ -772,8 +772,8 @@ within 4 month - ie PCOS very likely the reason for the metformin script
 so for these ladies, will need to find a subsequent script
 
 ```{r}
-metformin_pcos <- all_pcos_obs %>% 
-  inner_join(metformin_first %>% select(patid, issuedate, min_issuedate, ddd_sans_met), by = "patid") %>% 
+metformin_pcos_single <- single(all_pcos_obs) %>% 
+  inner_join(metformin_first_single %>% select(patid, issuedate, min_issuedate, ddd_sans_met), by = "patid") %>% 
   mutate(issuedate = coalesce(issuedate, min_issuedate))
 n_distinct(metformin_pcos$patid) #9768
 
@@ -784,8 +784,13 @@ relevant_ndh_single <- single(metformin_first) %>%
   select(-individual_id, -min_ddd, -min_issuedate, -min_gly, -min_admidate, -min_priority_date, -min_context_indep_date) %>% 
   filter(!is.na(prior_1_year))
 
+#now do the same for those with multiple patids
+metformin_pcos_multiple <- multiple(all_pcos_obs) %>% 
+  inner_join(metformin_first %>% distinct(individual_id, issuedate, min_issuedate, ddd_sans_met), by = "individual_id") %>% 
+  mutate(issuedate = coalesce(issuedate, min_issuedate))
+
 relevant_ndh_multiple <- multiple(metformin_first) %>% 
-  filter(!individual_id %in% metformin_pcos$individual_id) %>% 
+  filter(!individual_id %in% metformin_pcos_multiple$individual_id) %>% 
   left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
   mutate(prior_1_year = if_else((obsdate>= min_issuedate%m-% years(1))&(obsdate<= min_issuedate), 1, NA)) %>% 
   filter(!is.na(prior_1_year))
