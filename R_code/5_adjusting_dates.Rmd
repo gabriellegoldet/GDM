@@ -704,7 +704,8 @@ context_indep_date_multiple <- multiple(all_dm_obs) %>%
   mutate(min_unequivocal_date = pmin(obsdate, context_indep_date, priority_date, admidate, na.rm = TRUE)) %>% 
   group_by(individual_id) %>% 
   summarise(obsdate = first(obsdate),
-            min_unequivocal_date = min(min_unequivocal_date)) %>% 
+            min_unequivocal_date = min(min_unequivocal_date),
+context_indep_date = min(context_indep_date) %>% 
   fill_columns()
 
 context_indep_date <- bind_rows(context_indep_date_multiple, context_indep_date_single) %>% 
@@ -751,7 +752,6 @@ therefore for PCOS)?
   filter(min_productname %in% metformin_code$productname) %>%
  filter(min_issuedate==new_ddd) %>%  #identify those whose ddd is driven by a drug prescription
     filter(min_issuedate %m+% years(1)< ddd_sans_met)
-   #2751
   
 metformin_first_multiple <- metformin_first_multiple%>% 
   select(patid, individual_id, min_issuedate, min_gly, min_admidate, min_ddd, min_priority_date, ddd_sans_met, min_context_indep_date) 
@@ -763,7 +763,6 @@ metformin_first_single <- single(first_update4) %>%
   filter(issuedate==new_ddd) %>% 
   filter(issuedate %m+% years(1)< ddd_sans_met) %>% 
   select(patid, ddd, issuedate, gly_date, admidate, priority_date, ddd_sans_met)
-#12631
 
 metformin_first <- bind_rows(metformin_first_multiple, metformin_first_single)
 ```
@@ -775,9 +774,9 @@ so for these ladies, will need to find a subsequent script. Also identify those 
 
 ```{r}
 metformin_pcos_single <- single(all_pcos_obs) %>% 
-  inner_join(metformin_first_single %>% select(patid, issuedate, min_issuedate, ddd_sans_met), by = "patid") %>% 
-  mutate(issuedate = coalesce(issuedate, min_issuedate))
-n_distinct(metformin_pcos$patid) #9768
+  inner_join(metformin_first_single %>% select(patid, issuedate, ddd_sans_met), by = "patid") %>%
+distinct(patid)
+n_distinct(metformin_pcos$patid)
 
 relevant_ndh_single <- single(metformin_first) %>% 
   filter(!patid %in% metformin_pcos$patid) %>% 
@@ -794,8 +793,9 @@ met_before_diab_res_single <- metformin_first_single %>%
 
 #now do the same for those with multiple patids
 metformin_pcos_multiple <- multiple(all_pcos_obs) %>% 
-  inner_join(metformin_first %>% distinct(individual_id, issuedate, min_issuedate, ddd_sans_met), by = "individual_id") %>% 
-  mutate(issuedate = coalesce(issuedate, min_issuedate))
+  inner_join(metformin_first_multiple %>% distinct(individual_id, min_issuedate, ddd_sans_met, min_priority_date, priority_2_date), by = "individual_id") %>% 
+  distinct(individual_id) %>% 
+  fill_columns()
 
 relevant_ndh_multiple <- multiple(metformin_first) %>% 
   filter(!individual_id %in% metformin_pcos_multiple$individual_id) %>% 
