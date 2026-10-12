@@ -493,8 +493,11 @@ metformin_alone_single <- single(first_update3) %>%
   filter(is.na(admidate)) %>% 
   select(patid)
 
-metformin_alone_multiple <- multiple(first_update3) %>% 
-  inner_join(metformin_code  %>%  select(-priority_1, -priority_2, -prodcodeid) , by = "productname") %>% 
+metformin_alone_multiple <- multiple(first_update3_repeat) %>% 
+  mutate(has_met = if_else(productname %in% metformin_code$productname, 1, NA)) %>% 
+  group_by(individual_id) %>% 
+  filter(any(!is.na(has_met))) %>% 
+  ungroup() %>% 
   group_by(individual_id) %>% 
   filter(all(is.na(gly_date))) %>% 
   filter(all(is.na(ddd))) %>% 
@@ -707,18 +710,17 @@ context_indep_date_multiple <- multiple(all_dm_obs) %>%
 context_indep_date <- bind_rows(context_indep_date_multiple, context_indep_date_single) %>% 
   select(patid, min_unequivocal_date, context_indep_date) 
 
-#now create update 4
-first_update4 <- first_update3%>% 
-  left_join(drug_update_4 %>% select(patid, u4_issuedate, u4_productname), by = "patid") %>% 
-  mutate(issuedate = coalesce(u4_issuedate, issuedate),
+
+first_update4 <- first_update3 %>% 
+  left_join(drug_update_4 %>% select(patid, u4_issuedate, u4_productname), by = "patid") %>%
+left_join(hba1c_date, by = "patid") %>% 
+  left_join(context_indep_date, by = "patid") %>% 
+  mutate(metformin_exclude = if_else(patid %in% really_just_metformin$patid, 1, NA),
+    issuedate = if_else(!is.na(metformin_exclude), NA, coalesce(u4_issuedate, issuedate)),#either remove the issuedate or replace it with the update IF NECESSARY (note coalesce won't replace with an NA if there is nothing in u4_issuedate)
          productname = coalesce(u4_productname, productname),
          PCOS_GDM_exclude = if_else(individual_id %in% PCOS_GDM_exclude_multiple$individual_id|patid %in% PCOS_GDM_exclude_single$patid, 1, NA),
-         metformin_exclude = if_else(patid %in% really_just_metformin$patid, 1, NA)
-  ) %>% 
-left_join(hba1c_date, by = "patid") %>% 
-  left_join(context_indep_date, by = "patid") 
+         dm_res_date = if_else(dm_res_date>min_unequivocal_date, as.Date(NA), dm_res_date))  #dispose of 'dm resolved date' if it is after unequivocal evidence of MD 
 
-table(first_update4$metformin_exclude) 
 ```
 
 #now for update5 need to ensure that, if metformin prescription is driving the diabetes diagnosis date (ie issuedate = new_ddd),
@@ -768,8 +770,8 @@ metformin_first <- bind_rows(metformin_first_multiple, metformin_first_single)
 
 Now find those that have pcos in PCOS code list
 Now identify anyone who is in the metformin_first df who also has PCOS,
-within 4 month - ie PCOS very likely the reason for the metformin script
-so for these ladies, will need to find a subsequent script
+ ie PCOS very likely the reason for the metformin script
+so for these ladies, will need to find a subsequent script. Also identify those with NDH in a relevant time frame, and those with diabetes resolved after metformin (again emtformin should not be used to date dm then)
 
 ```{r}
 metformin_pcos_single <- single(all_pcos_obs) %>% 
@@ -784,6 +786,12 @@ relevant_ndh_single <- single(metformin_first) %>%
   select(-individual_id, -min_ddd, -min_issuedate, -min_gly, -min_admidate, -min_priority_date, -min_context_indep_date) %>% 
   filter(!is.na(prior_1_year))
 
+met_before_diab_res_single <- metformin_first_single %>% 
+    filter(!patid %in% metformin_pcos_single$patid) %>% 
+  filter(!patid %in% relevant_ndh_single$patid) %>% 
+  filter(issuedate<dm_res_date)
+
+
 #now do the same for those with multiple patids
 metformin_pcos_multiple <- multiple(all_pcos_obs) %>% 
   inner_join(metformin_first %>% distinct(individual_id, issuedate, min_issuedate, ddd_sans_met), by = "individual_id") %>% 
@@ -794,15 +802,23 @@ relevant_ndh_multiple <- multiple(metformin_first) %>%
   left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
   mutate(prior_1_year = if_else((obsdate>= min_issuedate%m-% years(1))&(obsdate<= min_issuedate), 1, NA)) %>% 
   filter(!is.na(prior_1_year))
+
+met_before_diab_res_multiple <- metformin_first_multiple %>% 
+    filter(!individual_id %in% metformin_pcos_single$individual_id) %>% 
+  filter(!individual_id %in% relevant_ndh_multiple$individual_id) %>% 
+  filter(min_issuedate<dm_res_date)
+
 ```
-For these women, metformin probably prescribed for PCOS, need to find 
-next drug that was prescribed within a year of a diabetes diagnosis date
-that does NOT take into account that metformin script (new variable
-created above: ddd_sans_met), ie that relies on other markers of DM
+For these women, metformin probably prescribed for PCOS or NDH or before diabetes resolved, need to find 
+next priority 1 or 2 drug to take forward (i.e. don't use meformin)
 
 ```{r}
+#identify those who need an update
 need_to_update_issuedate_single <- metformin_first_single %>% 
-  filter(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid) %>% 
+  filter(patid %in% metformin_pcos_single$patid|patid %in% relevant_ndh_single$patid|patid %in% met_before_diab_res_single$patid) 
+
+#and find the data to update with
+drug_update_5_single <- need_to_update_issuedate_single%>% 
   rename(issuedate_old = issuedate) %>% 
   left_join(all_dm_drugs, by ="patid") %>% 
   filter(!is.na(priority_1)|!is.na(priority_2)) %>% 
@@ -813,9 +829,15 @@ need_to_update_issuedate_single <- metformin_first_single %>%
   rename(issuedate_u5 = issuedate,
          prodname_u5 = productname)
 
+#same for those with multiple patids
 need_to_update_issuedate_multiple <- metformin_first_multiple %>% 
-  filter(individual_id %in% metformin_pcos$individual_id|individual_id %in% relevant_ndh_multiple$individual_id) %>% 
-  left_join(all_dm_drugs %>% select(patid, issuedate, productname, priority_1, priority_2), by ="patid") %>% 
+  select(-patid) %>% 
+  filter(individual_id %in% metformin_pcos_multiple$individual_id|individual_id %in% relevant_ndh_multiple$individual_id|individual_id %in% met_before_diab_res_multiple$individual_id) %>% 
+  distinct() %>% 
+  fill_columns()
+
+drug_update_5_multiple <- need_to_update_issuedate_multiple%>% 
+  left_join(all_dm_drugs %>% distinct(patid, issuedate, productname, priority_1, priority_2), by ="patid") %>% 
   filter(!is.na(priority_1)|!is.na(priority_2)) %>% 
   group_by(individual_id) %>% 
   slice_min(issuedate) %>% 
@@ -828,15 +850,17 @@ need_to_update_issuedate_multiple <- metformin_first_multiple %>%
 
 need_to_update_issuedate <- bind_rows(need_to_update_issuedate_multiple, need_to_update_issuedate_single)
 
+drug_update_u5 <- bind_rows(drug_update_5_multiple, drug_update_5_single)
+
 ```
 
 #UPDATE 5
 
 ```{r}
-first_update5 <- first_update4%>% 
-  left_join(need_to_update_issuedate %>% select(patid, issuedate_u5, prodname_u5), by = "patid") %>% 
-  mutate(issuedate = if_else(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid|individual_id %in% relevant_ndh_multiple$patid, as.Date(NA), issuedate),
-         productname = if_else(patid %in% metformin_pcos$patid|patid %in% relevant_ndh_single$patid|individual_id %in% relevant_ndh_multiple$patid, "removed u5", productname)) %>%   
+first_update5_repeat <- first_update4_repeat %>% 
+  mutate(issuedate = if_else(patid %in% need_to_update_issuedate$patid, as.Date(NA), issuedate),#wipe the issuedate for anyone whose drug needs update
+         productname = if_else(patid %in% metformin_pcos_exclude$patid, "remove_u5", productname)) %>% 
+  left_join(drug_update_u5 %>% select(patid, issuedate_u5, prodname_u5), by = "patid") %>% 
   mutate(issuedate = coalesce(issuedate_u5, issuedate),
          productname = coalesce(prodname_u5, productname))
 ```
