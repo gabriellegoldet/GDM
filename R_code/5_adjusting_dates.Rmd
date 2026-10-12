@@ -4131,6 +4131,61 @@ first_update9b <- first_update9%>%
 
 ```
 
+last step - check context dep info is not before diabetes resolved, and if so remove it and replace it with unequivocal evidence if it exists
+```{r}
+before_dm_res_single <- single(first_update9b_repeat) %>% 
+  select(1:31) %>% 
+  filter(ddd<context_indep_date|gly_date<hba1c_date|issuedate<priority_date) %>% 
+  mutate(eq_ddd = pmin(ddd,gly_date,issuedate,admidate, na.rm=TRUE),
+         min_uneq_date = pmin(context_indep_date, hba1c_date, priority_date, na.rm=TRUE)) %>% 
+  filter(eq_ddd<min_uneq_date) %>% 
+  filter(dm_res_date>eq_ddd) %>% 
+  mutate(update_ddd = if_else(((ddd!=context_indep_date)|(!is.na(ddd)&is.na(context_indep_date)))& ddd<dm_res_date, 1, NA),
+    update_issuedate = if_else(((issuedate!=priority_date)|(!is.na(issuedate)&is.na(priority_date)))& issuedate<dm_res_date, 1, NA),
+    update_gly_date = if_else(((gly_date!=hba1c_date)|(!is.na(gly_date)&is.na(hba1c_date)))& gly_date<dm_res_date, 1, NA))#update to context_indep date if the ddd is before dm_res
+
+before_dm_res_multiple <- multiple(first_update9b_repeat) %>% 
+  select(1:31) %>% 
+    group_by(individual_id) %>%
+  filter(any(!is.na(dm_res_date))) %>% 
+  mutate(
+    min_ddd = safe_min(ddd),
+    min_issuedate = safe_min(issuedate),
+    min_productname = if (all(is.na(issuedate))) NA_character_
+                      else first(productname[issuedate == min(issuedate, na.rm = TRUE)]),
+    min_gly = safe_min(gly_date),
+     min_hba1c = safe_min(hba1c_date),
+    min_context_indep_date = safe_min(context_indep_date),
+    min_admidate = safe_min(admidate),
+    min_priority_date = safe_min(priority_date)) %>%
+  ungroup() %>% 
+  filter(min_ddd<min_context_indep_date|min_gly<min_hba1c|min_issuedate<min_priority_date) %>% 
+  mutate(eq_ddd = pmin(min_ddd,min_gly,min_issuedate,min_admidate, na.rm=TRUE),
+         min_uneq_date = pmin(min_context_indep_date, min_hba1c, min_priority_date, na.rm=TRUE),
+         dm_res_date = if_else(dm_res_date>min_uneq_date, as.Date(NA), dm_res_date)) %>% 
+  filter(eq_ddd<min_uneq_date) %>%
+  filter(dm_res_date>eq_ddd) %>% 
+  mutate(update_ddd = if_else(((ddd!=context_indep_date)|(!is.na(ddd)&is.na(context_indep_date)))& ddd<dm_res_date, 1, NA),
+    update_issuedate = if_else(((issuedate!=priority_date)|(!is.na(issuedate)&is.na(priority_date)))& issuedate<dm_res_date, 1, NA),
+    update_gly_date = if_else(((gly_date!=hba1c_date)|(!is.na(gly_date)&is.na(hba1c_date)))& gly_date<dm_res_date, 1, NA))
+
+before_dm_res <- bind_rows(before_dm_res_multiple, before_dm_res_single)
+
+first_update9b_repeat <- first_update9b_repeat %>% 
+  left_join(before_dm_res %>% select(patid, update_ddd, update_issuedate, update_gly_date), by = "patid") %>% 
+    mutate(ddd = if_else(!is.na(update_ddd), context_indep_date,ddd),
+         diagnosis = if_else(!is.na(update_ddd), "update_9c", diagnosis),
+         gly_term = if_else(!is.na(update_gly_date), "update_9c", gly_term),
+      gly_date = if_else(!is.na(update_gly_date), hba1c_date, gly_date),
+  issuedate = if_else(!is.na(update_issuedate), priority_date, issuedate),
+         productname = if_else(!is.na(update_issuedate), "update_9c", productname))
+
+setwd("/home/ggoldet/Documents/DS232/share/2025_interim")
+saveRDS(first_update9b_repeat, "first_update9b_repeat.rds")
+```
+
+
+
 
 #now for update 10 deal with death date
 Some patids have multiple ONS death dates, some have discrepant CPRD and ONS death dates, and for those with multiple patids there is a
