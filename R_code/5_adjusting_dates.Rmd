@@ -859,7 +859,7 @@ drug_update_u5 <- bind_rows(drug_update_5_multiple, drug_update_5_single)
 ```{r}
 first_update5_repeat <- first_update4_repeat %>% 
   mutate(issuedate = if_else(patid %in% need_to_update_issuedate$patid, as.Date(NA), issuedate),#wipe the issuedate for anyone whose drug needs update
-         productname = if_else(patid %in% metformin_pcos_exclude$patid, "remove_u5", productname)) %>% 
+         productname = if_else(patid %in% need_to_update$patid, "remove_u5", productname)) %>% 
   left_join(drug_update_u5 %>% select(patid, issuedate_u5, prodname_u5), by = "patid") %>% 
   mutate(issuedate = coalesce(issuedate_u5, issuedate),
          productname = coalesce(prodname_u5, productname))
