@@ -185,5 +185,41 @@ all_dm_drug_patterns <- bind_rows(all_dm_patterns_single, all_dm_patterns_multip
 first_obs_gly_drug_HES <- first_obs_gly_drug_HES %>% 
   left_join(all_dm_drug_patterns %>% select(patid, pattern, years), by = "patid")
 ```
+this is unrelated to the above but is useful in defining the end of a diabetic episode that does NOT consitute chronic DM.  The code list of dm resolved codes is necessary for this, as well as the character list of dfs of primary care observations
+
+```{r}
+
+diabetes_resolved_fun <- function(df){df %>% filter(medcodeid %in% dm_resolved_code$medcodeid) %>% filter(!is.na(obsdate))}
+diabetes_resolved_obs <- bind_rows(lapply(character_list, diabetes_resolved_fun))
+
+saveRDS(dm_resolved_code, "dm_resolved_code.rds")
+
+dm_resolved_obs <- dm_resolved_obs %>% 
+  left_join(all_pats)
+
+dm_resolved_obs$obsdate <- dmy(dm_resolved_obs$obsdate)
+
+dm_resolved_single <- single(dm_resolved_obs) %>% 
+  group_by(patid) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup()
+
+dm_resolved_multiple <- multiple(dm_resolved_obs) %>% 
+  group_by(individual_id) %>% 
+  slice_min(obsdate) %>% 
+  slice(1) %>% 
+  ungroup() %>% 
+  select(-patid) %>% 
+  fill_columns()
+
+dm_resolved_obs <- bind_rows(dm_resolved_single, dm_resolved_multiple) %>% 
+  rename(dm_res_date = obsdate)
+
+first_obs_gly_drug_HES <- first_obs_gly_drug_HES %>% 
+  left_join(dm_resolved_obs %>% select(patid, dm_res_date), by = "patid") %>% 
+  mutate(dm_res_date= if_else(year(dm_res_date)<=yob, as.Date(NA), dm_res_date))
+
+```
 
 Now go to 4_pregnancy.rmd in the same github repository to get delivery dates.
