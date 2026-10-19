@@ -4172,12 +4172,30 @@ drug_update_u9b <- bind_rows(drug_update_9b_multiple, drug_update_9b_single)
 #UPDATE 9b
 
 ```{r}
-first_update9b_repeat <- first_update9_repeat %>% 
+first_update9b_single <- single(first_update9_repeat) %>% 
   mutate(issuedate = if_else(patid %in% need_to_update_issuedate$patid, as.Date(NA), issuedate),#wipe the issuedate for anyone whose drug needs update
-         productname = if_else(patid %in% need_to_update$patid, "remove_u9", productname)) %>% 
+         productname = if_else(patid %in% need_to_update_issuedate$patid, "remove_u9", productname)) %>% 
   left_join(drug_update_u9b %>% select(patid, issuedate_u9b, prodname_u9b), by = "patid") %>% 
   mutate(issuedate = coalesce(issuedate_u9b, issuedate),
-         productname = coalesce(prodname_u9b, productname))
+         productname = coalesce(prodname_u9b, productname),
+         ddd = if_else(is.na(context_indep_date)&is.na(gly_date)&is.na(issuedate)&is.na(admidate), as.Date(NA), ddd),
+          diagnosis = if_else(is.na(context_indep_date)&is.na(gly_date)&is.na(issuedate)&is.na(admidate), "remove_u9", diagnosis) #remove context dep info with little to support it
+         )
+
+first_update9b_multiple <- multiple(first_update9_repeat) %>%   
+  mutate(issuedate = if_else(patid %in% need_to_update_issuedate$patid, as.Date(NA), issuedate),#wipe the issuedate for anyone whose drug needs update
+         productname = if_else(patid %in% need_to_update_issuedate$patid, "remove_u9", productname)) %>% 
+  left_join(drug_update_u9b %>% select(patid, issuedate_u9b, prodname_u9b), by = "patid") %>% 
+  mutate(issuedate = coalesce(issuedate_u9b, issuedate),
+         productname = coalesce(prodname_u9b, productname)) %>% 
+    group_by(individual_id) %>% 
+mutate( no_support = all(is.na(context_indep_date)) & all(is.na(gly_date)) & all(is.na(issuedate)) & all(is.na(admidate)),
+ddd = if_else(no_support, as.Date(NA), ddd),
+diagnosis = if_else(no_support, "remove_u9", diagnosis) ) %>% 
+  ungroup() %>%
+select(-no_support) 
+
+first_update9b_repeat <- bind_rows(first_update9b_multiple, first_update9b_single)
 
 ```
 
