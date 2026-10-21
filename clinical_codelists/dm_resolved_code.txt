@@ -1,0 +1,6 @@
+medcodeid	Term
+459520010	Diabetes resolved
+616801000006114	Diabetes resolved
+2287971000000119	diabetes mellitus in remission
+1704751000006118	Excluded from diabetic retinopathy screening as no longer diabetic
+459705019	Diabetes mellitus excluded
