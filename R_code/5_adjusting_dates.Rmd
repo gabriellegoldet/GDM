@@ -689,7 +689,7 @@ context_indep_date_single <- single(all_dm_obs) %>%
   rename(context_indep_date = obsdate) %>% 
   left_join(first_update3 %>% select(patid, priority_date, admidate), by = "patid") %>% 
   left_join(hba1c_date_single %>% select(patid, obsdate), by = "patid") %>% 
-  mutate(min_unequivocal_date = pmin(obsdate, context_indep_date, priority_date, admidate, na.rm = TRUE))
+  mutate(min_unequivocal_date = pmin(obsdate, context_indep_date, priority_date, hba1c_date, admidate, na.rm = TRUE))
 
 context_indep_date_multiple <- multiple(all_dm_obs) %>% 
   filter(is.na(context_dep)&is.na(possible_gdm)) %>% 
@@ -701,7 +701,7 @@ context_indep_date_multiple <- multiple(all_dm_obs) %>%
     rename(context_indep_date = obsdate) %>% 
     left_join(first_update3 %>% select(individual_id, patid, priority_date, admidate), by = "individual_id") %>% 
   left_join(hba1c_date_multiple %>% select(patid, obsdate), by = "patid") %>% 
-  mutate(min_unequivocal_date = pmin(obsdate, context_indep_date, priority_date, admidate, na.rm = TRUE)) %>% 
+  mutate(min_unequivocal_date = pmin(obsdate, context_indep_date, priority_date,hba1c_date, admidate, na.rm = TRUE)) %>% 
   group_by(individual_id) %>% 
   summarise(obsdate = first(obsdate),
             min_unequivocal_date = min(min_unequivocal_date),
