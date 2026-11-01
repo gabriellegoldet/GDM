@@ -2513,6 +2513,7 @@ now need to recheck that those coded with metformin before did not have it presc
     min_gly = safe_min(hba1c_date),
     min_context_indep_date = safe_min(context_indep_date),
     min_admidate = safe_min(admidate),
+min_unequivocal_date = safe_min(min_unequivocal_date),
     min_priority_date = safe_min(priority_date)) %>%
   ungroup() %>% 
   mutate(new_ddd = pmin(min_gly, min_issuedate, min_ddd, min_admidate, na.rm=TRUE),
@@ -2522,7 +2523,7 @@ now need to recheck that those coded with metformin before did not have it presc
     filter(min_issuedate %m+% years(1)< ddd_sans_met)
   
 metformin_first_multiple <- metformin_first_multiple%>% 
-  select(patid, individual_id, min_issuedate, min_gly, min_admidate, min_ddd, min_priority_date, ddd_sans_met, min_context_indep_date) 
+  select(patid, individual_id, min_issuedate, min_gly, min_admidate, min_ddd, min_priority_date, ddd_sans_met, min_context_indep_date, min_unequivocal_date) 
 
 metformin_first_single <- single(first_update7) %>%
   mutate(new_ddd = pmin(hba1c_date, issuedate, ddd, admidate, na.rm=TRUE),
@@ -2530,7 +2531,7 @@ metformin_first_single <- single(first_update7) %>%
   filter(productname %in% metformin_code$productname) %>%
   filter(issuedate==new_ddd) %>% 
   filter(issuedate %m+% years(1)< ddd_sans_met) %>% 
-  select(patid, ddd, issuedate, gly_date, admidate, priority_date, ddd_sans_met)
+  select(patid, ddd, issuedate, gly_date, admidate, priority_date, ddd_sans_met, min_unequivocal_date)
 
 metformin_first <- bind_rows(metformin_first_multiple, metformin_first_single)
 ```
@@ -4046,6 +4047,7 @@ now need to recheck that those coded with metformin before did not have it presc
     min_gly = safe_min(hba1c_date),
     min_context_indep_date = safe_min(context_indep_date),
     min_admidate = safe_min(admidate),
+min_unequivocal_date = safe_min(min_unequivocal_date),
     min_priority_date = safe_min(priority_date)) %>%
   ungroup() %>% 
   mutate(new_ddd = pmin(min_gly, min_issuedate, min_ddd, min_admidate, na.rm=TRUE),
@@ -4055,7 +4057,7 @@ now need to recheck that those coded with metformin before did not have it presc
     filter(min_issuedate %m+% years(1)< ddd_sans_met)
   
 metformin_first_multiple <- metformin_first_multiple%>% 
-  select(patid, individual_id, min_issuedate, min_gly, min_admidate, min_ddd, min_priority_date, ddd_sans_met, min_context_indep_date) 
+  select(patid, individual_id, min_issuedate, min_gly, min_admidate, min_ddd, min_priority_date, ddd_sans_met, min_context_indep_date, min_unequivocal_date) 
 
 metformin_first_single <- single(first_update9) %>%
   mutate(new_ddd = pmin(hba1c_date, issuedate, ddd, admidate, na.rm=TRUE),
@@ -4063,7 +4065,7 @@ metformin_first_single <- single(first_update9) %>%
   filter(productname %in% metformin_code$productname) %>%
   filter(issuedate==new_ddd) %>% 
   filter(issuedate %m+% years(1)< ddd_sans_met) %>% 
-  select(patid, ddd, issuedate, gly_date, admidate, priority_date, ddd_sans_met)
+  select(patid, ddd, issuedate, gly_date, admidate, priority_date, ddd_sans_met, min_unequivocal_date)
 
 metformin_first <- bind_rows(metformin_first_multiple, metformin_first_single)
 ```
