@@ -2002,7 +2002,7 @@ large_gap_single <- all_dm_obs %>%
   slice_max(adjusted_ddd) %>% 
   slice(1) %>% 
   ungroup() %>% 
-  mutate(dodgy = if_else(year(adjusted_ddd)<yob+50 & (adjusted_ddd < min_unequivocal_date%m-% years(2)), 1, NA)) ##identify those with a large gap
+  mutate(dodgy = 1) ##identify those with a large gap
   
 large_gap_single_no <-large_gap_single %>% 
   filter(is.na(dodgy)) %>%  
@@ -2258,7 +2258,7 @@ table(all_years_unmatched_single$remove)
   slice_max(adjusted_ddd) %>% 
   slice(1) %>% 
   ungroup() %>% 
-  mutate(dodgy = if_else(year(adjusted_ddd)<yob+50 & (adjusted_ddd < min_unequivocal_date%m-% years(2)), 1, NA)) ##identify those with a large gap
+  mutate(dodgy = 1) ##identify those with a large gap
 
     large_gap_multiple_no <-large_gap_multiple %>% 
   filter(is.na(dodgy)) %>%  
