@@ -688,8 +688,7 @@ context_indep_date_single <- single(all_dm_obs) %>%
   ungroup() %>% 
   rename(context_indep_date = obsdate) %>% 
   left_join(first_update3 %>% select(patid, priority_date, admidate), by = "patid") %>% 
-  left_join(hba1c_date_single %>% select(patid, obsdate), by = "patid") %>% 
-  mutate(min_unequivocal_date = pmin(obsdate, context_indep_date, priority_date, admidate, na.rm = TRUE))
+  left_join(hba1c_date_single %>% select(patid, obsdate), by = "patid") ))
 
 context_indep_date_multiple <- multiple(all_dm_obs) %>% 
   filter(is.na(context_dep)&is.na(possible_gdm)) %>% 
@@ -704,7 +703,6 @@ context_indep_date_multiple <- multiple(all_dm_obs) %>%
   mutate(min_unequivocal_date = pmin(obsdate, context_indep_date, priority_date,admidate, na.rm = TRUE)) %>% 
   group_by(individual_id) %>% 
   summarise(obsdate = first(obsdate),
-            min_unequivocal_date = min(min_unequivocal_date),
 context_indep_date = min(context_indep_date) %>% 
   fill_columns()
 
@@ -720,7 +718,7 @@ left_join(hba1c_date, by = "patid") %>%
     issuedate = if_else(!is.na(metformin_exclude), NA, coalesce(u4_issuedate, issuedate)),#either remove the issuedate or replace it with the update IF NECESSARY (note coalesce won't replace with an NA if there is nothing in u4_issuedate)
          productname = coalesce(u4_productname, productname),
          PCOS_GDM_exclude = if_else(individual_id %in% PCOS_GDM_exclude_multiple$individual_id|patid %in% PCOS_GDM_exclude_single$patid, 1, NA),
- min_unequivocal_date = pmin(hba1c_date, min_unequivocal_date, na.rm = TRUE),
+ min_unequivocal_date = pmin(hba1c_date, priority_date, admidate, context_indep_date, na.rm = TRUE),
          dm_res_date = if_else(dm_res_date>min_unequivocal_date, as.Date(NA), dm_res_date))  #dispose of 'dm resolved date' if it is after unequivocal evidence of MD 
 
 ```
