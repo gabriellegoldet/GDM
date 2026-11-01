@@ -3153,21 +3153,6 @@ diagnostic_check_multiple_overlap <- diagnostic_gly_obs %>%
   filter(obsdate<issuedate|is.na(issuedate)) %>% 
   distinct()
   
-n_distinct(diagnostic_check_multiple_overlap$individual_id)
-
-#now find the second diagnostic date to use for the update, note some individuals have two glydates ##??NOT USED? and no check non diagnostic multiple anyway
-driver_date_multiple_overlap <- check_non_diagnostic_multiple_overlap%>% 
-  filter(!is.na(value)) %>% 
-  distinct(individual_id, obsdate, gly_date, .keep_all = TRUE) %>% #ensures you keep individual obsdates so that when you pick the second row for a patient, it is not just another glycaemic test on the same date
-  arrange(individual_id, gly_date) %>% 
-    group_by(individual_id) %>% 
-  mutate(gly_num = row_number()) %>% 
-  ungroup() %>% 
-  filter(gly_num ==2) %>% #pick date at which glycaemia is persistent - ie at least two readings so pick second reading
-  rename(second_gly = obsdate) %>% 
-  select(-patid) %>% 
-  fill_columns() %>% 
-  mutate(possible_gdm = if_else(second_gly!=gly_date, 1, NA)) #if the updated second obsdate is not one of the glydates for that individual, then it has been updated because a previous date was in pregnancy and therefore suggests GDM 
 ```
 In fact for those with multiple patids (24 patid, 12 individuals), those with unmatched dates did not have two convincingly separate dated glycaemic test dates (two individuals did have different dates, but they were max 3 days apart and it was the same test with the same value so probably just a trasncription issue from one patid to another). Therefore we can wipe all the glycaemic test data for all those in overlap_gly_multiple2
 
