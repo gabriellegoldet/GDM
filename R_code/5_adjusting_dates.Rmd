@@ -2586,7 +2586,8 @@ created above: ddd_sans_met), ie that relies on other markers of DM
 
 ```{r}
 need_to_update_issuedate_single <- metformin_first_single %>% 
-  filter(patid %in% metformin_pcos_single$patid|patid %in% relevant_ndh_single$patid|patid %in% met_before_diab_res_single$patid) 
+  filter(patid %in% metformin_pcos_single$patid|patid %in% relevant_ndh_single$patid|patid %in% met_before_diab_res_single$patid) %>%
+bind_rows(., really_just_metformin_single)
 
 #and find the data to update with
 drug_update_7b_single <- need_to_update_issuedate_single%>% 
@@ -2605,7 +2606,8 @@ need_to_update_issuedate_multiple <- metformin_first_multiple %>%
   select(-patid) %>% 
   filter(individual_id %in% metformin_pcos_multiple$individual_id|individual_id %in% relevant_ndh_multiple$individual_id|individual_id %in% met_before_diab_res_multiple$individual_id) %>% 
   distinct() %>% 
-  fill_columns()
+  fill_columns()%>%
+bind_rows(., really_just_metformin_multiple)
 
 drug_update_7b_multiple <- need_to_update_issuedate_multiple%>% 
   left_join(all_dm_drugs %>% distinct(patid, issuedate, productname, priority_1, priority_2), by ="patid") %>% 
