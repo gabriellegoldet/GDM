@@ -412,7 +412,9 @@ Now do the same process as above with those with multiple patids
  
  gdm_obs_outside_del_multiple <-multiple(all_pregnancy_obs_update) %>%
    anti_join(in_pregnancy_multiple %>% select(individual_id, obsdate, start, end), by = c("individual_id", "obsdate")) %>% #expect many to many
+  group_by(individual_id)%>%
    filter(any(gdm == 1)) %>%
+ungroup()%>%
    filter(obsdate < earliest_preexisting %m-% years(1)|is.na(earliest_preexisting)) %>% 
    filter(!grepl("history", Term, ignore.case = TRUE)) %>% 
    filter(!grepl("h/o", Term, ignore.case = TRUE)) %>% 
