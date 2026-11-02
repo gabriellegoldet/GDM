@@ -126,7 +126,7 @@ Now update first update 12 put those with single patids with those with multiple
 ```{r}
 first_update12 <- single(first_update11) %>%
   bind_rows(., first_multiple_patid_combined) %>% 
-  mutate(new_ddd = pmin(admidate, issuedate, gly_date, ddd, na.rm = TRUE),
+  mutate(new_ddd = pmin(admidate, issuedate, gly_date, ddd, priority_date, context_indep_date, hba1c_date, na.rm = TRUE),
          single_gly_reading = if_else(!is.na(gly_num)&gly_num==1&is.na(ddd)&is.na(issuedate)&is.na(admidate), 1, NA))#log subjects with only a single glycaemic test to evidence DM as will need to be excluded
 ```
 
@@ -179,9 +179,7 @@ filtered_cohort <- first_update13 %>%
     filter(new_ddd<death_date|is.na(death_date))%>% #exclude those whose death was on the day of diagnosis or before diagnosis
   mutate (glicla = if_else(is.na(gly_date)&is.na(ddd)&is.na(admidate)&pattern=="short term"&(productname=="Gliclazide 40mg tablets"|productname=="Gliclazide 80mg tablets"), 1, NA))%>% #identify those whose only evidence of DM is a short course of gliclazide...
   filter(is.na(glicla)) %>% #... and exclude them
-  filter(is.na(HES_term)|#either the patient doesn't have a HES term...
-           HES_term!= "Unspecified diabetes mellitus Without complications"| # or if they do it is not #'unspecified'...
-           (!is.na(gly_date)|!is.na(ddd)|!is.na(issuedate)))  # but if it is unspecified, they have to have other evidence of DM
+  filter(!is.na(admidate)|!is.na(gly_date)|!is.na(ddd)|!is.na(issuedate)) # ensure at least some data is left
 
 
 #the GDM cohort
