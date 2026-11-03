@@ -777,11 +777,11 @@ metformin_pcos_single <- single(all_pcos_obs) %>%
 distinct(patid)
 n_distinct(metformin_pcos$patid)
 
-relevant_ndh_single <- single(metformin_first) %>% 
-  filter(!patid %in% metformin_pcos$patid) %>% 
+relevant_ndh_single <- metformin_first_single%>% 
+  filter(!patid %in% metformin_pcos_single$patid) %>% 
   left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
-  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate<=issuedate), 1, NA)) %>% 
-  select(-individual_id, -min_ddd, -min_issuedate, -min_gly, -min_admidate, -min_priority_date, -min_context_indep_date) %>% 
+  filter(obsdate<ddd_sans_met %m-% years(1)|is.na(ddd_sans_met)) %>% #look for obsdates at least a year before other evidence of
+  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate <=issuedate %m+% years(1))|is.na(ddd_sans_met), 1, NA)) %>% #consider them to have a relevant NDH episode if linked in time to the issuedate or if there is no other evidence of DM (ie no ddd_sans_met)
   filter(!is.na(prior_1_year))
 
 met_before_diab_res_single <- metformin_first_single %>% 
@@ -789,17 +789,17 @@ met_before_diab_res_single <- metformin_first_single %>%
   filter(!patid %in% relevant_ndh_single$patid) %>% 
   filter(issuedate<dm_res_date)
 
-
-#now do the same for those with multiple patids
+#same for multiple
 metformin_pcos_multiple <- multiple(all_pcos_obs) %>% 
   inner_join(metformin_first_multiple %>% distinct(individual_id, min_issuedate, ddd_sans_met, min_priority_date, priority_2_date), by = "individual_id") %>% 
   distinct(individual_id) %>% 
   fill_columns()
 
-relevant_ndh_multiple <- multiple(metformin_first) %>% 
-  filter(!individual_id %in% metformin_pcos_multiple$individual_id) %>% 
+relevant_ndh_multiple <- metformin_first_multiple %>% 
+  filter(!individual_id %in% metformin_pcos_multiple) %>% 
   left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
-  mutate(prior_1_year = if_else((obsdate>= min_issuedate%m-% years(1))&(obsdate<= min_issuedate), 1, NA)) %>% 
+  filter(obsdate<ddd_sans_met %m-% years(1)|is.na(ddd_sans_met)) %>% #look for obsdates at least a year before other evidence of
+  mutate(prior_1_year = if_else((obsdate>= min_issuedate%m-% years(1)) &(obsdate <=min_issuedate %m+% years(1))|is.na(ddd_sans_met), 1, NA))  %>% 
   filter(!is.na(prior_1_year))
 
 met_before_diab_res_multiple <- metformin_first_multiple %>% 
@@ -2547,12 +2547,11 @@ metformin_pcos_single <- single(all_pcos_obs) %>%
 distinct(patid)
 n_distinct(metformin_pcos$patid) #9768
 
-relevant_ndh_single <- single(metformin_first) %>% 
-  filter(!patid %in% metformin_pcos$patid) %>% 
-  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>%  
-  filter(!is.na(obsdate)) %>% #only keep those with evidence of NDH
-  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate<=issuedate)|is.na(min_unequivocal_date), 1, NA)) %>% #flag anyone who has a relevant NDH date or no unequivocal date
-  select(-individual_id, -min_ddd, -min_issuedate, -min_gly, -min_admidate, -min_priority_date, -min_context_indep_date) %>% 
+relevant_ndh_single <- metformin_first_single%>% 
+  filter(!patid %in% metformin_pcos_single$patid) %>% 
+  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  filter(obsdate<ddd_sans_met %m-% years(1)|is.na(ddd_sans_met)) %>% #look for obsdates at least a year before other evidence of
+  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate <=issuedate %m+% years(1))|is.na(ddd_sans_met), 1, NA)) %>% #consider them to have a relevant NDH episode if linked in time to the issuedate or if there is no other evidence of DM (ie no ddd_sans_met)
   filter(!is.na(prior_1_year))
 
 met_before_diab_res_single <- metformin_first_single %>% 
@@ -2561,17 +2560,17 @@ met_before_diab_res_single <- metformin_first_single %>%
   filter(issuedate<dm_res_date)
 
 
-#now do the same for those with multiple patids
+#same for multiple
 metformin_pcos_multiple <- multiple(all_pcos_obs) %>% 
-  inner_join(metformin_first_multiple %>% distinct(individual_id, min_issuedate, ddd_sans_met, min_priority_date), by = "individual_id") %>% 
+  inner_join(metformin_first_multiple %>% distinct(individual_id, min_issuedate, ddd_sans_met, min_priority_date, priority_2_date), by = "individual_id") %>% 
   distinct(individual_id) %>% 
   fill_columns()
 
-relevant_ndh_multiple <- multiple(metformin_first) %>% 
-  filter(!individual_id %in% metformin_pcos_multiple$individual_id) %>% 
-  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>%  
-  filter(!is.na(obsdate)) %>% #only keep those with evidence of NDH
-  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate<=issuedate)|is.na(min_unequivocal_date), 1, NA)) %>% #flag anyone who has a relevant NDH date or no unequivocal date
+relevant_ndh_multiple <- metformin_first_multiple %>% 
+  filter(!individual_id %in% metformin_pcos_multiple) %>% 
+  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  filter(obsdate<ddd_sans_met %m-% years(1)|is.na(ddd_sans_met)) %>% #look for obsdates at least a year before other evidence of
+  mutate(prior_1_year = if_else((obsdate>= min_issuedate%m-% years(1)) &(obsdate <=min_issuedate %m+% years(1))|is.na(ddd_sans_met), 1, NA))  %>% 
   filter(!is.na(prior_1_year))
 
 met_before_diab_res_multiple <- metformin_first_multiple %>% 
@@ -4083,12 +4082,11 @@ metformin_pcos_single <- single(all_pcos_obs) %>%
   inner_join(metformin_first_single %>% select(patid, issuedate, ddd_sans_met), by = "patid") %>%
 distinct(patid)
 
-relevant_ndh_single <- single(metformin_first) %>% 
-  filter(!patid %in% metformin_pcos$patid) %>% 
-  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>%  
-  filter(!is.na(obsdate)) %>% #only keep those with evidence of NDH
-  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate<=issuedate)|is.na(min_unequivocal_date), 1, NA)) %>% #flag anyone who has a relevant NDH date or no unequivocal date
-  select(-individual_id, -min_ddd, -min_issuedate, -min_gly, -min_admidate, -min_priority_date, -min_context_indep_date) %>% 
+relevant_ndh_single <- metformin_first_single%>% 
+  filter(!patid %in% metformin_pcos_single$patid) %>% 
+  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  filter(obsdate<ddd_sans_met %m-% years(1)|is.na(ddd_sans_met)) %>% #look for obsdates at least a year before other evidence of
+  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate <=issuedate %m+% years(1))|is.na(ddd_sans_met), 1, NA)) %>% #consider them to have a relevant NDH episode if linked in time to the issuedate or if there is no other evidence of DM (ie no ddd_sans_met)
   filter(!is.na(prior_1_year))
 
 met_before_diab_res_single <- metformin_first_single %>% 
@@ -4097,17 +4095,17 @@ met_before_diab_res_single <- metformin_first_single %>%
   filter(issuedate<dm_res_date)
 
 
-#now do the same for those with multiple patids
+#same for multiple
 metformin_pcos_multiple <- multiple(all_pcos_obs) %>% 
-  inner_join(metformin_first_multiple %>% distinct(individual_id, min_issuedate, ddd_sans_met), by = "individual_id") %>% 
+  inner_join(metformin_first_multiple %>% distinct(individual_id, min_issuedate, ddd_sans_met, min_priority_date, priority_2_date), by = "individual_id") %>% 
   distinct(individual_id) %>% 
   fill_columns()
 
-relevant_ndh_multiple <- multiple(metformin_first) %>% 
-  filter(!individual_id %in% metformin_pcos_multiple$individual_id) %>% 
-  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>%  
-  filter(!is.na(obsdate)) %>% #only keep those with evidence of NDH
-  mutate(prior_1_year = if_else((obsdate>= issuedate%m-% years(1)) &(obsdate<=issuedate)|is.na(min_unequivocal_date), 1, NA)) %>% #flag anyone who has a relevant NDH date or no unequivocal date
+relevant_ndh_multiple <- metformin_first_multiple %>% 
+  filter(!individual_id %in% metformin_pcos_multiple) %>% 
+  left_join(ndh_obs %>% select(patid, obsdate, Term, value), by = "patid") %>% 
+  filter(obsdate<ddd_sans_met %m-% years(1)|is.na(ddd_sans_met)) %>% #look for obsdates at least a year before other evidence of
+  mutate(prior_1_year = if_else((obsdate>= min_issuedate%m-% years(1)) &(obsdate <=min_issuedate %m+% years(1))|is.na(ddd_sans_met), 1, NA))  %>% 
   filter(!is.na(prior_1_year))
 
 met_before_diab_res_multiple <- metformin_first_multiple %>% 
