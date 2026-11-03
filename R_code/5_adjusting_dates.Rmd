@@ -3564,7 +3564,7 @@ gly_one_year_before_single2 <- gly_one_year_before_single %>%
   left_join(all_pregnancy_obs_update, by = "patid") %>%
   filter(obsdate<min_unequivocal_date) #no point in examining GDM codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
 
-#by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the drug prescription can be kept because there is no strong evidence of GDM
+#by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the test date can be kept because there is no strong evidence of GDM
 
 #now get the relevant dates for the GDM episodes
   gly_one_year_before_single3 <- gly_one_year_before_single2 %>% 
@@ -3758,7 +3758,7 @@ gly_one_year_before_multiple2 <- gly_one_year_before_multiple %>%
   left_join(all_pregnancy_obs_update %>% select(-individual_id), by = "patid") %>%
   filter(obsdate<min_unequivocal_date) #no point in examining GDM codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
 
-#by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the drug prescription can be kept because there is no strong evidence of GDM
+#by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the test date can be kept because there is no strong evidence of GDM
 
 #now get the relevant dates for the GDM episodes
   gly_one_year_before_multiple3 <- gly_one_year_before_multiple2 %>% 
@@ -3849,7 +3849,7 @@ left_join(first_update8 %>%  select(patid,individual_id, gly_date, issuedate, mi
 n_distinct(use_first_unmatched_gly_single$patid)
 
 
-#now find the second diagnostic date to use for the update ~NOONE
+#now find the second diagnostic date to use for the update ~(NO ONE in my case)
 driver_date_multiple_unmatched <- check_non_diagnostic_multiple_unmatched %>% 
   filter(!is.na(value)) %>% 
   distinct(individual_id, obsdate, .keep_all = TRUE) %>% #ensures you keep individual obsdates so that when you pick the second row for a patient, it is not just another glycaemic test on the same date
@@ -4374,17 +4374,18 @@ first_update10_single_patid$death_date_revised <- as.Date(NA)
 Add in number of gly tests - those who only have 1 and no other evidence of DM will be excluded
 ```{r}
 single_gly_single <- single(diagnostic_gly_obs) %>% 
+distinct(patid, obsdate)%>% #only keep one row per date
   group_by(patid) %>% 
   mutate(gly_num = row_number()) %>% 
   slice_max(gly_num) %>% 
   ungroup()
 
 single_gly_multiple <- multiple(diagnostic_gly_obs) %>% 
+distinct(individual_id, obsdate)%>% # only keep one row per date
   group_by(individual_id) %>% 
   mutate(gly_num = row_number()) %>% 
   slice_max(gly_num) %>% 
   ungroup() %>% 
-  select(-patid) %>% 
   fill_columns()
  
  single_gly <- bind_rows(single_gly_single, single_gly_multiple)
