@@ -2562,7 +2562,7 @@ met_before_diab_res_single <- metformin_first_single %>%
 
 #same for multiple
 metformin_pcos_multiple <- multiple(all_pcos_obs) %>% 
-  inner_join(metformin_first_multiple %>% distinct(individual_id, min_issuedate, ddd_sans_met, min_priority_date, priority_2_date), by = "individual_id") %>% 
+  inner_join(metformin_first_multiple %>% distinct(individual_id, min_issuedate, ddd_sans_met, min_priority_date), by = "individual_id") %>% 
   distinct(individual_id) %>% 
   fill_columns()
 
@@ -4097,7 +4097,7 @@ met_before_diab_res_single <- metformin_first_single %>%
 
 #same for multiple
 metformin_pcos_multiple <- multiple(all_pcos_obs) %>% 
-  inner_join(metformin_first_multiple %>% distinct(individual_id, min_issuedate, ddd_sans_met, min_priority_date, priority_2_date), by = "individual_id") %>% 
+  inner_join(metformin_first_multiple %>% distinct(individual_id, min_issuedate, ddd_sans_met, min_priority_date), by = "individual_id") %>% 
   distinct(individual_id) %>% 
   fill_columns()
 
