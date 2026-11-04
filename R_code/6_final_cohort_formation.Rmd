@@ -122,12 +122,29 @@ left_join(dates_df, by = "individual_id") %>%
 ```
 
 Now update first update 12 put those with single patids with those with multiple patids collapsed to a single line (first_multiple_patid_combined) together and find the earliest date across a row.  This is the new diabetes diagnosis date (ddd)
+Also label those with only a glycaemic test reading to evidence diabetes in prior to 2014 (unless it was IN 2014 AND the glycaemic test within a year, in 2013)
 
 ```{r}
-first_update12 <- single(first_update11) %>%
-  bind_rows(., first_multiple_patid_combined) %>% 
-  mutate(new_ddd = pmin(admidate, issuedate, gly_date, ddd, priority_date, context_indep_date, hba1c_date, na.rm = TRUE),
-         single_gly_reading = if_else(!is.na(gly_num)&gly_num==1&is.na(ddd)&is.na(issuedate)&is.na(admidate), 1, NA))#log subjects with only a single glycaemic test to evidence DM as will need to be excluded
+first_update12_repeat <- single(first_update11_repeat) %>%
+  bind_rows(., first_multiple_patid_combined) %>%
+  mutate(
+    admidate = if_else(is.na(HES_term), as.Date(NA), admidate),
+    new_ddd = pmin(admidate, issuedate, gly_date, ddd, hba1c_date, priority_date,
+                   context_indep_date, na.rm = TRUE),
+    # earliest NON-glycaemic evidence (hba1c_date is part of gly_num, so excluded)
+    ddd_sans_gly = pmin(ddd, issuedate, admidate, priority_date,
+                        context_indep_date, na.rm = TRUE),
+    gly_2013 = if_else(gly_date == new_ddd & year(gly_date) == 2013 &
+                         ddd_sans_gly < gly_date %m+% years(1), 1, NA_real_),
+    single_gly_reading = case_when(
+      is.na(gly_num) | gly_num != 1                    ~ NA_real_,  # not a single glycaemic test
+      is.na(gly_date) | year(gly_date) >= 2014         ~ NA_real_,  # the test must be before 2014
+      is.na(ddd_sans_gly)                              ~ 1,         # no non-glycaemic evidence at all
+      ddd_sans_gly < as.Date("2014-01-01")             ~ NA_real_,  # other evidence before 2014: not flagged
+      year(gly_date) == 2013 &
+        ddd_sans_gly < gly_date %m+% years(1)          ~ NA_real_,  # exception: 2013 test corroborated within a year
+      TRUE                                             ~ 1          # other evidence only from 2014, not within a year of a 2013 test
+    )
 ```
 
 
