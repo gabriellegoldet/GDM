@@ -3230,11 +3230,11 @@ wipe_drug <- no_diagnosis_nor_hes_nor_priority1 %>%
 
 ##Now for update 8 
 remove the medication and glycamic tests for those that overlap, and update those where needed
-also create new variables for earliest ddd and earliest unequivocal ddd, which are needed for update 8 below, note will need to update metofrmin exclude at the end, note now all dates in the updated ddd column should now be context independent and reliable, therefore they can be added into the calculation of the min_unequivocal_date, but we have to be careful how we do this for those with multiple patids - some will already have context-independent codes in there for some patids
+also create new variables for earliest ddd and earliest unequivocal ddd, which are needed for update 8 below, note will need to update metofrmin exclude at the end, note now all dates in the updated ddd column should now be context independent and reliable, therefore they can be added into the calculation of the min_unequivocal_date (this is actually stored as min_unequivocal_date2 rather than replacing the old one, helpful to have both for comparison, and ultimately the old min_unequivocal_date is used to be safe), but we have to be careful how we do this for those with multiple patids - some will already have context-independent codes in there for some patids
 
 ```{r}
 context_indep_date_single <- single(first_update7b) %>% 
-  mutate(min_unequivocal_date = pmin(admidate, ddd, hba1c_date, priority_date, na.rm = TRUE))
+  mutate(min_unequivocal_date2 = pmin(admidate, ddd, hba1c_date, priority_date, na.rm = TRUE))
 
 context_indep_date_multiple <- multiple(first_update7b) %>% 
   group_by(individual_id) %>% 
@@ -3242,7 +3242,7 @@ context_indep_date_multiple <- multiple(first_update7b) %>%
             admidate = safe_min(admidate)) %>% #note some patients have different admidates or no admidate in one patid and one in another so need to unify these to get to a single min_unequivocal date per individual
   ungroup() %>% 
   left_join(first_update7b %>% select(individual_id, hba1c_date, priority_date), by = "individual_id") %>% 
-    mutate(min_unequivocal_date = pmin(admidate, ddd, hba1c_date, priority_date, na.rm = TRUE)) %>% 
+    mutate(min_unequivocal_date2 = pmin(admidate, ddd, hba1c_date, priority_date, na.rm = TRUE)) %>% 
   distinct() %>% 
 fill_columns()
 
@@ -3263,8 +3263,7 @@ first_update8 <- first_update7b %>%
          gly_term = if_else(patid %in% no_diagnosis_nor_hes_nor_priority1$patid, "gly removed", gly_term),
          value =  if_else(patid %in% no_diagnosis_nor_hes_nor_priority1$patid, NA, value)) %>% 
   left_join(driver_date_single_overlap %>% select(patid, second_gly, gly_term_u8, value_u8), by = "patid") %>%#the only bit to update
-  select(-min_unequivocal_date) %>% #need updating so remove before left_join of updated col
-  left_join(context_indep_date_total %>% select(patid, min_unequivocal_date, admidate_u8), by = "patid") %>% 
+  left_join(context_indep_date_total %>% select(patid, min_unequivocal_date2, admidate_u8), by = "patid") %>% 
   mutate(gly_date = if_else(!is.na(second_gly), second_gly, gly_date),## update the gly_date if necessary
          gly_term = if_else(!is.na(gly_term_u8), gly_term_u8, gly_term),
          value =  if_else(!is.na(value_u8), value_u8, value),
