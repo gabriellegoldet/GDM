@@ -3283,12 +3283,13 @@ else by at least a year
 
 drug_one_year_before_single <- single(first_update8) %>%
   select(patid, ddd, diagnosis, gly_date, gly_term, hba1c_date, issuedate, productname, priority_date, pattern, years, admidate, min_unequivocal_date, equivocal_date, PCOS_GDM_exclude, gdm_status) %>% 
-  filter(issuedate < min_unequivocal_date %m-% years(1)) %>%
+filter(!is.na(issuedate))%>%
+  filter(issuedate < min_unequivocal_date %m-% years(1)|is.na(min_unequivocal_date)) %>%
   filter(is.na(PCOS_GDM_exclude)) %>% #probably none here to exclude
-  filter(min_unequivocal_date>=as.Date("2007-01-01") &year(equivocal_date)<2014) %>% ##no point examining those outside those date ranges
+  filter((min_unequivocal_date>=as.Date("2007-01-01")|is.na(min_unequivical_date)) & year(equivocal_date)<2014) %>% ##no point examining those outside those date ranges
   rename(original_issuedate = issuedate) %>% ##so as to avoid confusion with the incoming issuedates
   left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") %>%
-  filter(issuedate>=original_issuedate & issuedate <min_unequivocal_date %m-% years(1) & issuedate < as.Date("2014-01-01")) %>% ##only bother to match values that matter ie at least a year before unequivocal date and prior to end of entry period
+  filter(issuedate>=original_issuedate & (issuedate <min_unequivocal_date %m-% years(1)|is.na(min_unequivocal_date)& issuedate < as.Date("2014-01-01")) %>% ##only bother to match values that matter ie at least a year before unequivocal date and prior to end of entry period
   distinct() %>%
   mutate(equivocal_years = year(issuedate)) %>% 
   arrange(patid,issuedate) # so that when they are listed they come out in order
@@ -3306,8 +3307,8 @@ drug_one_year_before_single2 <- drug_one_year_before_single %>%
   ungroup() %>% 
   left_join(first_update8 %>% select(patid, issuedate, min_unequivocal_date), by = "patid") %>% ##bring min_unequival date back
   left_join(all_pregnancy_obs_update, by = "patid") %>%
-  filter(obsdate<=min_unequivocal_date %m-% years(1)) #no point in examining pregnancies codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
-
+  filter(obsdate<=min_unequivocal_date %m-% years(1)|is.na(min_unequivocal_date))%>% #no point in examining pregnancies codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
+filter(!is.na(obsdate))#only keep patients with pregnancy data
 n_distinct(drug_one_year_before_single2$patid) 
 
 #by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the drug prescription can be kept because there is no strong evidence of GDM
@@ -3433,7 +3434,8 @@ drug_one_year_before_multiple2 <- drug_one_year_before_multiple %>%
     ) %>%
   ungroup() %>%  ##bring min_unequival date back
   left_join(all_pregnancy_obs_update, by = "individual_id") %>%
-  filter(obsdate<=min_unequivocal_date %m-% years(1)) #no point in examining pregnancy codings after one year before unequivocal evidence of diabetes as that is probably contiguous with the DM episode
+  filter(obsdate<=min_unequivocal_date %m-% years(1))%>% #no point in examining pregnancy codings after one year before unequivocal evidence of diabetes as that is probably contiguous with the DM episode
+filter(!is.na(obsdate))
 
 n_distinct(drug_one_year_before_multiple2$individual_id)
 
@@ -3560,7 +3562,8 @@ gly_one_year_before_single2 <- gly_one_year_before_single %>%
   ungroup() %>% 
   left_join(first_update8 %>% select(patid, issuedate, min_unequivocal_date), by = "patid") %>% ##bring min_unequival date back
   left_join(all_pregnancy_obs_update, by = "patid") %>%
-  filter(obsdate<min_unequivocal_date) #no point in examining GDM codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
+  filter(obsdate<min_unequivocal_date)%>% #no point in examining GDM codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
+filter(!is.na(obsdate))
 
 #by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the test date can be kept because there is no strong evidence of GDM
 
@@ -3754,7 +3757,8 @@ gly_one_year_before_multiple2 <- gly_one_year_before_multiple %>%
   fill_columns(equivocal_years) %>% 
   left_join(first_update8 %>% select(patid, issuedate, min_unequivocal_date), by = "patid") %>% ##bring min_unequival date back
   left_join(all_pregnancy_obs_update %>% select(-individual_id), by = "patid") %>%
-  filter(obsdate<min_unequivocal_date) #no point in examining GDM codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
+  filter(obsdate<min_unequivocal_date) %>% #no point in examining GDM codings after unequivocal evidence of diabetes as that is probably just miscoded GDM and no point in matching those after entry period because any issuedate after the end of the entry period is useless anyway
+filter(!is.na(obsdate))
 
 #by removing anyone who did not have an obsdate prior to the unequivocal date, we removed anyone without GDM (effectively).  It means that for those that have disappeared by this process, the test date can be kept because there is no strong evidence of GDM
 
