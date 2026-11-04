@@ -4372,6 +4372,7 @@ Add in number of gly tests - those who only have 1 and no other evidence of DM w
 ```{r}
 single_gly_single <- single(diagnostic_gly_obs) %>% 
 distinct(patid, obsdate)%>% #only keep one row per date
+filter(year(obsdate)<2014)%>% #only lok at tests in potentially relevant time-frame
   group_by(patid) %>% 
   mutate(gly_num = row_number()) %>% 
   slice_max(gly_num) %>% 
@@ -4379,6 +4380,7 @@ distinct(patid, obsdate)%>% #only keep one row per date
 
 single_gly_multiple <- multiple(diagnostic_gly_obs) %>% 
 distinct(individual_id, obsdate)%>% # only keep one row per date
+filter(year(obsdate)<2014)%>% #only lok at tests in potentially relevant time-frame
   group_by(individual_id) %>% 
   mutate(gly_num = row_number()) %>% 
   slice_max(gly_num) %>% 
