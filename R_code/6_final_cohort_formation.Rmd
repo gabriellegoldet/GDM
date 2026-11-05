@@ -146,13 +146,109 @@ first_update12_repeat <- single(first_update11_repeat) %>%
       TRUE                                             ~ 1          # other evidence only from 2014, not within a year of a 2013 test
     )
 ```
+and for some further refinements for those with glibenclamide/hba1c/admidate proably in pregnancy
+also check hba1c used appropriately.  When it precedes all other data by at least a year and occurs in the latter two trimesters of pregnancy, need to ensure there is at least one other datum in the entry window to ensure that the patient has diabetes in the entry window and is eligible
+
+```{r}
+check_hba1c_single <- single(first_update12) %>% 
+  filter(hba1c_date < (pmin(context_indep_date, ddd, issuedate, priority_date, admidate, na.rm = TRUE) %m-% years(1))) %>% 
+  select(patid, individual_id, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
+  left_join(all_deliveries_single, by = "patid") %>% 
+  filter(delivery_date< hba1c_date %m+% months(6)& delivery_date >= hba1c_date) %>% 
+  mutate(ddd_sans_gly = year(pmin(ddd, context_indep_date, issuedate, priority_date, admidate, na.rm= TRUE)),
+    hba1c_exclude = if_else(ddd_sans_gly>2014 | is.na(ddd_sans_gly), 1, NA)
+         )
+
+check_hba1c_multiple <- multiple(first_update12) %>% 
+  filter(hba1c_date < (pmin(context_indep_date, ddd, issuedate, priority_date, admidate, na.rm = TRUE) %m-% years(1))) %>% 
+  select(individual_id, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
+  left_join(all_deliveries_multiple, by = "individual_id") %>% 
+  distinct(individual_id, delivery_date, .keep_all = TRUE) %>% 
+  filter(delivery_date< hba1c_date %m+% months(6)& delivery_date >= hba1c_date) %>% 
+    mutate(ddd_sans_gly = year(pmin(ddd, context_indep_date, issuedate, priority_date, admidate, na.rm= TRUE)),
+    hba1c_exclude = if_else(ddd_sans_gly>2014 | is.na(ddd_sans_gly), 1, NA)
+         )
+
+```
+Same thing with glibenclamide
+
+```{r}
+gliben_single <- single(first_update12) %>% 
+  filter(grepl("glibenclamide", productname, ignore.case = TRUE)) %>% 
+   filter(priority_date ==new_ddd) %>% 
+  distinct(patid, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status, issuedate, productname)%>% 
+  left_join(all_deliveries_single, by = "patid") %>% 
+  filter(delivery_date< priority_date %m+% months(6)& delivery_date >= priority_date) %>% 
+  mutate(ddd_sans_glib = pmin(ddd, context_indep_date,hba1c_date, gly_date, admidate, na.rm= TRUE),
+  glib_exclude = if_else(year(ddd_sans_glib)>2013 | is.na(ddd_sans_glib), 1, NA)
+         )
+
+
+gliben_multiple <- multiple(first_update12) %>% 
+  filter(grepl("glibenclamide", productname, ignore.case = TRUE)) %>% 
+  filter(priority_date ==new_ddd) %>% 
+  select(individual_id, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
+  left_join(all_deliveries_multiple, by = "individual_id") %>% 
+  filter(delivery_date< priority_date %m+% months(6)& delivery_date >= priority_date) %>% 
+  mutate(ddd_sans_glib = pmin(ddd, context_indep_date,hba1c_date, gly_date, admidate, na.rm= TRUE),
+  glib_exclude = if_else(year(ddd_sans_glib)>2013 | is.na(ddd_sans_glib), 1, NA)
+         )
+```
+
+admidate likely actually related to a gdm episode rather than actual dm
+
+
+```{r}
+admidate_single <- single(first_update12) %>% 
+  filter(admidate ==new_ddd) %>%
+    select(patid, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
+  left_join(all_deliveries_single, by = "patid") %>% 
+  filter(delivery_date< admidate %m+% months(6)& delivery_date >= admidate) %>% 
+  mutate(ddd_sans_admi = pmin(ddd, context_indep_date,hba1c_date, gly_date, issuedate, priority_date, na.rm= TRUE),
+         ) %>% 
+  filter(admidate < ddd_sans_admi %m-% years(1)|is.na(ddd_sans_admi)) 
+
+admidate_multiple <- multiple(first_update12) %>% 
+  filter(admidate ==new_ddd) %>%
+    select(individual_id, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
+  left_join(all_deliveries_multiple, by = "individual_id") %>% 
+  filter(delivery_date< admidate %m+% months(6)& delivery_date >= admidate) %>% 
+  mutate(ddd_sans_admi = pmin(ddd, context_indep_date,hba1c_date, gly_date, issuedate, priority_date, na.rm= TRUE),
+         ) %>% 
+  filter(admidate < ddd_sans_admi %m-% years(1) |is.na(ddd_sans_admi)) 
+```
+
+now update12 with refinements
+```{r}
+first_update12b_single <- single(first_update12) %>% 
+    left_join(check_hba1c_single %>% select(patid, hba1c_exclude), by = "patid") %>% 
+  left_join(gliben_single %>% select(patid, glib_exclude), by = "patid") %>% 
+  mutate(admidate = if_else(patid %in% admidate_single$patid, NA, admidate),
+    new_ddd = case_when(is.na(single_gly_reading)~pmin(admidate, issuedate, gly_date, ddd, hba1c_date, priority_date,
+                   context_indep_date, na.rm = TRUE),
+                   TRUE~pmin(admidate, issuedate, gly_date, ddd, priority_date,
+                   context_indep_date, na.rm = TRUE) ))
+
+first_update12b_multiple <- multiple(first_update12)%>% 
+  left_join(check_hba1c_multiple %>% select(individual_id, hba1c_exclude), by = "individual_id") %>% 
+    left_join(gliben_multiple %>% select(individual_id, glib_exclude), by = "individual_id") %>%   
+  mutate(admidate = if_else(patid %in% admidate_single$patid, NA, admidate),
+    new_ddd = case_when(is.na(single_gly_reading)~pmin(admidate, issuedate, gly_date, ddd, hba1c_date, priority_date,
+                   context_indep_date, na.rm = TRUE),
+                   TRUE~pmin(admidate, issuedate, gly_date, ddd, priority_date,
+                   context_indep_date, na.rm = TRUE) ))
+
+first_update12b <- bind_rows(first_update12b_multiple, first_update12b_single)
+
+```
+
 
 
 ### Update13 - now form the GDM cohort
 
 ```{r}
 gdm_obs_single <- total_gdm_single_deliveries_slimmed %>% #take all the GDM delivery dates
-  left_join(first_update12%>% select(patid, new_ddd), by = "patid") %>% 
+  left_join(first_update12b%>% select(patid, new_ddd), by = "patid") %>% 
   filter(!is.na(new_ddd)) %>% 
   filter(delivery_date<new_ddd %m-% years(1)) %>% 
   group_by(patid) %>% 
