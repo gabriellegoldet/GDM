@@ -170,15 +170,44 @@ gdm_obs_multiple <- total_gdm_multiple_deliveries_slimmed %>%
   ungroup()
 
 ```
+Now if Hba1c predates everything else and is in pregnancy and there is no data to suggest the patient has DM during the entry window, they need to be flagged for exclusion
+all_delivery_dates_single and _multiple are needed for this and are formed in 4_pregnancy.rmd available in github.
+
+```{r}
+check_hba1c_single <- single(first_update12_repeat) %>% 
+  filter(hba1c_date < (pmin(context_indep_date, ddd, issuedate, priority_date, admidate, na.rm = TRUE) %m-% years(1))) %>% 
+  select(patid, individual_id, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
+  left_join(all_deliveries_single, by = "patid") %>% 
+  filter(delivery_date< hba1c_date %m+% months(6)& delivery_date >= hba1c_date) %>% 
+  mutate(hba1c_exclude = if_else(year(pmin(ddd, context_indep_date, issuedate, priority_date, admidate, na.rm= TRUE))>2014, 1, NA)
+         )
+
+check_hba1c_multiple <- multiple(first_update12_repeat) %>% 
+  filter(hba1c_date < (pmin(context_indep_date, ddd, issuedate, priority_date, admidate, na.rm = TRUE) %m-% years(1))) %>% 
+  select(individual_id, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
+  left_join(all_deliveries_multiple, by = "individual_id") %>% 
+  distinct(individual_id, delivery_date, .keep_all = TRUE) %>% 
+  filter(delivery_date< hba1c_date %m+% months(6)& delivery_date >= hba1c_date) %>% 
+  mutate(hba1c_exclude = if_else(year(pmin(ddd, context_indep_date, issuedate, priority_date, admidate, na.rm= TRUE))>2014, 1, NA)
+         )
+
+```
+
+
+
 #now update 13, update the GDM status with the above
 
 ```{r}
-first_update13 <- first_update12%>% 
-  mutate(gdm_status = if_else(patid %in% gdm_obs_single$patid|individual_id %in% gdm_obs_multiple$individual_id, "GDM", gdm_status)) 
+first_update13_single <- single(first_update12) %>% 
+  mutate(gdm_status = if_else(patid %in% gdm_obs_single$patid, "GDM", gdm_status)) %>% 
+  left_join(check_hba1c_single %>% select(patid, hba1c_exclude), by = "patid")
+
+first_update13_multiple <- multiple(first_update12) %>% 
+  mutate(gdm_status = if_else(individual_id %in% gdm_obs_multiple$individual_id, "GDM", gdm_status)) %>% 
+  left_join(check_hba1c_multiple %>% select(individual_id, hba1c_exclude), by = "individual_id")
 
 table(first_update13$possible_gdm)
 ```
-
 
 Now filter down to the actual cohort
 
