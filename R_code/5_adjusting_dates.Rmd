@@ -2648,7 +2648,7 @@ first filter down to appropriate subjects
 #bring years variable back
 no_diagnosis_nor_hes_nor_priority1_single <- single(first_update7b) %>% 
   mutate(issuedate = if_else(pattern=="one-off" & is.na(gly_date) & is.na(admidate) & is.na(ddd), as.Date(NA), issuedate)) %>% 
-  filter(is.na(min_unequivocal_date)) %>%
+  filter(is.na(admidate)) %>%
   filter(is.na(ddd)) %>% ##ddd's should now be unquivocal too
   filter(is.na(gdm_status)) %>%  #no point searching patients that have already been labelled for exclusion by an ambiguous first diagnosis, and note any one in the GDM column has already been filtered out because they have a ddd
   filter(is.na(PCOS_GDM_exclude)&is.na(metformin_exclude)) %>% #no point searching through those already excluded by PCOS
@@ -2659,7 +2659,7 @@ no_diagnosis_nor_hes_nor_priority1_single <- single(first_update7b) %>%
 no_diagnosis_nor_hes_nor_priority1_multiple <- multiple(first_update7b) %>% 
    mutate(issuedate = if_else(pattern=="one-off" & is.na(gly_date) & is.na(admidate) & is.na(ddd), as.Date(NA), issuedate)) %>% 
   group_by(individual_id) %>% 
-   filter(all(is.na(min_unequivocal_date))) %>%
+   filter(all(is.na(admidate))) %>%
   filter(all(is.na(ddd))) %>% 
   ungroup() %>% 
   filter(is.na(gdm_status)) %>%  #no point searching patients that have already been labelled for exclusion by an ambiguous first diagnosis, and note any one in the GDM column has already been filtered out because they have a ddd
