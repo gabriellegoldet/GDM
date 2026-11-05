@@ -128,6 +128,7 @@ Also label those with only a glycaemic test reading to evidence diabetes in prio
 first_update12_repeat <- single(first_update11_repeat) %>%
   bind_rows(., first_multiple_patid_combined) %>%
   mutate(
+gly_date = coalesce(gly_date, hba1c_date), #there are some gaps where the gly date has been removed as it overlapped with pregnancy - replace it with hba1c so that the logic below works to identify those with only glycaemic data in the entry window
     admidate = if_else(is.na(HES_term), as.Date(NA), admidate),
     new_ddd = pmin(admidate, issuedate, gly_date, ddd, hba1c_date, priority_date,
                    context_indep_date, na.rm = TRUE),
