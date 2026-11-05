@@ -151,7 +151,13 @@ also check hba1c used appropriately.  When it precedes all other data by at leas
 
 ```{r}
 check_hba1c_single <- single(first_update12) %>% 
-  filter(hba1c_date < (pmin(context_indep_date, ddd, issuedate, priority_date, admidate, na.rm = TRUE) %m-% years(1))) %>% 
+   filter(
+  !is.na(hba1c_date) &
+    (
+      hba1c_date < pmin(context_indep_date, priority_date, admidate, na.rm = TRUE) %m-% years(1) | #identify where it predates solid evidence of diabetes or where there is none
+        (is.na(context_indep_date) & is.na(priority_date) & is.na(admidate))
+    )
+) &>&
   select(patid, individual_id, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
   left_join(all_deliveries_single, by = "patid") %>% 
   filter(delivery_date< hba1c_date %m+% months(6)& delivery_date >= hba1c_date) %>% 
@@ -160,7 +166,13 @@ check_hba1c_single <- single(first_update12) %>%
          )
 
 check_hba1c_multiple <- multiple(first_update12) %>% 
-  filter(hba1c_date < (pmin(context_indep_date, ddd, issuedate, priority_date, admidate, na.rm = TRUE) %m-% years(1))) %>% 
+  filter(
+  !is.na(hba1c_date) &
+    (
+      hba1c_date < pmin(context_indep_date, priority_date, admidate, na.rm = TRUE) %m-% years(1) | #identify where it predates solid evidence of diabetes or where there is none
+        (is.na(context_indep_date) & is.na(priority_date) & is.na(admidate))
+    )
+) &>&
   select(individual_id, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
   left_join(all_deliveries_multiple, by = "individual_id") %>% 
   distinct(individual_id, delivery_date, .keep_all = TRUE) %>% 
