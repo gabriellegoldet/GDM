@@ -230,21 +230,49 @@ admidate_multiple <- multiple(first_update12) %>%
          ) %>% 
   filter(admidate < ddd_sans_admi %m-% years(1) |is.na(ddd_sans_admi)) 
 ```
+identify those with one-off scripts and nothing else or single scripts that are the only evidence of DM WITHIN the window
+```{r}
+one_off_single <- single(first_update12_repeat) %>% 
+  mutate(ddd_sans_issue = pmin(admidate, ddd, gly_date, na.rm = TRUE)) %>% 
+  filter(!is.na(issuedate)&is.na(admidate)&is.na(ddd)&is.na(gly_date) | year(ddd_sans_issue)>2014) %>% #start after 2014 in case it is in 2014 and there was evidence in 2013 (which being within a year, would be valid)
+  rename(issuedate_old = issuedate) %>% 
+  left_join(all_dm_drugs %>% select(patid, issuedate), by = "patid") %>% 
+  filter(year(issuedate)<2014) %>% 
+  group_by(patid) %>% 
+  mutate(one_off = row_number()) %>% 
+    ungroup() %>% 
+    filter(one_off==1) %>% 
+  select(patid, ddd, gly_date, issuedate_old, issuedate, admidate, new_ddd, one_off)
+
+one_off_multiple <- multiple(first_update12_repeat) %>% 
+  mutate(ddd_sans_issue = pmin(admidate, ddd, gly_date, na.rm = TRUE)) %>% 
+  filter(!is.na(issuedate)&is.na(admidate)&is.na(ddd)&is.na(gly_date) | year(ddd_sans_issue)>2014) %>% #start after 2014 in case it is in 2014 and there was evidence in 2013 (which being within a year, would be valid)
+  rename(issuedate_old = issuedate) %>% 
+  left_join(all_dm_drugs %>% select(individual_id, issuedate), by = "individual_id") %>% 
+  filter(year(issuedate)<2014) %>% 
+  group_by(individual_id) %>% 
+  mutate(one_off = row_number()) %>% 
+    ungroup() %>% 
+    filter(one_off==1) %>% 
+  select(individual_id, ddd, gly_date, issuedate_old, issuedate, admidate, new_ddd, one_off)
+```
 
 now update12 with refinements
 ```{r}
-first_update12b_single <- single(first_update12) %>% 
+first_update12b_repeat_single <- single(first_update12_repeat) %>% 
     left_join(check_hba1c_single %>% select(patid, hba1c_exclude), by = "patid") %>% 
   left_join(gliben_single %>% select(patid, glib_exclude), by = "patid") %>% 
+  left_join(one_off_single %>% select(patid, one_off), by = "patid") %>% 
   mutate(admidate = if_else(patid %in% admidate_single$patid, NA, admidate),
     new_ddd = case_when(is.na(single_gly_reading)~pmin(admidate, issuedate, gly_date, ddd, hba1c_date, priority_date,
                    context_indep_date, na.rm = TRUE),
                    TRUE~pmin(admidate, issuedate, gly_date, ddd, priority_date,
                    context_indep_date, na.rm = TRUE) ))
 
-first_update12b_multiple <- multiple(first_update12)%>% 
+first_update12b_repeat_multiple <- multiple(first_update12_repeat)%>% 
   left_join(check_hba1c_multiple %>% select(individual_id, hba1c_exclude), by = "individual_id") %>% 
-    left_join(gliben_multiple %>% select(individual_id, glib_exclude), by = "individual_id") %>%   
+    left_join(gliben_multiple %>% select(individual_id, glib_exclude), by = "individual_id") %>% 
+   left_join(one_off_multiple %>% select(individual_id, one_off), by = "individual_id") %>% 
   mutate(admidate = if_else(patid %in% admidate_single$patid, NA, admidate),
     new_ddd = case_when(is.na(single_gly_reading)~pmin(admidate, issuedate, gly_date, ddd, hba1c_date, priority_date,
                    context_indep_date, na.rm = TRUE),
@@ -279,29 +307,6 @@ gdm_obs_multiple <- total_gdm_multiple_deliveries_slimmed %>%
   ungroup()
 
 ```
-Now if Hba1c predates everything else and is in pregnancy and there is no data to suggest the patient has DM during the entry window, they need to be flagged for exclusion
-all_delivery_dates_single and _multiple are needed for this and are formed in 4_pregnancy.rmd available in github.
-
-```{r}
-check_hba1c_single <- single(first_update12_repeat) %>% 
-  filter(hba1c_date < (pmin(context_indep_date, ddd, issuedate, priority_date, admidate, na.rm = TRUE) %m-% years(1))) %>% 
-  select(patid, individual_id, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
-  left_join(all_deliveries_single, by = "patid") %>% 
-  filter(delivery_date< hba1c_date %m+% months(6)& delivery_date >= hba1c_date) %>% 
-  mutate(hba1c_exclude = if_else(year(pmin(ddd, context_indep_date, issuedate, priority_date, admidate, na.rm= TRUE))>2014, 1, NA)
-         )
-
-check_hba1c_multiple <- multiple(first_update12_repeat) %>% 
-  filter(hba1c_date < (pmin(context_indep_date, ddd, issuedate, priority_date, admidate, na.rm = TRUE) %m-% years(1))) %>% 
-  select(individual_id, ddd, diagnosis, gly_date, gly_term, hba1c_date, priority_date, issuedate, productname, admidate, single_gly_reading, new_ddd, context_indep_date, gdm_status) %>% 
-  left_join(all_deliveries_multiple, by = "individual_id") %>% 
-  distinct(individual_id, delivery_date, .keep_all = TRUE) %>% 
-  filter(delivery_date< hba1c_date %m+% months(6)& delivery_date >= hba1c_date) %>% 
-  mutate(hba1c_exclude = if_else(year(pmin(ddd, context_indep_date, issuedate, priority_date, admidate, na.rm= TRUE))>2014, 1, NA)
-         )
-
-```
-
 
 
 #now update 13, update the GDM status with the above
@@ -327,9 +332,8 @@ filtered_cohort <- first_update13 %>%
   filter(is.na(PCOS_GDM_exclude)) %>% #not flagged for exclusion based on greater likelihood of PCOS and GDM 
   filter(is.na(metformin_exclude)) %>% #not flagged for exclusion based on having metformin only as evidence of DM
   filter(is.na(single_gly_reading)) %>% #not flagged for exclusion based on having only a single glycaemic test as evidence of DM
-  mutate(age_at_diagnosis = year(new_ddd)-yob,   #create age at diagnosis 
-         single_script = if_else(pattern=="one-off"&is.na(admidate)&is.na(ddd)&is.na(gly_date), 1, NA)) %>% #create those with single scripts and no other evidence of DM...
-  filter(is.na(single_script)) %>% #... and exclude them
+  mutate(age_at_diagnosis = year(new_ddd)-yob))   #create age at diagnosis 
+  filter(is.na(one_off)) %>%  #exclude subjects flagged as only having a signle script as evidence of DM
   filter(age_at_diagnosis>=18 & age_at_diagnosis <= 65) %>% # only include those within the right age range
     filter(new_ddd<death_date|is.na(death_date))%>% #exclude those whose death was on the day of diagnosis or before diagnosis
   mutate (glicla = if_else(is.na(gly_date)&is.na(ddd)&is.na(admidate)&pattern=="short term"&(productname=="Gliclazide 40mg tablets"|productname=="Gliclazide 80mg tablets"), 1, NA))%>% #identify those whose only evidence of DM is a short course of gliclazide...
