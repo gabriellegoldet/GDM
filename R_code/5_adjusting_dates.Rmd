@@ -4130,6 +4130,7 @@ need_to_update_issuedate_single <- metformin_first_single %>%
 drug_update_9b_single <- need_to_update_issuedate_single%>% 
   rename(issuedate_old = issuedate) %>% 
   left_join(all_dm_drugs, by ="patid") %>% 
+filter(issuedate > issudate_old)
   filter(!is.na(priority_1)|!is.na(priority_2)) %>% 
   group_by(patid) %>% 
   slice_min(issuedate) %>% 
@@ -4148,6 +4149,7 @@ need_to_update_issuedate_multiple <- metformin_first_multiple %>%
 drug_update_9b_multiple <- need_to_update_issuedate_multiple%>% 
   left_join(all_dm_drugs %>% distinct(patid, issuedate, productname, priority_1, priority_2), by ="patid") %>% 
   filter(!is.na(priority_1)|!is.na(priority_2)) %>% 
+filter(issuedate > min_issudate)
   group_by(individual_id) %>% 
   slice_min(issuedate) %>% 
   slice(1) %>% 
