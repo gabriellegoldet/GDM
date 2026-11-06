@@ -264,9 +264,9 @@ first_update12b_repeat_single <- single(first_update12_repeat) %>%
   left_join(gliben_single %>% select(patid, glib_exclude), by = "patid") %>% 
   left_join(one_off_single %>% select(patid, one_off), by = "patid") %>% 
   mutate(admidate = if_else(patid %in% admidate_single$patid, NA, admidate),
-    new_ddd = case_when(is.na(single_gly_reading)~pmin(admidate, issuedate, gly_date, ddd, hba1c_date, priority_date,
+    new_ddd = case_when(is.na(single_gly_reading)~pmin(admidate, issuedate, gly_date, ddd,  priority_date,
                    context_indep_date, na.rm = TRUE),
-                   TRUE~pmin(admidate, issuedate, gly_date, ddd, priority_date,
+                   TRUE~pmin(admidate, issuedate, ddd, priority_date,
                    context_indep_date, na.rm = TRUE) ))
 
 first_update12b_repeat_multiple <- multiple(first_update12_repeat)%>% 
@@ -274,9 +274,9 @@ first_update12b_repeat_multiple <- multiple(first_update12_repeat)%>%
     left_join(gliben_multiple %>% select(individual_id, glib_exclude), by = "individual_id") %>% 
    left_join(one_off_multiple %>% select(individual_id, one_off), by = "individual_id") %>% 
   mutate(admidate = if_else(patid %in% admidate_single$patid, NA, admidate),
-    new_ddd = case_when(is.na(single_gly_reading)~pmin(admidate, issuedate, gly_date, ddd, hba1c_date, priority_date,
+    new_ddd = case_when(is.na(single_gly_reading)~pmin(admidate, issuedate, gly_date, ddd, priority_date,
                    context_indep_date, na.rm = TRUE),
-                   TRUE~pmin(admidate, issuedate, gly_date, ddd, priority_date,
+                   TRUE~pmin(admidate, issuedate, ddd, priority_date,
                    context_indep_date, na.rm = TRUE) ))
 
 first_update12b <- bind_rows(first_update12b_multiple, first_update12b_single)
