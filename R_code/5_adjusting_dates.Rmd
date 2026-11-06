@@ -3290,7 +3290,8 @@ filter(!is.na(issuedate))%>%
   rename(original_issuedate = issuedate) %>% ##so as to avoid confusion with the incoming issuedates
   left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") %>%
   filter(issuedate>=original_issuedate & (issuedate <min_unequivocal_date %m-% years(1)|is.na(min_unequivocal_date)& issuedate < as.Date("2014-01-01")) %>% ##only bother to match values that matter ie at least a year before unequivocal date and prior to end of entry period
-  distinct() %>%
+filter(issuedate>=original_issuedate) %>%   
+distinct() %>%
   mutate(equivocal_years = year(issuedate)) %>% 
   arrange(patid,issuedate) # so that when they are listed they come out in order
 
@@ -3420,7 +3421,8 @@ drug_one_year_before_multiple <- multiple(first_update8) %>%
   filter(min_unequivocal_date>=as.Date("2007-01-01") & pmin(equivocal_date, min_unequivocal_date)<as.Date("2014-01-01")) %>% ##no point examining those outside those date ranges
    left_join(all_dm_drugs %>% select(individual_id, issuedate, productname), by = "individual_id") %>%
   filter(original_issuedate <min_unequivocal_date %m-% years(1) & issuedate < as.Date("2014-01-01")) %>% ##only bother to match those that matter ie at least a year before unequivocal date and prior to end of entry period
-  distinct() %>%
+filter(issuedate>=original_issuedate) %>%   
+distinct() %>%
   mutate(equivocal_years = year(issuedate)) %>% 
   arrange(equivocal_years) ## so that when they are listed they come out in order
 n_distinct(drug_one_year_before_multiple$individual_id) 
@@ -3922,8 +3924,11 @@ n_distinct(gly_update_multiple$individual_id)
 
 now  tidy things up
 ```{r}
-gly_remove <- bind_rows(gly_one_year_before_multiple4, gly_one_year_before_single4)
+###build dfs of data to remove
+#remove the glycaemic data if either all or some of the data overlaps with pregnancy as it will need an update
+gly_remove <- bind_rows(gly_one_year_before_multiple4 %>% filter(all_years_matched), use_first_unmatched_gly_multiple, gly_one_year_before_single4 %>% filter(all_years_matched), use_first_unmatched_gly_single)
 
+#combine the prepared dfs for drugs to be removed
 drug_remove <- bind_rows(drug_remove_multiple, drug_remove_single)
 
 use_unmatched_drug <- bind_rows(use_first_unmatched_multiple, use_first_unmatched_single) %>% 
