@@ -1842,14 +1842,13 @@ first_update6 <- first_update5 %>%
 #for update 7 we need to rule out context-dependent codes being related to GDM episodes
 identify subjects with a context-dependent code prior to unequivocal evidence of DM by at least a year and who don't have any glycaemic or drug data within the year post-partum (which would otherwise indicate ongoing diabetes) 
 ```{r}
-#first find those subjects whose context dependant code is before incontrevertible evidence of dm
-context_dep_single <-single(first_update6) %>% 
+#first find those with a context dep code 
+context_dep_single <-single(first_update6_repeat) %>% 
   filter(!is.na(context_dep)) %>% 
-  filter((ddd<min_unequivocal_date%m-%years(1))| is.na(min_unequivocal_date)) %>% 
-  filter(year(ddd)<2014 & (year(min_unequivocal_date)>2006| is.na(min_unequivocal_date))) %>% #no point in looking at codes that will not influence a useful diagnosis
+  filter(year(ddd)<2014 & (ddd < context_indep_date %m-% years(1)|is.na(context_indep_date))) %>% #no point in looking at codes that will not influence a useful diagnosis, if they are in or after 2014, the patient will be excluded anyway
    select(patid, ddd, diagnosis, gly_date, issuedate, productname, admidate, HES_term, min_unequivocal_date, context_indep_date) 
-  n_distinct(context_dep_single$patid)
-
+  
+n_distinct(context_dep_single$patid)
 ```
 
 first step of algorithm is to identify subjects with a context dependant code and no unequivocal diagnosis code nor glycamic test data nor admidate nor issuedate, then next step for the remaining look at whether the code was in pregnancy.  If they have any such codes, do not use a context dependant code to diagnose pregnancy 
@@ -2085,27 +2084,29 @@ large_gap_single_remove_diag <- large_gap_single_yes %>%
 so we had n patids from large gap single yes and some more from context dep pregnancies  with a ddd that needs further enquiry.  However we  fewer in needs update with a next unambiguous code so we have lost the diagnosis in some patids, for whom we therefore have to remove the diagnosis.
 
 ```{r}
-##now do the same for those with multiple patids
-  #first find those patids whose context-dependent code is before incontrevertible evidence of dm amongst all the patids for that individual
-context_dep_multiple <-multiple(first_update6) %>% 
-   group_by(individual_id) %>% 
-  summarise(ddd=safe_min(ddd),
-            diagnosis = if (all(is.na(ddd))){NA_character_
-            }else{diagnosis[which.min(ddd)]},
-            context_indep_date= safe_min(context_indep_date),
-            priority_date = safe_min(priority_date),
-            admidate = safe_min(admidate),
-            hba1c_date = safe_min(hba1c_date),
-            min_unequivocal_date = safe_min(min_unequivocal_date),
-            gly_date = safe_min(gly_date),
-            issuedate = safe_min(issuedate)) %>% #selects patids within the individual with the earliest ddd
-  ungroup() %>% 
-  mutate(context_dep = if_else(diagnosis %in% context_dep_code$diagnosis, 1, NA)) %>% 
-  filter(!is.na(context_dep)) %>% 
-  filter(ddd<min_unequivocal_date%m-%years(1)|is.na(min_unequivocal_date))%>% 
-  filter(year(ddd)<2014 & (year(min_unequivocal_date)>2006|is.na(min_unequivocal_date))) %>% #no point in looking at codes that will not influence a useful diagnosis
-   select(individual_id, ddd, gly_date, issuedate, admidate, context_indep_date, min_unequivocal_date) %>% 
-  fill_columns()
+##now do the same for those with multiple patids - first idetnify idviduals with at least one context dep row
+context_dep_multiple <- multiple(first_update6_repeat) %>%
+filter(!is.na(ddd)) %>% 
+mutate(context_dep = if_else(diagnosis %in% context_dep_code$diagnosis, 1,0)) %>% #flag
+group_by(individual_id) %>%
+  slice_min(ddd) %>% 
+  slice(min(context_dep)) %>% 
+slice(1) %>%
+ungroup() %>%
+select(individual_id, ddd, diagnosis, context_dep) %>% 
+  filter(context_dep==1)
+
+#now get the earliest date of the toher variables necessary downstream for each individual
+min_other_dates <- multiple(first_update6_repeat) %>%
+group_by(individual_id) %>%
+summarise(across(c(context_indep_date, priority_date, admidate, hba1c_date,
+min_unequivocal_date, gly_date, issuedate), safe_min),
+.groups = "drop")
+
+context_dep_multiple <- context_dep_multiple%>%
+left_join(min_other_dates, by = "individual_id") %>% 
+  fill_columns() %>% 
+  filter(ddd < context_indep_date %m-% years(1)|is.na(context_indep_date)) # find those patids whose context-dependent code is before incontrevertible evidence of dm amongst all the patids for that individual or where there is none
 ```
 
 ```{r}
