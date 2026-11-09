@@ -3290,12 +3290,11 @@ filter(!is.na(issuedate))%>%
   filter((min_unequivocal_date>=as.Date("2007-01-01")|is.na(min_unequivical_date)) & year(equivocal_date)<2014) %>% ##no point examining those outside those date ranges
   rename(original_issuedate = issuedate) %>% ##so as to avoid confusion with the incoming issuedates
   left_join(all_dm_drugs %>% select(patid, issuedate, productname), by = "patid") %>%
-  filter(issuedate>=original_issuedate & (issuedate <min_unequivocal_date %m-% years(1)|is.na(min_unequivocal_date)& issuedate < as.Date("2014-01-01")) %>% ##only bother to match values that matter ie at least a year before unequivocal date and prior to end of entry period
+  filter(issuedate>=original_issuedate & (issuedate <min_unequivocal_date %m-% years(1)|is.na(min_unequivocal_date|(min_unequivocal_date== hba1c_date& gly_num==1))& issuedate < as.Date("2014-01-01")) %>% ##only bother to match values that matter ie at least a year before unequivocal date if there is one (and it is not just a single hba1c) and prior to end of entry period
 filter(issuedate>=original_issuedate) %>%   
 distinct() %>%
   mutate(equivocal_years = year(issuedate)) %>% 
   arrange(patid,issuedate) # so that when they are listed they come out in order
-
 
 n_distinct(drug_one_year_before_single$patid)
 ##########################
@@ -3421,7 +3420,7 @@ drug_one_year_before_multiple <- multiple(first_update8) %>%
   filter(original_issuedate < min_unequivocal_date-years(1)) %>%
   filter(min_unequivocal_date>=as.Date("2007-01-01") & pmin(equivocal_date, min_unequivocal_date)<as.Date("2014-01-01")) %>% ##no point examining those outside those date ranges
    left_join(all_dm_drugs %>% select(individual_id, issuedate, productname), by = "individual_id") %>%
-  filter(original_issuedate <min_unequivocal_date %m-% years(1) & issuedate < as.Date("2014-01-01")) %>% ##only bother to match those that matter ie at least a year before unequivocal date and prior to end of entry period
+  filter((original_issuedate <min_unequivocal_date %m-% years(1)|is.na(min_unequivocal_date)||(min_unequivocal_date== hba1c_date& gly_num==1)) & issuedate < as.Date("2014-01-01")) %>% ##only bother to match those that matter ie at least a year before unequivocal date and prior to end of entry period
 filter(issuedate>=original_issuedate) %>%   
 distinct() %>%
   mutate(equivocal_years = year(issuedate)) %>% 
